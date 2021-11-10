@@ -200,6 +200,17 @@ def print_numbered_list_of_possibilities(list_of_options: list):
         print(green_text() + str(index) + normal_text(), option_name)
 
 
+def roll(number_of_dice, number_of_sides):
+    list_of_rolls = []
+    for number in range(number_of_dice):
+        single_roll = (random.choice([number for number in range(1, number_of_sides + 1)]))
+        print("Your roll is", single_roll)
+        list_of_rolls.append(single_roll)
+    print("The sum of your rolls is", sum(list_of_rolls))
+    return sum(list_of_rolls)
+
+
+
 
 def main():
     """
