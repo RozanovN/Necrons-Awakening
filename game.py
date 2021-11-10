@@ -65,6 +65,25 @@ def make_board(rows: int, columns: int):
     return board
 
 
+def generate_random_room_description():
+    """
+    Generate a random room description.
+
+    This is a helper function for make_board().
+
+    :postcondition: returns a random description for a room from the list of description.
+    :return: the description as a string
+    """
+    rooms_description = ["This room is empty", "This room is yet another empty room.",
+                         "This room torchers you with its boredom and emptiness.",
+                         "This room has an ancient altar.",
+                         "This room has a raven sitting on the bust of Pallas.",
+                         "This room is full of treasures.",
+                         "This room is filled with cosmic terror.",
+                         "This room has not seen visitors before."]
+    return random.choice(rooms_description)
+
+
 
 
 
