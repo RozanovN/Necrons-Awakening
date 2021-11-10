@@ -95,7 +95,12 @@ def character_creation():
     return character
 
 
-    character['Wounds'] = character['Max wounds']
+def set_name():
+    print("Enter your name:")
+    name = str(input()).capitalize()
+    return name
+
+
 
 
 def main():
