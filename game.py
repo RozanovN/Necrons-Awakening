@@ -210,8 +210,12 @@ def roll(number_of_dice, number_of_sides):
     return sum(list_of_rolls)
 
 
+def help_commands():
+    print("{0}h{1} —— show list of commands with a short description\n{0}s{1} —— start the game\n{0}q{1} —— quit the "
+          "game\n{0}b{1} —— bandage your wounds and heal your HP".format(green_text(), normal_text()))
 
 
+d
 def main():
     """
     Drive the program
