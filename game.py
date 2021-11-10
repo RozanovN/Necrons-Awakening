@@ -155,6 +155,38 @@ def set_wounds(adeptus: str):
     return max_wounds
 
 
+def get_stats(character: dict):
+    print("Stats are crucial part of the game. They determine the results of combat, fleeing, avoiding traps. The stats"
+          "your character has propensities for are equal to 20 + 3k10 dice rolls, while other stats are equal to 20 +"
+          " 2k10 dice rolls.")
+    print("Calculating stats")
+    if character["Adeptus"] == "Adeptus Astra Telepathica":
+        stats = {"Intellect": 20 + roll(3, 10), "Strength": 20 + roll(2, 10), "Toughness": 20 + roll(2, 10), "Agility":
+                 20 + roll(2, 10), "Willpower": 20 + roll(2, 10)}  # Willpower is unique for psykers
+        for stat, stat_value in stats.keys(), stats.values():
+            print(stat, "of your character is", stat_value)
+        return stats
+    elif character["Adeptus"] == "Adeptus Astra Militarum":
+        stats = {"Intellect": 20 + roll(2, 10), "Strength": 20 + roll(3, 10), "Toughness": 20 + roll(3, 10), "Agility":
+                 20 + roll(2, 10)}
+        for stat, stat_value in stats.keys(), stats.values():
+            print(stat, "of your character is", stat_value)
+        return stats
+    elif character["Adeptus"] == "Adeptus Mechanicus":
+        stats = {"Intellect": 20 + roll(3, 10), "Strength": 20 + roll(3, 10), "Toughness": 20 + roll(3, 10), "Agility":
+                 30 + roll(2, 10)}
+        for stat, stat_value in stats.keys(), stats.values():
+            print(stat, "of your character is", stat_value)
+        return stats
+    else:
+        stats = {"Intellect": 20 + roll(2, 10), "Strength": 20 + roll(2, 10), "Toughness": 20 + roll(2, 10), "Agility":
+                 20 + roll(3, 10), "Willpower": 20 + roll(2, 10)}
+        for stat, stat_value in stats.keys(), stats.values():
+            print(stat, "of your character is", stat_value)
+        return stats
+
+
+
 
 def main():
     """
