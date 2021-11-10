@@ -180,7 +180,7 @@ def get_stats(character: dict):
         return stats
     else:
         stats = {"Intellect": 20 + roll(2, 10), "Strength": 20 + roll(2, 10), "Toughness": 20 + roll(2, 10), "Agility":
-                 20 + roll(3, 10), "Willpower": 20 + roll(2, 10)}
+                 20 + roll(3, 10)}
         for stat, stat_value in stats.keys(), stats.values():
             print(stat, "of your character is", stat_value)
         return stats
@@ -233,6 +233,10 @@ def get_command(command_name: str):
 def has_argument(command: str):
     commands_dictionary = {"h": False, "b": True}
     return commands_dictionary[command]
+
+
+def reached_new_level(character: dict):
+    return character["Current experience"] == character["Experience for the next level"]
 
 
 
