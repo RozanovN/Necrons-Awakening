@@ -186,6 +186,19 @@ def get_stats(character: dict):
         return stats
 
 
+def print_numbered_list_of_possibilities(list_of_options: list):
+    """
+    Prints a numbered list of options
+
+    :param list_of_options: a non-empty list
+
+    >>> print_numbered_list_of_possibilities(["south", "east"])
+    1 south
+    2 east
+    """
+    for index, option_name in enumerate(list_of_options, 1):
+        print(green_text() + str(index) + normal_text(), option_name)
+
 
 
 def main():
