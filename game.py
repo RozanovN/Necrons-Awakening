@@ -220,6 +220,17 @@ def get_command_list():
     return commands_dictionary
 
 
+def get_command(command_name: str):
+    """
+
+    :param command_name:
+    :return:
+    """
+    commands_dictionary = {"h": help_commands, "b": bandage}
+    return commands_dictionary[command_name]
+
+
+
 
 
 def main():
