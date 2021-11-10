@@ -245,6 +245,10 @@ def green_text():
     return "\x1b[1;32m"
 
 
+def normal_text():
+    return "\x1b[0;20m"
+
+
 
 
 
