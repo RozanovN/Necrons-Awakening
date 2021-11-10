@@ -215,7 +215,13 @@ def help_commands():
           "game\n{0}b{1} —— bandage your wounds and heal your HP".format(green_text(), normal_text()))
 
 
-d
+def get_command_list():
+    commands_dictionary = ["h", "b"]
+    return commands_dictionary
+
+
+
+
 def main():
     """
     Drive the program
