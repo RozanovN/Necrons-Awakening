@@ -101,6 +101,49 @@ def set_name():
     return name
 
 
+def set_adeptus():
+    print(
+          "Adepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
+          "of the various departments of the Adeptus Terra that serve the will of the beneficent "
+          "Emperor. These titles are used by everyone in the service of the Emperor as part of the "
+          "Imperial service, from high ranking officials to lowly scribes.")
+    print("\nThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your "
+          "stats\' propensities. The Adepta is the career your character had before starting his life as an acolyte of "
+          "an Inquisitor. Please, choose your adeptus carefully.")
+    adeptus_astra_telepathica = "Adeptus Astra Telepathica"  # psykers/casters
+    adeptus_astra_militarum = "Adeptus Astra Militarum"  # melee combat
+    adeptus_mechanicus = "Adeptus Mechanicus"  # summoners
+    outcast = "Outcast"  # range combat
+    print("Adeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
+          "referred as \"sorceries\", that can take a myriad of forms from reading one's mind to unleashing dreadful "
+          "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely"
+          " agile, instead they focus on their mind's strength. However, the true Achilles heel of psykers is their own"
+          " outrageous power. Every time psyker fails to cast their psychic power, they must succeed in a will power "
+          "or else they will suffer a severe punishment form warp instability. Indeed, to toy with warp is to"
+          "perform before the Gods of Chaos; they love the show until they see a single failure")
+    print("Adeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close combat."
+          " They are the brave souls that lead the Emperor's conquest. Those soldiers are strong and though,"
+          " yet lack in agility.As for intellect, one only needs to follow orders.")
+    print("Adeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
+          " servo-skulls and dreadful servitors. Mechanics believe in the supremacy of their Machine God —— Omnissiah "
+          " —— and eagerly reject their own weak flesh to get divine bionic one. As a result, they end up looking more"
+          "robotic than their own machines. The dire engineers despise involving themselves into battles, despite "
+          "having foremost strength and dexterity due to their mechanical prostheses. Instead they play their battles "
+          "as though they play some chess, so only thing they need is power of their brain.")
+    print("Outcasts do not belong to any kind of adepts. Inquisitors recruit them from the most menacing and terrifying"
+          "rogues and assassins. Outcasts are extremely agile, even if they lack in strength. Preferring the range "
+          "combat, the best of them are elusive ghosts to their enemies.")
+    adepts_list = [adeptus_astra_telepathica, adeptus_astra_militarum, adeptus_mechanicus, outcast]
+    print("To choose an adeptus, enter its index from the numbered list.")
+    print_numbered_list_of_possibilities(adepts_list)
+    choice = input()
+    while choice not in ["1", "2", "3", "4"]:
+        print("{0} is not a correct input, try again:".format(choice))
+        print("To choose a adeptus enter its index from the numbered list")
+        print_numbered_list_of_possibilities(adepts_list)
+        choice = input()
+    return adepts_list[int(choice) - 1]
+
 
 
 def main():
