@@ -249,7 +249,8 @@ def normal_text():
     return "\x1b[0;20m"
 
 
-
+def bandage(character: dict):
+    character['Wounds'] = character['Max wounds']
 
 
 def main():
