@@ -145,6 +145,16 @@ def set_adeptus():
     return adepts_list[int(choice) - 1]
 
 
+def set_wounds(adeptus: str):
+    print("Wounds(HP) are a vital part of any character and represent how much punishment they can take before meeting" 
+          "the Emperor")
+    print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll")
+    adeptus_wounds = {"Adeptus Astra Telepathica": 17, "Adeptus Astra Militarum": 23,
+                      "Adeptus Mechanicus": 20, "Outcast": 19}
+    max_wounds = adeptus_wounds[adeptus] + roll(1, 5)
+    return max_wounds
+
+
 
 def main():
     """
