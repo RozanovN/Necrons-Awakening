@@ -84,7 +84,18 @@ def generate_random_room_description():
     return random.choice(rooms_description)
 
 
+def character_creation():
+    character = {"Name": set_name(), "Adeptus": set_adeptus(), "Max wounds": 0, "Current wounds": 0, "Stats": {},
+                 "Level": 1, "Skills": [], "X-coordinate": 0, "Y-coordinate": 0, "Current experience": 0,
+                 "Experience for the next level": 1000}
+    character["Max wounds"] = set_wounds(character["Adeptus"])
+    character["Current wounds"] = character["Max wounds"]
+    character["Stats"] = get_stats(character)
+    character["Skills"] = get_skills(character["Adeptus"])
+    return character
 
+
+    character['Wounds'] = character['Max wounds']
 
 
 def main():
