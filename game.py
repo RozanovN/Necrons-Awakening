@@ -230,6 +230,11 @@ def get_command(command_name: str):
     return commands_dictionary[command_name]
 
 
+def has_argument(command: str):
+    commands_dictionary = {"h": False, "b": True}
+    return commands_dictionary[command]
+
+
 
 
 
