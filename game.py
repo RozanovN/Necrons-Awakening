@@ -464,7 +464,14 @@ def is_goal_attained(character, final_row, final_column):
     return character["X-coordinate"] + 1 == final_row and character["Y-coordinate"] + 1 == final_column
 
 
+def check_for_foes():
+    """
+    Check if foe is encountered.
 
+    :postcondition: returns True with 25% probability, else returns False
+    :return: True if foe is encountered, otherwise False
+    """
+    return random.randrange(0, 5) == 0
 
 
 def main():
