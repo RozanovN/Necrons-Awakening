@@ -92,6 +92,7 @@ def character_creation():
     character["Current wounds"] = character["Max wounds"]
     character["Characteristics"] = get_characteristics(character["Adeptus"])
     get_skills(character["Adeptus"])
+    character["Level"]: get_
     return character
 
 
@@ -107,31 +108,31 @@ def set_adeptus():
           "of the various departments of the Adeptus Terra that serve the will of the beneficent "
           "Emperor. These titles are used by everyone in the service of the Emperor as part of the "
           "Imperial service, from high ranking officials to lowly scribes. The Adepta is the career your character "
-          "had before starting his life as an acolyte of an Inquisitor.")
-    print("\nThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your "
-          "stats\' propensities.\nPlease, choose your adeptus carefully.")
-    print("Adeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
+          "had before starting his life as an acolyte of an Inquisitor.\n"
+          "\nThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your "
+          "stats\' propensities.\nPlease, choose your adeptus carefully.\n"
+          "Adeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
           "referred as \"sorceries\", that can take a myriad of forms from reading one's mind to unleashing dreadful "
           "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely"
           " agile, instead they focus on their mind's strength. However, the true Achilles heel of psykers is their own"
           " outrageous power. Every time psyker fails to cast their psychic power, they must succeed in a will power "
           "or else they will suffer a severe punishment form warp instability. Indeed, to toy with warp is to"
-          "perform before the Gods of Chaos; they love the show until they see a single failure")
-    print("Adeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close combat."
+          "perform before the Gods of Chaos; they love the show until they see a single failure\n"
+          "Adeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close combat."
           " They are the brave souls that lead the Emperor's conquest. Those soldiers are strong and though,"
-          " yet lack in agility.As for intellect, one only needs to follow orders.")
-    print("Adeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
+          " yet lack in agility.As for intellect, one only needs to follow orders.\n"
+          "Adeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
           " servo-skulls and dreadful servitors. Mechanics believe in the supremacy of their Machine God —— Omnissiah "
           " —— and eagerly reject their own weak flesh to get divine bionic one. As a result, they end up looking more"
           "robotic than their own machines. The dire engineers despise involving themselves into battles, despite "
           "having foremost strength and dexterity due to their mechanical prostheses. Instead they play their battles "
-          "as though they play some chess, so only thing they need is power of their brain.")
-    print("Adeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
+          "as though they play some chess, so only thing they need is power of their brain.\n"
+          "Adeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
           "menacing and terrifying ones to make them acolytes. Those assassins are extremely agile, even if they lack "
           "in strength. Preferring the range combat, the best of them are elusive ghosts to their enemies.")
 
     adepts_list = ["Adeptus Astra Telepathica", "Adeptus Astra Militarum", "Adeptus Mechanicus", "Adeptus Officio"
-                                                                                                 " Assassinorum"]
+                   " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
     choice = input()
@@ -180,10 +181,20 @@ def get_skills(character: dict):
                             "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
                             "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
                             "Laser shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
-                            "damage."), "Outcast": (" burst of two-gun fire", "you give your foe a burst of two "
-                            "plasma-pistols fire dealing (5 + 1k10 + Agility Bonus) damage.")}
+                            "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "you give your foe a burst of"
+                            " fire from two plasma-pistols dealing (5 + 1k10 + Agility Bonus) damage.")}
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0], dictionary_of_skills[character
         ["Adeptus"]][0])
+
+
+def get_level_name(adeptus: str, level: int):
+    level_dictionary = {"Adeptus Astra Telepathica": "Magister Telepathicae", "Adeptus Astra Militarum":
+                        "Legionary Astartes", "Adeptus Mechanicus": "Techno-Priest", "Adeptus Officio Assassinorum":
+                        "Night Haunter", 1: "Acolyte", 2: "Inquisitor"}
+    if level != 3:
+        return level_dictionary[level]
+    else:
+        return level_dictionary[adeptus]
 
 
 def lightning():
@@ -204,7 +215,7 @@ def laser_shot(character):
     return damage
 
 
-def burst_of_two_gun_fire(character):
+def deadly_burst(character):
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
     print("A devastating blow of your weapon that deals {0} damage".format(damage))
     return damage
@@ -269,12 +280,14 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage}
+    commands_dictionary = {"h": help_commands, "b": bandage, "Lightning": lightning, "Colossus Smash": colossus_smash,
+                           "Laser shot": laser_shot, "Burst of two-gun fire": deadly_burst}
     return commands_dictionary[command_name]
 
 
 def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True}
+    commands_dictionary = {"h": False, "b": True, "Lightning": False, "Colossus Smash": True, "Laser shot": True,
+                           "Burst of two-gun fire": True}
     return commands_dictionary[command]
 
 
@@ -286,9 +299,8 @@ def level_up(character: dict):
     if character["Level"] == 3:
         return None
     character["Level"] += 1
-    character["Experience "]
-    # "spontaneous combustion":
-    # {"amount of dices": 1, "additional damage": 0, " skill description": ""}
+    character["Experience for the next level"] *= 2
+    dictionary_of_skills = {}
 
 
 def green_text():
