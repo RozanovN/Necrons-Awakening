@@ -440,6 +440,30 @@ def move_character(character, direction_index, available_directions):
         character["X-coordinate"] += directions_dictionary[direction]
 
 
+def is_goal_attained(character, final_row, final_column):
+    """
+    Check if goal is attained.
+
+    :param character: a dictionary
+    :param final_row: an integer
+    :param final_column: an integer
+    :precondition: character must be a dictionary
+    :precondition: character keys must contain "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers
+    :precondition: final_row must be an integer
+    :precondition: final_column must be an integer
+    :postcondition: returns True if character X-coordinate + 1 is equal to final_row and Y-coordinate + 1is equal to
+                    final column, else returns False
+    :return: True if goal is attained, otherwise False
+
+    >>> is_goal_attained({"X-coordinate": 0, "Y-coordinate": 0}, 4, 4)
+    False
+    >>> is_goal_attained({"X-coordinate": 7, "Y-coordinate": 7}, 8, 8)
+    True
+    """
+    return character["X-coordinate"] + 1 == final_row and character["Y-coordinate"] + 1 == final_column
+
+
 
 
 
