@@ -340,6 +340,41 @@ def describe_current_location(board, character):
     print("\n" + board[(character["X-coordinate"], character["Y-coordinate"])])
 
 
+def get_available_directions(character, columns, rows):
+    """
+    Get the list of available directions.
+
+    :param character: a dictionary
+    :param columns: an integer
+    :param rows: an integer
+    :precondition: character must be a dictionary
+    :precondition: columns >= 0
+    :precondition: rows >= 0
+    :precondition: character keys must have "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers that are >= 0
+    :postcondtition: returns a list of available directions based on current character's coordinates
+    :postcondtion:
+    :return: available directions as a list
+
+    >>> get_available_directions(make_character(), 4, 4)
+    ['south', 'east']
+    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 1}, 4, 4)
+    ['north', 'south', 'west', 'east']
+    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 3}, 4, 4)
+    ['north', 'south', 'west']
+    """
+    available_directions = []
+    if character["Y-coordinate"] > 0:
+        available_directions.append("north")
+    if character["Y-coordinate"] < rows - 1:
+        available_directions.append("south")
+    if character["X-coordinate"] > 0:
+        available_directions.append("west")
+    if character["X-coordinate"] < columns - 1:
+        available_directions.append("east")
+    return available_directions
+
+
 
 
 
