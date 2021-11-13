@@ -375,7 +375,16 @@ def get_available_directions(character, columns, rows):
     return available_directions
 
 
+def get_user_choice():
+    """
+    Prompt the user to choose a direction.
 
+    :postcondition: returns user input as a string
+    :return: user input as a string
+    """
+    print("Enter a number of direction you would like to go:")
+    choice = str(input())
+    return choice
 
 
 def main():
