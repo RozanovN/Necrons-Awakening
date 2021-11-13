@@ -414,6 +414,32 @@ def validate_move(choice, available_directions):
     return choice.isnumeric() and (int(choice) - 1) in range(len(available_directions))
 
 
+def move_character(character, direction_index, available_directions):
+    """
+    Change character's coordinates.
+
+    :param character: a dictionary
+    :param direction_index: a non-negative integer
+    :param available_directions: a list of strings
+    :precondition: character keys must contain "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers
+    :precondition: direction_index must be a non-negative integer validated by validate_move function
+    :precondition: availabe_directions each item must be either "north", "south", "east" or "west"
+    :postcondition: updates character X or Y coordinate based on direction choice
+
+    >>> protagonist = {"X-coordinate": 0, "Y-coordinate": 0}
+    >>> move_character(protagonist, 0, ["south", "west"])
+    >>> print(protagonist)
+    {'X-coordinate': 0, 'Y-coordinate': 1}
+    """
+    directions_dictionary = {"north": -1, "south": 1, "west": -1, "east": 1}
+    direction = available_directions[direction_index]
+    if direction in "north south":
+        character["Y-coordinate"] += directions_dictionary[direction]
+    else:
+        character["X-coordinate"] += directions_dictionary[direction]
+
+
 
 
 
@@ -445,11 +471,11 @@ def main():
         "the far future, there is \nonly war. There is no peace amongst the stars, " 
         "only an eternity of carnage and slaughter, and the laughter of thirsting gods."),
         "\nAll rights belong to Games Workshop.")
-    time.sleep(3)
+    time.sleep(2)
     print("\n\n\n{:^160}".format("Welcome to the nightmarish world of Warhammer 40k Dark Heresy"))
     print("\nPlease type {0}s{1} to start the game:".format(green_text(), normal_text()))
     print("You may desert anytime by typing {0}q{1}.".format(green_text(), normal_text()))
-    if str(input()) == 's' or "start":
+    if str(input()) == 's':
         game()
 
 
