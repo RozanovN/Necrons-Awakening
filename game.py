@@ -487,7 +487,10 @@ def check_for_foes():
     return random.randrange(0, 6) == 0
 
 
-
+def flee_away(character, enemy):
+    if roll(1, 100) > character["Characteristics"]["Agility"]:
+        use_skill(enemy, random.choice(enemy["Skills"]), character)
+    return False
 
 
 def tutorial(character: dict):
