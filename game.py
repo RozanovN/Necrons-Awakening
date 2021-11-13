@@ -24,20 +24,29 @@ def game():
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
     tutorial(character)
-    command = str(input())
-    while command != 'q':  # q = quit
+    user_input = "s"
+    while user_input != 'q' and is_goal_attained(character, rows, columns):  # q = quit
         available_directions = get_available_directions(character, rows, columns)
         print_numbered_list_of_possibilities(available_directions)
-        if command in get_command_list():
-            if has_argument(command):
-                command = get_command(command)
-                command(character)
+        user_input = str(input())
+        if user_input in get_command_list():
+            if has_argument(user_input):
+                user_input = get_command(user_input)
+                user_input(character)
             else:
-                command = get_command(command)
-                command()
+                user_input = get_command(user_input)
+                user_input()
+        elif validate_move(user_input, available_directions):
+            user_input = int(user_input) - 1
+            move_character(character, user_input, available_directions)
+            describe_current_location(board, character)
+            time.sleep(1)
+            if check_for_foes():
+                initiate_combat(character)
         else:
-            print(command, " is not a command")
-        command = str(input())
+            print(user_input, " is not a valid input. Please, try again.")
+            continue
+        user_input = str(input())
     print("You may quit now, but your duty to the Emperor will last forever")
 
 
@@ -79,8 +88,9 @@ def generate_random_room_description():
 def character_creation():
 
     character = {"Name": set_name(), "Adeptus": set_adeptus(), "Max wounds": 0, "Current wounds": 0, "Characteristics":
-                 {}, "Level": (1, None), "Skills": {}, "X-coordinate": 0, "Y-coordinate": 0, "Current experience": 0,
-                 "Experience for the next level": 1000}
+                 {}, "Level": (1, None), "Skills": {"Flee Away": "You retreat to the previous room"}, "X-coordinate": 0,
+                 "Y-coordinate": 0, "Current experience": 0, "Experience for the next level": 1000,
+                 "Will to fight": True}
     character["Max wounds"] = set_wounds(character["Adeptus"])
     time.sleep(3)
     character["Current wounds"] = character["Max wounds"]
@@ -156,21 +166,21 @@ def get_characteristics(adeptus: str):
           "traps. Meanwhile, bonus of your characteristic\n(characteristic divided by 10) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
           " are equal to 30 + 2k10 dice rolls.\n\nCalculating stats...")
-    stats = {}
+    characteristics = {}
     if adeptus == "Adeptus Astra Telepathica":
-        stats = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10), "Agility":
-                 30 + roll(2, 10), "Willpower": 30 + roll(2, 10)}  # Willpower is unique for psykers
+        characteristics = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10),
+                           "Agility": 30 + roll(2, 10), "Willpower": 30 + roll(2, 10)}  # Willpower is unique to psykers
     elif adeptus == "Adeptus Astra Militarum":
-        stats = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10), "Agility":
-                 30 + roll(2, 10)}
+        characteristics = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10),
+                           "Agility": 30 + roll(2, 10)}
     elif adeptus == "Adeptus Mechanicus":
-        stats = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10), "Agility":
-                 30 + roll(3, 10)}
+        characteristics = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10),
+                           "Agility": 30 + roll(3, 10)}
     else:
-        stats = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10), "Agility":
-                 30 + roll(3, 10)}
-    print_dictionary_items(stats)
-    return stats
+        characteristics = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10),
+                           "Agility": 30 + roll(3, 10)}
+    print_dictionary_items(characteristics)
+    return characteristics
 
 
 def get_skills(character: dict):
@@ -226,6 +236,15 @@ def deadly_burst(character: dict):
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
     print("A devastating blow of your weapon that deals {0} damage".format(damage))
     return damage
+
+
+def flee_away(character, enemy):
+    if roll(1, 100) > character["Characteristics"]["Agility"]:
+        use_skill(enemy, random.choice(enemy["Skills"]), character)
+    character["Will to fight"] = False
+
+def rat_bite(character, enemy):
+    pass
 
 
 def print_numbered_list_of_possibilities(list_of_options: list):
@@ -302,7 +321,7 @@ def show_list_of_skills(character: dict):
 
 def use_skill(character: dict, skill_name: str, enemy: dict):
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
-                         "Deadly Burst": deadly_burst, "Fleeing": flee_away, "Rat's Bite": rat_bite}
+                         "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Rat's Bite": rat_bite}
     skills_dictionary[skill_name](character, enemy)
 
 
@@ -391,18 +410,6 @@ def get_available_directions(character: dict, columns: int, rows: int):
     return available_directions
 
 
-def get_user_choice():
-    """
-    Prompt the user to choose a direction.
-
-    :postcondition: returns user input as a string
-    :return: user input as a string
-    """
-    print("Enter a number of direction you would like to go:")
-    choice = str(input())
-    return choice
-
-
 def validate_move(choice: str, available_directions: list):
     """
     Validate move availability.
@@ -487,14 +494,17 @@ def check_for_foes():
     return random.randrange(0, 6) == 0
 
 
-def flee_away(character, enemy):
-    if roll(1, 100) > character["Characteristics"]["Agility"]:
-        use_skill(enemy, random.choice(enemy["Skills"]), character)
-    return False
-
-
 def tutorial(character: dict):
     pass
+
+
+def initiate_combat():
+
+
+def generate_enemies():
+    list_of_enemies= [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
+                       "Toughness": 15, "Agility": 25}, "Skills": ["Flee Away"]}]
+    return random.choices(list_of_enemies, [30, 5], k=1)[0]
 
 
 def main():
