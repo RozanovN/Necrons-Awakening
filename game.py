@@ -23,9 +23,9 @@ def game():
           " of damnation\n")
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
+    tutorial(character)
     command = str(input())
     while command != 'q':  # q = quit
-        describe_current_location(board, character)
         available_directions = get_available_directions(character, rows, columns)
         print_numbered_list_of_possibilities(available_directions)
         if command in get_command_list():
@@ -187,7 +187,7 @@ def get_skills(character: dict):
     dictionary_of_skills = {"Adeptus Astra Telepathica": ("Lightning", "A bolt of blinding lightning strikes from your "
                             "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
                             "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
-                            "Laser shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
+                            "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
                             "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "you give your foe a burst of"
                             " fire from two plasma-pistols dealing (5 + 1k10 + Agility Bonus) damage.")}
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0],
@@ -210,19 +210,19 @@ def lightning():
     return damage
 
 
-def colossus_smash(character):
+def colossus_smash(character: dict):
     damage = character["Characteristics"]["Strength"] + roll(1, 10)
     print("A devastating blow of your weapon that deals {0} damage".format(damage))
     return damage
 
 
-def laser_shot(character):
+def laser_shot(character: dict):
     damage = character["Characteristics"]["Intellect"]
     print("A devastating blow of your weapon that deals {0} damage to".format(damage))
     return damage
 
 
-def deadly_burst(character):
+def deadly_burst(character: dict):
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
     print("A devastating blow of your weapon that deals {0} damage".format(damage))
     return damage
@@ -254,7 +254,7 @@ def print_dictionary_items(dictionary: dict):
         print(green_text() + key, normal_text() + "is equal to", dictionary[key])
 
 
-def roll(number_of_dice, number_of_sides):
+def roll(number_of_dice: int, number_of_sides: int):
     list_of_rolls = []
     for number in range(number_of_dice):
         single_roll = (random.choice([number for number in range(1, number_of_sides + 1)]))
@@ -273,11 +273,12 @@ def help_commands():
 
     """
     print("{0}h{1} —— show list of commands with a short description\n{0}s{1} —— start the game\n{0}q{1} —— quit the "
-          "game\n{0}b{1} —— bandage your wounds and heal your HP".format(green_text(), normal_text()))
+          "game\n{0}b{1} —— bandage your wounds and heal your HP\n{0}s{1} —— show list of skills"
+          .format(green_text(), normal_text()))
 
 
 def get_command_list():
-    commands_dictionary = ["h", "b"]
+    commands_dictionary = ["h", "b", "s"]
     return commands_dictionary
 
 
@@ -287,14 +288,26 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "Lightning": lightning, "Colossus Smash": colossus_smash,
-                           "Laser shot": laser_shot, "Burst of two-gun fire": deadly_burst}
+    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills}
     return commands_dictionary[command_name]
 
 
+def show_list_of_skills(character: dict):
+    """
+
+    :param character:
+    """
+    print_dictionary_items(character["Skills"])
+
+
+def use_skill(character: dict, skill_name: str, enemy: dict):
+    skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
+                         "Deadly Burst": deadly_burst, "Fleeing": flee_away, "Rat's Bite": rat_bite}
+    skills_dictionary[skill_name](character, enemy)
+
+
 def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True, "Lightning": False, "Colossus Smash": True, "Laser shot": True,
-                           "Burst of two-gun fire": True}
+    commands_dictionary = {"h": False, "b": True, "s": True}
     return commands_dictionary[command]
 
 
@@ -343,7 +356,7 @@ def describe_current_location(board, character):
     print("\n" + board[(character["X-coordinate"], character["Y-coordinate"])])
 
 
-def get_available_directions(character, columns, rows):
+def get_available_directions(character: dict, columns: int, rows: int):
     """
     Get the list of available directions.
 
@@ -359,7 +372,7 @@ def get_available_directions(character, columns, rows):
     :postcondtion:
     :return: available directions as a list
 
-    >>> get_available_directions(make_character(), 4, 4)
+    >>> get_available_directions({"Y-coordinate": 0, "X-coordinate": 0}, 4, 4)
     ['south', 'east']
     >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 1}, 4, 4)
     ['north', 'south', 'west', 'east']
@@ -390,7 +403,7 @@ def get_user_choice():
     return choice
 
 
-def validate_move(choice, available_directions):
+def validate_move(choice: str, available_directions: list):
     """
     Validate move availability.
 
@@ -414,7 +427,7 @@ def validate_move(choice, available_directions):
     return choice.isnumeric() and (int(choice) - 1) in range(len(available_directions))
 
 
-def move_character(character, direction_index, available_directions):
+def move_character(character: dict, direction_index: int, available_directions: list):
     """
     Change character's coordinates.
 
@@ -440,7 +453,7 @@ def move_character(character, direction_index, available_directions):
         character["X-coordinate"] += directions_dictionary[direction]
 
 
-def is_goal_attained(character, final_row, final_column):
+def is_goal_attained(character: dict, final_row: int, final_column: int):
     """
     Check if goal is attained.
 
@@ -471,7 +484,14 @@ def check_for_foes():
     :postcondition: returns True with 25% probability, else returns False
     :return: True if foe is encountered, otherwise False
     """
-    return random.randrange(0, 5) == 0
+    return random.randrange(0, 6) == 0
+
+
+
+
+
+def tutorial(character: dict):
+    pass
 
 
 def main():
