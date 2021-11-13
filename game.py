@@ -25,6 +25,9 @@ def game():
     character = character_creation()
     command = str(input())
     while command != 'q':  # q = quit
+        describe_current_location(board, character)
+        available_directions = get_available_directions(character, rows, columns)
+        print_numbered_list_of_possibilities(available_directions)
         if command in get_command_list():
             if has_argument(command):
                 command = get_command(command)
@@ -385,6 +388,33 @@ def get_user_choice():
     print("Enter a number of direction you would like to go:")
     choice = str(input())
     return choice
+
+
+def validate_move(choice, available_directions):
+    """
+    Validate move availability.
+
+    :param choice: a string
+    :param available_directions: a list of strings
+    :precondition: choice must be a string
+    :precondition: available_directions must be a list
+    :precondition: available_directions items must be strings that indicate directions
+    :postcondition: returns False if choice is not a number
+    :postcondition: returns False if choice - 1 is not in rage of available_direction length
+    :postcondition: returns true otherwise
+    :return: True if choice is valid, else False
+
+    >>> validate_move("1", ["south", "east"])
+    True
+    >>> validate_move("0", ["south", "east"])
+    False
+    >>> validate_move("wait what", ["south", "east"])
+    False
+    """
+    return choice.isnumeric() and (int(choice) - 1) in range(len(available_directions))
+
+
+
 
 
 def main():
