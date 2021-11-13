@@ -85,13 +85,13 @@ def generate_random_room_description():
 
 
 def character_creation():
-    character = {"Name": set_name(), "Adeptus": set_adeptus(), "Max wounds": 0, "Current wounds": 0, "Stats": {},
-                 "Level": 1, "Skills": [], "X-coordinate": 0, "Y-coordinate": 0, "Current experience": 0,
+    character = {"Name": set_name(), "Adeptus": set_adeptus(), "Max wounds": 0, "Current wounds": 0, "Characteristics":
+                 {}, "Level": 1, "Skills": {}, "X-coordinate": 0, "Y-coordinate": 0, "Current experience": 0,
                  "Experience for the next level": 1000}
     character["Max wounds"] = set_wounds(character["Adeptus"])
     character["Current wounds"] = character["Max wounds"]
-    character["Stats"] = get_stats(character)
-    character["Skills"] = get_skills(character["Adeptus"])
+    character["Characteristics"] = get_characteristics(character["Adeptus"])
+    get_skills(character["Adeptus"])
     return character
 
 
@@ -106,14 +106,10 @@ def set_adeptus():
           "Adepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
           "of the various departments of the Adeptus Terra that serve the will of the beneficent "
           "Emperor. These titles are used by everyone in the service of the Emperor as part of the "
-          "Imperial service, from high ranking officials to lowly scribes.")
+          "Imperial service, from high ranking officials to lowly scribes. The Adepta is the career your character "
+          "had before starting his life as an acolyte of an Inquisitor.")
     print("\nThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your "
-          "stats\' propensities. The Adepta is the career your character had before starting his life as an acolyte of "
-          "an Inquisitor. Please, choose your adeptus carefully.")
-    adeptus_astra_telepathica = "Adeptus Astra Telepathica"  # psykers/casters
-    adeptus_astra_militarum = "Adeptus Astra Militarum"  # melee combat
-    adeptus_mechanicus = "Adeptus Mechanicus"  # summoners
-    outcast = "Outcast"  # range combat
+          "stats\' propensities.\nPlease, choose your adeptus carefully.")
     print("Adeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
           "referred as \"sorceries\", that can take a myriad of forms from reading one's mind to unleashing dreadful "
           "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely"
@@ -130,10 +126,12 @@ def set_adeptus():
           "robotic than their own machines. The dire engineers despise involving themselves into battles, despite "
           "having foremost strength and dexterity due to their mechanical prostheses. Instead they play their battles "
           "as though they play some chess, so only thing they need is power of their brain.")
-    print("Outcasts do not belong to any kind of adepts. Inquisitors recruit them from the most menacing and terrifying"
-          "rogues and assassins. Outcasts are extremely agile, even if they lack in strength. Preferring the range "
-          "combat, the best of them are elusive ghosts to their enemies.")
-    adepts_list = [adeptus_astra_telepathica, adeptus_astra_militarum, adeptus_mechanicus, outcast]
+    print("Adeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
+          "menacing and terrifying ones to make them acolytes. Those assassins are extremely agile, even if they lack "
+          "in strength. Preferring the range combat, the best of them are elusive ghosts to their enemies.")
+
+    adepts_list = ["Adeptus Astra Telepathica", "Adeptus Astra Militarum", "Adeptus Mechanicus", "Adeptus Officio"
+                                                                                                 " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
     choice = input()
@@ -150,40 +148,66 @@ def set_wounds(adeptus: str):
           "the Emperor")
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll")
     adeptus_wounds = {"Adeptus Astra Telepathica": 17, "Adeptus Astra Militarum": 23,
-                      "Adeptus Mechanicus": 20, "Outcast": 19}
+                      "Adeptus Mechanicus": 20, "Adeptus Officio Assassinorum": 19}
     max_wounds = adeptus_wounds[adeptus] + roll(1, 5)
     return max_wounds
 
 
-def get_stats(character: dict):
-    print("Stats are crucial part of the game. They determine the results of combat, fleeing, avoiding traps. The stats"
-          "your character has propensities for are equal to 20 + 3k10 dice rolls, while other stats are equal to 20 +"
-          " 2k10 dice rolls.")
-    print("Calculating stats")
-    if character["Adeptus"] == "Adeptus Astra Telepathica":
-        stats = {"Intellect": 20 + roll(3, 10), "Strength": 20 + roll(2, 10), "Toughness": 20 + roll(2, 10), "Agility":
-                 20 + roll(2, 10), "Willpower": 20 + roll(2, 10)}  # Willpower is unique for psykers
-        for stat, stat_value in stats.keys(), stats.values():
-            print(stat, "of your character is", stat_value)
-        return stats
-    elif character["Adeptus"] == "Adeptus Astra Militarum":
-        stats = {"Intellect": 20 + roll(2, 10), "Strength": 20 + roll(3, 10), "Toughness": 20 + roll(3, 10), "Agility":
-                 20 + roll(2, 10)}
-        for stat, stat_value in stats.keys(), stats.values():
-            print(stat, "of your character is", stat_value)
-        return stats
-    elif character["Adeptus"] == "Adeptus Mechanicus":
-        stats = {"Intellect": 20 + roll(3, 10), "Strength": 20 + roll(3, 10), "Toughness": 20 + roll(3, 10), "Agility":
+def get_characteristics(adeptus: str):
+    print("Characteristics are crucial part of the game. They determine the results of evasion, fleeing, avoiding traps"
+          ". Meanwhile, bonus of your characteristic (characteristic divided by 10) affects your damage."
+          "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls, while others "
+          " are equal to 30 + 2k10 dice rolls.\nCalculating stats...")
+    stats = {}
+    if adeptus == "Adeptus Astra Telepathica":
+        stats = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10), "Agility":
+                 30 + roll(2, 10), "Willpower": 30 + roll(2, 10)}  # Willpower is unique for psykers
+    elif adeptus == "Adeptus Astra Militarum":
+        stats = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10), "Agility":
                  30 + roll(2, 10)}
-        for stat, stat_value in stats.keys(), stats.values():
-            print(stat, "of your character is", stat_value)
-        return stats
+    elif adeptus == "Adeptus Mechanicus":
+        stats = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10), "Agility":
+                 30 + roll(3, 10)}
     else:
-        stats = {"Intellect": 20 + roll(2, 10), "Strength": 20 + roll(2, 10), "Toughness": 20 + roll(2, 10), "Agility":
-                 20 + roll(3, 10)}
-        for stat, stat_value in stats.keys(), stats.values():
-            print(stat, "of your character is", stat_value)
-        return stats
+        stats = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10), "Agility":
+                 30 + roll(3, 10)}
+    print_dictionary_items(stats)
+    return stats
+
+
+def get_skills(character: dict):
+    dictionary_of_skills = {"Adeptus Astra Telepathica": ("Lightning", "A bolt of blinding lightning strikes from your "
+                            "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
+                            "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
+                            "Laser shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
+                            "damage."), "Outcast": (" burst of two-gun fire", "you give your foe a burst of two "
+                            "plasma-pistols fire dealing (5 + 1k10 + Agility Bonus) damage.")}
+    character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0], dictionary_of_skills[character
+        ["Adeptus"]][0])
+
+
+def lightning():
+    damage = roll(2, 10)
+    print("A bolt of blinding lightning strikes from your hand dealing {0} damage.".format(damage))
+    return damage
+
+
+def colossus_smash(character):
+    damage = character["Characteristics"]["Strength"] + roll(1, 10)
+    print("A devastating blow of your weapon that deals {0} damage".format(damage))
+    return damage
+
+
+def laser_shot(character):
+    damage = character["Characteristics"]["Intellect"]
+    print("A devastating blow of your weapon that deals {0} damage to".format(damage))
+    return damage
+
+
+def burst_of_two_gun_fire(character):
+    damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
+    print("A devastating blow of your weapon that deals {0} damage".format(damage))
+    return damage
 
 
 def print_numbered_list_of_possibilities(list_of_options: list):
@@ -200,6 +224,18 @@ def print_numbered_list_of_possibilities(list_of_options: list):
         print(green_text() + str(index) + normal_text(), option_name)
 
 
+def print_dictionary_items(dictionary: dict):
+    """
+
+    :param dictionary:
+
+    >>> print_dictionary_items({"a": 1})
+
+    """
+    for key in dictionary.keys():
+        print(green_text() + key, normal_text() + "is equal to", dictionary[key])
+
+
 def roll(number_of_dice, number_of_sides):
     list_of_rolls = []
     for number in range(number_of_dice):
@@ -211,6 +247,13 @@ def roll(number_of_dice, number_of_sides):
 
 
 def help_commands():
+    """
+
+    :return:
+
+    >>> help_commands()
+
+    """
     print("{0}h{1} —— show list of commands with a short description\n{0}s{1} —— start the game\n{0}q{1} —— quit the "
           "game\n{0}b{1} —— bandage your wounds and heal your HP".format(green_text(), normal_text()))
 
@@ -239,6 +282,13 @@ def reached_new_level(character: dict):
     return character["Current experience"] == character["Experience for the next level"]
 
 
+def level_up(character: dict):
+    if character["Level"] == 3:
+        return None
+    character["Level"] += 1
+    character["Experience "]
+    # "spontaneous combustion":
+    # {"amount of dices": 1, "additional damage": 0, " skill description": ""}
 
 
 def green_text():
