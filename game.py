@@ -240,8 +240,9 @@ def deadly_burst(character: dict):
 
 def flee_away(character, enemy):
     if roll(1, 100) > character["Characteristics"]["Agility"]:
-        use_skill(enemy, random.choice(enemy["Skills"]), character)
+        use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
     character["Will to fight"] = False
+
 
 def rat_bite(character, enemy):
     pass
@@ -499,12 +500,16 @@ def tutorial(character: dict):
 
 
 def initiate_combat():
+    pass
 
 
 def generate_enemies():
-    list_of_enemies= [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                       "Toughness": 15, "Agility": 25}, "Skills": ["Flee Away"]}]
-    return random.choices(list_of_enemies, [30, 5], k=1)[0]
+    list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
+                       "Toughness": 15, "Agility": 55}, "Skills": {"Flee Away": "Flees away"}, "Will to fight": True},
+                      {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
+                       "Toughness": 15, "Agility": 25}, "Skills": {"Flee Away": "Rat flees away", "Rat's Bite": "Rat "
+                       "greedily bites you with its front teeth"}, "Will to fight": True}]
+    return random.choices(list_of_enemies, [0, 30], k=1)[0]
 
 
 def main():
