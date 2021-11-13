@@ -319,6 +319,30 @@ def bandage(character: dict):
     character['Wounds'] = character['Max wounds']
 
 
+def describe_current_location(board, character):
+    """
+    Print the description of character's location.
+
+    :param board: a dictionary
+    :param character: a dictionary
+    :precondition: board must be a dictionary
+    :precondition: board must be a dictionary
+    :precondition: character keys must have "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers that are >= 0
+    :precondition: board keys must have coordinates represented as tuple of two integers that are
+                    >= 0
+    :precondition: board values must have room's description as a string
+    :postcondition: prints the description of character's location
+    >>> describe_current_location({(0, 0): "This room is empty"}, {"X-coordinate": 0, "Y-coordinate": 0})
+    <BLANKLINE>
+    This room is empty
+    """
+    print("\n" + board[(character["X-coordinate"], character["Y-coordinate"])])
+
+
+
+
+
 def main():
     """
     Drive the program
