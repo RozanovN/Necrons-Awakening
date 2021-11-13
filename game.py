@@ -42,7 +42,7 @@ def game():
             describe_current_location(board, character)
             time.sleep(1)
             if check_for_foes():
-                initiate_combat(character)
+                combat(character)
         else:
             print(user_input, " is not a valid input. Please, try again.")
             continue
@@ -245,7 +245,7 @@ def flee_away(character, enemy):
 
 
 def rat_bite(character, enemy):
-    pass
+    character[]
 
 
 def print_numbered_list_of_possibilities(list_of_options: list):
@@ -499,17 +499,38 @@ def tutorial(character: dict):
     pass
 
 
-def initiate_combat():
-    pass
+def combat():
+    enemy = generate_enemy()
+    while enemy[]
 
 
-def generate_enemies():
+def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
                        "Toughness": 15, "Agility": 55}, "Skills": {"Flee Away": "Flees away"}, "Will to fight": True},
                       {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
                        "Toughness": 15, "Agility": 25}, "Skills": {"Flee Away": "Rat flees away", "Rat's Bite": "Rat "
                        "greedily bites you with its front teeth"}, "Will to fight": True}]
     return random.choices(list_of_enemies, [0, 30], k=1)[0]
+
+
+def is_alive(character):
+    """
+    Determine if character is alive.
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character keys must contain "Current HP"
+    :precondition: character values must be integers
+    :postcondition: returns True if character's HP > 0, else return False
+    :return: True if character is alive, otherwise False
+    >>> is_alive({"Current HP": 5})
+    True
+    >>> is_alive({"Current HP": 0})
+    False
+    >>> is_alive({"Current HP": -1})
+    False
+    """
+    return character["Current HP"] > 0
+
 
 
 def main():
