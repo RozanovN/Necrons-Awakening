@@ -6,6 +6,7 @@ All of your code must go in this file.
 """
 import random
 import time
+import itertools
 
 
 def game():
@@ -23,13 +24,12 @@ def game():
           " of damnation\n")
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
-    tutorial(character, board)
     user_input = None
     in_combat = False
     enemy = {}
     boss = {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
             100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
-            {"Flame of Chaos": }, "Will to fight": True}
+            {"Flame of Chaos": 0}, "Will to fight": True}
     while user_input != "q" and is_alive(character) and is_alive(boss):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
@@ -341,13 +341,19 @@ def print_dictionary_items(dictionary: dict):
         print(green_text() + key, normal_text() + "is equal to", dictionary[key])
 
 
-def roll(number_of_dice: int, number_of_sides: int):
-    list_of_rolls = []
-    for number in range(number_of_dice):
-        single_roll = (random.choice([number for number in range(1, number_of_sides + 1)]))
-        print("Your roll is", single_roll)
-        list_of_rolls.append(single_roll)
-    print("The sum of your rolls is", sum(list_of_rolls))
+def roll(number_of_dice: int, number_of_sides: int, name: str):
+    """
+
+    :param number_of_dice:
+    :param number_of_sides:
+    :param name:
+    :return:
+
+
+    """
+    list_of_rolls = [random.randrange(1, number_of_sides + 1) for number in range(number_of_dice)]
+    print("{0} rolled: {1}".format(name, list(itertools.chain(list_of_rolls))))
+    print("The sum of {0} rolls is {1}".format(name, sum(list_of_rolls)))
     return sum(list_of_rolls)
 
 
@@ -359,8 +365,8 @@ def help_commands():
     >>> help_commands()
 
     """
-    print("{0}h{1} —— show list of commands with a short description\n{0}s{1} —— start the game\n{0}q{1} —— quit the "
-          "game\n{0}b{1} —— bandage your wounds and heal your HP\n{0}s{1} —— show list of skills"
+    print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
+          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}m{1} —— map options"
           .format(green_text(), normal_text()))
 
 
@@ -369,13 +375,18 @@ def get_command_list():
     return commands_dictionary
 
 
+def has_argument(command: str):
+    commands_dictionary = {"h": False, "b": True, "s": True, "m": False}
+    return commands_dictionary[command]
+
+
 def get_command(command_name: str):
     """
 
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills}
+    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "m": 0}
     return commands_dictionary[command_name]
 
 
@@ -391,11 +402,6 @@ def use_skill(character: dict, skill_name: str, enemy: dict):
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
                          "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Rat's Bite": rat_bite}
     return skills_dictionary[skill_name](character, enemy)
-
-
-def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True, "s": True}
-    return commands_dictionary[command]
 
 
 def reached_new_level(character: dict):
@@ -579,10 +585,6 @@ def check_for_foes():
     return random.randrange(0, 6) == 0
 
 
-def tutorial(character: dict):
-    pass
-
-
 def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
                         "Toughness": 15, "Agility": 55}, "Skills": {}, "Will to fight": True},
@@ -619,33 +621,42 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     :param character:
     :param columns:
     :param rows:
-
-
+    >>> get_map({(0, 0): "This room is empty", (0, 1): "This room is empty", (0, 2): "This room is empty", \
+                (1, 0): "This room is empty", (1, 1): "This room is empty", (1, 2): ancient_altar_room}, \
+                {"Y-coordinate": 0, "X-coordinate": 0}, 5, 5)
+    '\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n'
     """
     result = ""
     for row in range(rows):
         for column in range(columns):
-            if (row, column) in board.keys() and \
-                                                (row, column) == (character["Y-coordinate"], character["X-coordinate"]):
+            if (row, column) in board.keys() and (row, column) == \
+                    (character["Y-coordinate"], character["X-coordinate"]):
                 result += green_text() + "U" + normal_text()
             elif (row, column) in board.keys() and board[(row, column)] == ancient_altar_room:
                 result += green_text() + "+" + normal_text()
             elif (row, column) not in board.keys():
                 result += "*"
-
-            else:
-                result += "d"
+            elif (row, column) in board.keys() and "empty" in board[(row, column)]:
+                result += "e"
         result += "\n"
-    print("* —— not discovered yet, + —— Ancient Altar Room, U —— your character, d —— discovered")
     return result
 
 
 def show_filtered_map(filter_element, location_map):
-    print("".join(filter(lambda map_element: map_element not in [filter_element, "\n", green_text(), normal_text()],
-                         location_map)))
+    r"""
+    
+    :param filter_element: 
+    :param location_map:
 
+    >>> show_filtered_map("", "\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
 
-def ancient_altar_room(character):
+    """
+    result = "".join(filter(lambda map_element: map_element not in [filter_element], location_map))
+    print(result)
+    print("* —— not discovered yet, + —— Ancient Altar Room, U —— your character, e —— empty room")
+    
+
+def ancient_altar_room(character, ):
     print("This room has an ancient altar. You feel strangely relaxed among this heresy. All your wounds are healed.")
     character["Current wounds"] = character["Maximum wounds"]
 
