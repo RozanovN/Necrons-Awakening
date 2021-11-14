@@ -64,10 +64,10 @@ def game():
             damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)  # player's turn
             enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage / 2 if has_sustained(character) else damage
             damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
-            character["Current wounds"] -= 0 if has_evaded(character) else damage
+            character["Current wounds"] -= 0 if has_evaded(character) else damage / 2
             if random.randrange(1, 6) == 1:
                 flee_away(enemy, character)
-    if user_input == "q"
+    if user_input == "q":
         print("\nYou may deserve now, but your duty to the Emperor will last forever")
     elif is_alive(character):
         print("\nYou died. Game over!")
@@ -251,6 +251,10 @@ def has_sustained(enemy):
     return False
 
 
+def manage_wounds(damage, character, evaded, sustained):
+    pass
+
+
 def lightning(character: dict, enemy: dict):
     damage = roll(2, 10)
     print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
@@ -392,28 +396,27 @@ def normal_text():
 
 
 def bandage(character: dict):
-    character['Wounds'] = character['Max wounds']
+    character['Wounds'] += 4
 
 
-def describe_current_location(board, character):
+def describe_current_location(board, coordinates):
     """
     Print the description of character's location.
 
     :param board: a dictionary
-    :param character: a dictionary
+    :param coordinates: a tuple of positive integers
     :precondition: board must be a dictionary
-    :precondition: board must be a dictionary
-    :precondition: character keys must have "X-coordinate" and "Y-coordinate"
+    :precondition: coordinates must be positive integers
     :precondition: character values must be integers that are >= 0
     :precondition: board keys must have coordinates represented as tuple of two integers that are
                     >= 0
     :precondition: board values must have room's description as a string
     :postcondition: prints the description of character's location
-    >>> describe_current_location({(0, 0): "This room is empty"}, {"X-coordinate": 0, "Y-coordinate": 0})
+    >>> describe_current_location({(0, 0): "This room is empty"}, (0, 0)
     <BLANKLINE>
     This room is empty
     """
-    print("\n" + board[(character["X-coordinate"], character["Y-coordinate"])])
+    print("Current location is {0}.\n{1}".format(coordinates, board[coordinates]))
 
 
 def get_available_directions(character: dict, columns: int, rows: int):
@@ -593,7 +596,7 @@ def show_map(board: dict, character: dict, columns: int, rows: int):
                 result += "d"
         result += "\n"
     print(result)
-    print("* —— wasn't discovered yet, @ —— dead end, U —— you, d —— discovered")
+    print("* —— not discovered yet, @ —— dead end, U —— your character, d —— discovered")
 
 
 def main():
