@@ -193,7 +193,6 @@ def get_skills(character: dict):
     >>> get_skills(d)
     >>> print(d)
     """
-    adeptus = character.get("Adeptus")
     dictionary_of_skills = {"Adeptus Astra Telepathica": ("Lightning", "A bolt of blinding lightning strikes from your "
                             "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
                             "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
@@ -214,38 +213,44 @@ def get_level_name(adeptus: str, level: int):
         return level, level_dictionary[adeptus]
 
 
-def lightning():
-    damage = roll(2, 10)
-    print("A bolt of blinding lightning strikes from your hand dealing {0} damage.".format(damage))
-    return damage
+def has_evaded(character_agility: int):
+    return roll(1, 100) <= character_agility
 
 
-def colossus_smash(character: dict):
+def lightning(character: dict, enemy: dict):
+    if not has_evaded(enemy["Characteristics"]["Agility"]):
+        damage = roll(2, 10)
+        print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
+            character["Name"], damage, enemy["Name"]))
+        enemy["Current wounds"] -= damage
+
+
+def colossus_smash(character: dict, enemy: dict):
     damage = character["Characteristics"]["Strength"] + roll(1, 10)
-    print("A devastating blow of your weapon that deals {0} damage".format(damage))
-    return damage
+    print("A devastating blow of {0} weapon rips the {1} that dealing {2} damage".format(
+        character["Name"], enemy["Name"], damage))
 
 
-def laser_shot(character: dict):
+def laser_shot(character: dict, enemy: dict):
     damage = character["Characteristics"]["Intellect"]
     print("A devastating blow of your weapon that deals {0} damage to".format(damage))
     return damage
 
 
-def deadly_burst(character: dict):
+def deadly_burst(character: dict, enemy: dict):
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
     print("A devastating blow of your weapon that deals {0} damage".format(damage))
     return damage
 
 
-def flee_away(character, enemy):
+def flee_away(character: dict, enemy: dict):
     if roll(1, 100) > character["Characteristics"]["Agility"]:
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
     character["Will to fight"] = False
 
 
 def rat_bite(character, enemy):
-    character[]
+    pass
 
 
 def print_numbered_list_of_possibilities(list_of_options: list):
@@ -419,7 +424,6 @@ def validate_option(choice: str, list_of_options: list):
     :param list_of_options: a list of strings
     :precondition: choice must be a string
     :precondition: available_directions must be a list
-    :precondition: available_directions items must be strings that indicate directions
     :postcondition: returns False if choice is not a number
     :postcondition: returns False if choice - 1 is not in rage of available_direction length
     :postcondition: returns true otherwise
@@ -503,8 +507,7 @@ def combat(character):
     enemy = generate_enemy()
     initiative = enemy_has_initiative(character, enemy)
     user_input = None
-    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"] and \
-        user_input != "q":
+    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
         if enemy_has_initiative:
             use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
             player_turn(character, enemy)  # player's turn
@@ -520,7 +523,7 @@ def player_turn(character, enemy):
     user_input = str(input())
     while validate_option(user_input, list(character["Skills"].keys())):
         user_input = str(input())
-    use_skill(character, list(character["Skills"].keys())[int(user_input) - 1] , enemy)
+    use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)
 
 
 def enemy_has_initiative(character, enemy):
@@ -559,7 +562,6 @@ def is_alive(character: dict):
     False
     """
     return character["Current wounds"] > 0
-
 
 
 def main():
