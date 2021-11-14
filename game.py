@@ -244,6 +244,13 @@ def has_evaded(enemy):
     return False
 
 
+def has_sustained(enemy):
+    if roll(1, 100) <= enemy["Characteristics"]["Toughness"]:
+        print("{0} sustained the attack".format(enemy["Name"]))
+        return True
+    return False
+
+
 def lightning(character: dict, enemy: dict):
     damage = roll(2, 10)
     print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
