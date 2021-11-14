@@ -27,7 +27,10 @@ def game():
     user_input = None
     in_combat = False
     enemy = {}
-    while user_input != "q" and is_alive(character):  # q = quit
+    boss = {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
+            100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
+            {"Flame of Chaos": }, "Will to fight": True}
+    while user_input != "q" and is_alive(character) and is_alive(boss):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
                 user_input = get_command(user_input)
@@ -65,10 +68,14 @@ def game():
                 continue
             damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)  # player's turn
             enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage / 2 if has_sustained(character) else damage
-            damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
+            damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)  # enemy's turn
             character["Current wounds"] -= 0 if has_evaded(character) else damage / 2
             if random.randrange(1, 6) == 1:
                 flee_away(enemy, character)
+        if reached_new_level(character):
+            time.sleep(1)
+            print("\nYou reached new level.")
+            level_up(character)
     if user_input == "q":
         print("\nYou may deserve now, but your duty to the Emperor will last forever")
     elif is_alive(character):
@@ -102,14 +109,14 @@ def generate_random_room_description():
     :postcondition: returns a random description for a room from the list of description.
     :return: the description as a string
     """
-    rooms_description = ["Dead end", "This room is empty", "This room is yet another empty room.",
-                         "This room torchers you with its boredom and emptiness.",
-                         "This room has an ancient altar.",
-                         "This room has a raven sitting on the bust of Pallas.",
-                         "This room is full of treasures.",
-                         "This room is filled with cosmic terror.",
-                         "This room has not seen visitors before."]
-    return random.choices(rooms_description, weights=[60, 5, 5, 5, 5, 5, 5, 5, 5], k=1)[0]
+    list_of_rooms = ["This room is empty", "This room is yet another empty room.",
+                     "This room torchers you with its boredom and emptiness.",
+                     ancient_altar_room,
+                     "This room has a raven sitting on the bust of Pallas.",
+                     "This room is full of treasures.",
+                     "This room is filled with cosmic terror.",
+                     "This room has not seen visitors before."]
+    return random.choices(list_of_rooms, weights=[5, 5, 5, 5, 5, 5, 5, 5, 5], k=1)[0]
 
 
 def character_creation():
@@ -123,7 +130,7 @@ def character_creation():
     character["Characteristics"] = get_characteristics(character["Adeptus"])
     time.sleep(3)
     get_skills(character)
-    character["Level"]: get_level_name(character["Adeptus"], character[""])
+    character["Level"] = get_level_name(character["Adeptus"], character[""])
     return character
 
 
@@ -285,7 +292,7 @@ def deadly_burst(character: dict, enemy: dict):
 
 def flee_away(character: dict, enemy: dict):
     if roll(1, 100) > character["Characteristics"]["Agility"]:
-        use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
+        use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)
     character["Will to fight"] = False
     return 0
 
@@ -378,15 +385,37 @@ def has_argument(command: str):
 
 
 def reached_new_level(character: dict):
-    return character["Current experience"] == character["Experience for the next level"]
+    if character["Level"] == 3:
+        return False
+    return character["Current experience"] >= character["Experience for the next level"]
 
 
 def level_up(character: dict):
-    if character["Level"] == 3:
-        return None
+    dictionary_of_skills = {("Adeptus Astra Telepathica", 2): ("Spontaneous Combustion", "Your enemy ... dealing"
+                            " (Bonus Intellect)k10 damage.."), ("Adeptus Astra Militarum", 2): ("Charge", "... "
+                            "dealing (3 * Bonus Strength."), ("Adeptus Mechanicus", 2): ("Robotic Wrath", "Another "
+                            "runtime error infuriates your servitor and makes it destroy everything in its way dealing"
+                            "3k(Bonus Intellect) damage"), ("Adeptus Officio Assassinorum", 2): ("Killer Instinct", "You"
+                            "spray a fan of venomous knives dealing (Bonus Agility)k5 damage"),
+                            ("Adeptus Astra Telepathica", 3): ("Chaos of Warp", "One is always equal in death. You Make"
+                            " your enemy wounds equal to yours."), ("Adeptus Astra Militarum", 3): ("Rampage", "Those "
+                            "who live by the sword shall die by my blade. You make a series of bloodthirsty strikes "
+                            "dealing (1k(Bonus Strength))k10 damage"), ("Adeptus Mechanicus", 3): ("Deus ex machina",
+                            "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines. You use "
+                            "1k10 of your skills in one round. Skills are chosen randomly."), ("Adeptus Officio "
+                            "Assassinorum", 3): ("Vendetta", "You make a single fatal shot dealing 1k100 damage")}
+    dictionary_of_wounds = {("Adeptus Astra Telepathica", 2): 3, ("Adeptus Astra Telepathica", 3): 3,
+                            ("Adeptus Astra Militarum", 2): 10, ("Adeptus Astra Militarum", 3): 10,
+                            ("Adeptus Mechanicus", 2): 7, ("Adeptus Mechanicus", 3): 8,
+                            ("Adeptus Officio Assassinorum",2): 4, ("Adeptus Officio Assassinorum", 2): 5}
     character["Level"] += 1
+    if character["Level"] == 3:
+        character["Experience for the next level"] = "Reached the maximum level."
     character["Experience for the next level"] *= 2
-    dictionary_of_skills = {}
+    character["Skills"].setdefault(dictionary_of_skills[(character["Adeptus"], character["Level"][0])][0],
+                                   dictionary_of_skills[(character["Adeptus"], character["Level"][0])][1])
+    character["Maximum wounds"] += dictionary_of_wounds[(character["Adeptus"], character["Level"][0])]
+    character["Current wounds"] = character["Maximum wounds"]
 
 
 def green_text():
@@ -507,18 +536,13 @@ def move_character(character: dict, direction_index: int, available_directions: 
     return character["Y-coordinate"], character["X-coordinate"]
 
 
-def is_goal_attained(character: dict, final_row: int, final_column: int):
-    """
+"""def is_goal_attained(boss: dict):
+    
     Check if goal is attained.
 
-    :param character: a dictionary
-    :param final_row: an integer
-    :param final_column: an integer
-    :precondition: character must be a dictionary
-    :precondition: character keys must contain "X-coordinate" and "Y-coordinate"
-    :precondition: character values must be integers
-    :precondition: final_row must be an integer
-    :precondition: final_column must be an integer
+    :param boss: a dictionary
+    :precondition: boss must be a dictionary
+    :precondition: boss keys must contain Current wounds
     :postcondition: returns True if character X-coordinate + 1 is equal to final_row and Y-coordinate + 1is equal to
                     final column, else returns False
     :return: True if goal is attained, otherwise False
@@ -527,8 +551,8 @@ def is_goal_attained(character: dict, final_row: int, final_column: int):
     False
     >>> is_goal_attained({"X-coordinate": 7, "Y-coordinate": 7}, 8, 8)
     True
-    """
-    return character["X-coordinate"] + 1 == final_row and character["Y-coordinate"] + 1 == final_column
+    
+    return boss[]"""
 
 
 def check_for_foes():
@@ -547,10 +571,11 @@ def tutorial(character: dict):
 
 def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                        "Toughness": 15, "Agility": 55}, "Skills": {"Flee Away": "Flees away"}, "Will to fight": True},
+                        "Toughness": 15, "Agility": 55}, "Skills": {}, "Will to fight": True},
                        {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                        "Toughness": 15, "Agility": 25}, "Skills": {"Flee Away": "Rat flees away", "Rat's Bite": "Rat "
-                        "greedily bites you with its front teeth"}, "Will to fight": True}]
+                        "Toughness": 15, "Agility": 25}, "Skills": {"Rat's Bite": "Rat "
+                        "greedily bites you with its front teeth"}, "Will to fight": True},
+                       ]
     return random.choices(list_of_enemies, [0, 30], k=1)[0]
 
 
@@ -588,21 +613,27 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
         for column in range(columns):
             if (row, column) in board.keys() and \
                                                 (row, column) == (character["Y-coordinate"], character["X-coordinate"]):
-                result += "U"
-            elif (row, column) in board.keys() and board[(row, column)] == "Dead end":
-                result += "@"
+                result += green_text() + "U" + normal_text()
+            elif (row, column) in board.keys() and board[(row, column)] == ancient_altar_room:
+                result += green_text() + "+" + normal_text()
             elif (row, column) not in board.keys():
                 result += "*"
 
             else:
                 result += "d"
         result += "\n"
-    print("* —— not discovered yet, @ —— dead end, U —— your character, d —— discovered")
+    print("* —— not discovered yet, + —— Ancient Altar Room, U —— your character, d —— discovered")
     return result
 
 
 def show_filtered_map(filter_element, location_map):
-    print("".join(filter(lambda map_element: map_element not in [filter_element], location_map)))
+    print("".join(filter(lambda map_element: map_element not in [filter_element, "\n", green_text(), normal_text()],
+                         location_map)))
+
+
+def ancient_altar_room(character):
+    print("This room has an ancient altar. You feel strangely relaxed among this heresy. All your wounds are healed.")
+    character["Current wounds"] = character["Maximum wounds"]
 
 
 def main():
