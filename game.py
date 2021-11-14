@@ -501,7 +501,7 @@ def tutorial(character: dict):
 
 def combat(character):
     enemy = generate_enemy()
-    enemy_has_initiative = initiative_check(character, enemy)
+    initiative = enemy_has_initiative(character, enemy)
     user_input = None
     while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"] and \
         user_input != "q":
@@ -521,6 +521,16 @@ def player_turn(character, enemy):
     while validate_option(user_input, list(character["Skills"].keys())):
         user_input = str(input())
     use_skill(character, list(character["Skills"].keys())[int(user_input) - 1] , enemy)
+
+
+def enemy_has_initiative(character, enemy):
+    print("Initiative check is based on 1k10 roll and Agility Bonus. If initiative is equal, {0} goes first.".format(
+          character["Name"]))
+    if (character["Characteristics"]["Agility"] + roll(1, 10)) >= (enemy["Characteristics"]["Agility"] + roll(1, 10)):
+        print("{0} goes first".format(character["Name"]))
+        return False
+    print("{0} goes first".format(enemy["Name"]))
+    return True
 
 
 def generate_enemy():
