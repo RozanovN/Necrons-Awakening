@@ -36,7 +36,7 @@ def game():
             else:
                 user_input = get_command(user_input)
                 user_input()
-        elif validate_move(user_input, available_directions):
+        elif validate_option(user_input, available_directions):
             user_input = int(user_input) - 1
             move_character(character, user_input, available_directions)
             describe_current_location(board, character)
@@ -142,7 +142,7 @@ def set_adeptus():
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
     choice = input()
-    while choice not in ["1", "2", "3", "4"]:
+    while validate_option(choice, adepts_list) and choice != "q":
         print("{0} is not a correct input, try again:".format(choice))
         print("To choose a adeptus enter its index from the numbered list")
         print_numbered_list_of_possibilities(adepts_list)
@@ -411,12 +411,12 @@ def get_available_directions(character: dict, columns: int, rows: int):
     return available_directions
 
 
-def validate_move(choice: str, available_directions: list):
+def validate_option(choice: str, list_of_options: list):
     """
-    Validate move availability.
+    Validate option availability.
 
     :param choice: a string
-    :param available_directions: a list of strings
+    :param list_of_options: a list of strings
     :precondition: choice must be a string
     :precondition: available_directions must be a list
     :precondition: available_directions items must be strings that indicate directions
@@ -425,14 +425,14 @@ def validate_move(choice: str, available_directions: list):
     :postcondition: returns true otherwise
     :return: True if choice is valid, else False
 
-    >>> validate_move("1", ["south", "east"])
+    >>> validate_option("1", ["south", "east"])
     True
-    >>> validate_move("0", ["south", "east"])
+    >>> validate_option("0", ["south", "east"])
     False
-    >>> validate_move("wait what", ["south", "east"])
+    >>> validate_option("wait what", ["south", "east"])
     False
     """
-    return choice.isnumeric() and (int(choice) - 1) in range(len(available_directions))
+    return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
 
 
 def move_character(character: dict, direction_index: int, available_directions: list):
@@ -499,10 +499,27 @@ def tutorial(character: dict):
     pass
 
 
-def combat():
+def combat(character):
     enemy = generate_enemy()
-    while enemy[]
+    enemy_has_initiative = initiative_check(character, enemy)
+    user_input = None
+    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"] and \
+        user_input != "q":
+        if enemy_has_initiative:
+            use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+            player_turn(character, enemy)  # player's turn
+        else:
+            player_turn(character, enemy)  # player's turn
+            use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+        if random.randrange(1, 6) == 1:
+            flee_away(enemy, character)
 
+
+"""print_numbered_list_of_possibilities(list(character["Skills"].keys()))
+            user_input = str(input())
+            while validate_option(user_input, list(character["Skills"].keys())):
+                user_input = str(input())
+            use_skill(character, list(character["Skills"].keys())[int(user_input) - 1] , enemy)"""
 
 def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
@@ -513,7 +530,7 @@ def generate_enemy():
     return random.choices(list_of_enemies, [0, 30], k=1)[0]
 
 
-def is_alive(character):
+def is_alive(character: dict):
     """
     Determine if character is alive.
     :param character: a dictionary
@@ -522,14 +539,14 @@ def is_alive(character):
     :precondition: character values must be integers
     :postcondition: returns True if character's HP > 0, else return False
     :return: True if character is alive, otherwise False
-    >>> is_alive({"Current HP": 5})
+    >>> is_alive({"Current wounds": 5})
     True
-    >>> is_alive({"Current HP": 0})
+    >>> is_alive({"Current wounds": 0})
     False
-    >>> is_alive({"Current HP": -1})
+    >>> is_alive({"Current wounds": -1})
     False
     """
-    return character["Current HP"] > 0
+    return character["Current wounds"] > 0
 
 
 
