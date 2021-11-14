@@ -14,7 +14,7 @@ def game():
     """
     rows = 25
     columns = 25
-    board = make_board(rows, columns)
+    board = {}
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
           "Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
@@ -38,32 +38,32 @@ def game():
                 user_input()
         elif validate_option(user_input, available_directions):
             user_input = int(user_input) - 1
-            move_character(character, user_input, available_directions)
-            describe_current_location(board, character)
+            coordinates = move_character(character, user_input, available_directions)
+            add_room_to_the_board(coordinates, board)
+            describe_current_location(board, coordinates)
             time.sleep(1)
             if check_for_foes():
                 combat(character)
         else:
-            print(user_input, " is not a valid input. Please, try again.")
+            print("{0} is not a valid input. Please, try again.".format(user_input))
             continue
         user_input = str(input())
     print("You may quit now, but your duty to the Emperor will last forever")
 
 
-def make_board(rows: int, columns: int):
+def add_room_to_the_board(coordinates: tuple, board: dict):
     """
-    Create rows by columns board.
+    Add a room to the board if the board doesn't have a room at the given coordinates
 
-    :param rows: a positive integer
-    :param columns: a positive integer
-    :precondition: rows must be >= 2
-    :precondition: columns must be >= 2
-    :postcondition: returns rows by columns board with a random description per each cell
-    :return: the board as a dictionary
+    :param board: a dictionary
+    :param coordinates: tuple of positive integers
+    :precondition: board must be a dictionary
+    :precondition: coordinates items must be positive integers
+    :postcondition: Adds a room with random description to the board if the board doesn't have a room at the given
+                    coordinates
     """
-    board = {(row, column): generate_random_room_description() for row in range(rows) for column
-             in range(columns)}
-    return board
+    if coordinates not in board.keys():
+        board.setdefault(coordinates, generate_random_room_description())
 
 
 def generate_random_room_description():
@@ -452,6 +452,7 @@ def move_character(character: dict, direction_index: int, available_directions: 
     :precondition: direction_index must be a non-negative integer validated by validate_move function
     :precondition: availabe_directions each item must be either "north", "south", "east" or "west"
     :postcondition: updates character X or Y coordinate based on direction choice
+    :return: new character's coordinates as a tuple
 
     >>> protagonist = {"X-coordinate": 0, "Y-coordinate": 0}
     >>> move_character(protagonist, 0, ["south", "west"])
@@ -464,6 +465,7 @@ def move_character(character: dict, direction_index: int, available_directions: 
         character["Y-coordinate"] += directions_dictionary[direction]
     else:
         character["X-coordinate"] += directions_dictionary[direction]
+    return (character["Y-coordinate"], character["X-coordinate"])
 
 
 def is_goal_attained(character: dict, final_row: int, final_column: int):
@@ -509,7 +511,7 @@ def combat(character):
     initiative = enemy_has_initiative(character, enemy)
     user_input = None
     while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
-        if enemy_has_initiative:
+        if initiative:
             character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
                 enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
             enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character, enemy)  # player's turn
@@ -592,7 +594,7 @@ def show_map(board: dict, character: dict, columns: int, rows: int):
                 result += "d"
         result += "\n"
     print(result)
-    print("* —— wasn't discovered yet, @ —— dead end, U —— you")
+    print("* —— wasn't discovered yet, @ —— dead end, U —— you, d —— discovered")
 
 
 def main():
