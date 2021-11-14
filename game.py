@@ -10,11 +10,11 @@ import time
 
 def game():
     """
-
+    Drive the game.
     """
     rows = 25
     columns = 25
-    board = {}
+    board = {(0, 0): "This room reminds you nothing of necrons, "}
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
           "Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
@@ -24,26 +24,48 @@ def game():
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
     tutorial(character)
-    user_input = "s"
-    while user_input != 'q' and is_goal_attained(character, rows, columns):  # q = quit
-        available_directions = get_available_directions(character, rows, columns)
-        print_numbered_list_of_possibilities(available_directions)
-        user_input = str(input())
+    user_input = None
+    in_combat = False
+    enemy = {}
+    initiative = None
+    while user_input != "q" and is_alive(character):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
                 user_input = get_command(user_input)
                 user_input(character)
             else:
                 user_input = get_command(user_input)
-                user_input()
-        elif validate_option(user_input, available_directions):
+        if not in_combat:
+            available_directions = get_available_directions(character, rows, columns)
+            print_numbered_list_of_possibilities(available_directions)
+            user_input = str(input())
+            if not validate_option(user_input, available_directions):
+                print("{0} is not a valid input. Please, try again.".format(user_input))
+                continue
             user_input = int(user_input) - 1
             coordinates = move_character(character, user_input, available_directions)
             add_room_to_the_board(coordinates, board)
             describe_current_location(board, coordinates)
             time.sleep(1)
             if check_for_foes():
-                combat(character)
+                in_combat = True
+                enemy = generate_enemy()
+                initiative = enemy_has_initiative(character, enemy)
+        elif in_combat:
+            if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
+                in_combat = False
+            if initiative:
+                damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
+                character["Current wounds"] -= 0 if has_evaded(character) else damage  # enemy turn
+                enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character,
+                                                                                   enemy)  # player's turn
+            else:
+                enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character,
+                                                                                   enemy)  # player's turn
+                character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
+                    enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+            if random.randrange(1, 6) == 1:
+                flee_away(enemy, character)
         else:
             print("{0} is not a valid input. Please, try again.".format(user_input))
             continue
@@ -465,7 +487,7 @@ def move_character(character: dict, direction_index: int, available_directions: 
         character["Y-coordinate"] += directions_dictionary[direction]
     else:
         character["X-coordinate"] += directions_dictionary[direction]
-    return (character["Y-coordinate"], character["X-coordinate"])
+    return character["Y-coordinate"], character["X-coordinate"]
 
 
 def is_goal_attained(character: dict, final_row: int, final_column: int):
@@ -505,22 +527,6 @@ def check_for_foes():
 def tutorial(character: dict):
     pass
 
-
-def combat(character):
-    enemy = generate_enemy()
-    initiative = enemy_has_initiative(character, enemy)
-    user_input = None
-    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
-        if initiative:
-            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
-                enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
-            enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character, enemy)  # player's turn
-        else:
-            enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character, enemy)  # player's turn
-            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
-                enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
-        if random.randrange(1, 6) == 1:
-            flee_away(enemy, character)
 
 
 def player_turn(character, enemy):
