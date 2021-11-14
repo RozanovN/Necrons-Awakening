@@ -54,15 +54,14 @@ def game():
         elif in_combat:
             if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
                 in_combat = False
-            if initiative:
-                damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
-                character["Current wounds"] -= 0 if has_evaded(character) else damage  # enemy turn
-                enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character,
-                                                                                   enemy)  # player's turn
-            else:
-                enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character,
-                                                                                   enemy)  # player's turn
-                character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
+            print_numbered_list_of_possibilities(list(character["Skills"].keys()))
+            user_input = str(input())
+            if validate_option(user_input, list(character["Skills"].keys())):
+                user_input = str(input())
+                continue
+            damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)
+            enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage
+            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
                     enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
             if random.randrange(1, 6) == 1:
                 flee_away(enemy, character)
@@ -252,6 +251,7 @@ def colossus_smash(character: dict, enemy: dict):
     damage = character["Characteristics"]["Strength"] + roll(1, 10)
     print("A devastating blow of {0} weapon rips the {1} that dealing {2} damage".format(
         character["Name"], enemy["Name"], damage))
+    return damage
 
 
 def laser_shot(character: dict, enemy: dict):
@@ -270,6 +270,7 @@ def flee_away(character: dict, enemy: dict):
     if roll(1, 100) > character["Characteristics"]["Agility"]:
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
     character["Will to fight"] = False
+    return 0
 
 
 def rat_bite(character, enemy):
@@ -351,7 +352,7 @@ def show_list_of_skills(character: dict):
 def use_skill(character: dict, skill_name: str, enemy: dict):
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
                          "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Rat's Bite": rat_bite}
-    skills_dictionary[skill_name](character, enemy)
+    return skills_dictionary[skill_name](character, enemy)
 
 
 def has_argument(command: str):
@@ -526,15 +527,6 @@ def check_for_foes():
 
 def tutorial(character: dict):
     pass
-
-
-
-def player_turn(character, enemy):
-    print_numbered_list_of_possibilities(list(character["Skills"].keys()))
-    user_input = str(input())
-    while validate_option(user_input, list(character["Skills"].keys())):
-        user_input = str(input())
-    use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)
 
 
 def enemy_has_initiative(character, enemy):
