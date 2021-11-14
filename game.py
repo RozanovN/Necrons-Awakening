@@ -14,7 +14,7 @@ def game():
     """
     rows = 25
     columns = 25
-    board = {(0, 0): "This room reminds you nothing of necrons, "}
+    board = {(0, 0): "This room reminds you nothing of Necrons. Nevertheless, a hungry, giant rat looks "}
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
           "Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
@@ -23,11 +23,10 @@ def game():
           " of damnation\n")
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
-    tutorial(character)
+    tutorial(character, board)
     user_input = None
     in_combat = False
     enemy = {}
-    initiative = None
     while user_input != "q" and is_alive(character):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
@@ -39,7 +38,9 @@ def game():
             available_directions = get_available_directions(character, rows, columns)
             print_numbered_list_of_possibilities(available_directions)
             user_input = str(input())
-            if not validate_option(user_input, available_directions):
+            if user_input == "q":
+                continue
+            elif not validate_option(user_input, available_directions):
                 print("{0} is not a valid input. Please, try again.".format(user_input))
                 continue
             user_input = int(user_input) - 1
@@ -50,26 +51,29 @@ def game():
             if check_for_foes():
                 in_combat = True
                 enemy = generate_enemy()
-                initiative = enemy_has_initiative(character, enemy)
         elif in_combat:
             if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
                 in_combat = False
             print_numbered_list_of_possibilities(list(character["Skills"].keys()))
             user_input = str(input())
-            if validate_option(user_input, list(character["Skills"].keys())):
-                user_input = str(input())
+            if user_input == "q":
                 continue
-            damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)
-            enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage
-            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
-                    enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+            elif validate_option(user_input, list(character["Skills"].keys())):
+                print("{0} is not a valid input. Please, try again.".format(user_input))
+                continue
+            damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)  # player's turn
+            enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage / 2 if has_sustained(character) else damage
+            damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
+            character["Current wounds"] -= 0 if has_evaded(character) else damage
             if random.randrange(1, 6) == 1:
                 flee_away(enemy, character)
-        else:
-            print("{0} is not a valid input. Please, try again.".format(user_input))
-            continue
-        user_input = str(input())
-    print("You may quit now, but your duty to the Emperor will last forever")
+    if user_input == "q"
+        print("\nYou may deserve now, but your duty to the Emperor will last forever")
+    elif is_alive(character):
+        print("\nYou died. Game over!")
+    else:
+        print("Congratulations! You slain yet another blasphemous denizen of the Realm of Chaos and retrieved"
+              "an accursed Necronian artifact.\nThe end.")
 
 
 def add_room_to_the_board(coordinates: tuple, board: dict):
@@ -527,16 +531,6 @@ def check_for_foes():
 
 def tutorial(character: dict):
     pass
-
-
-def enemy_has_initiative(character, enemy):
-    print("Initiative check is based on 1k10 roll and Agility Bonus. If initiative is equal, {0} goes first.".format(
-        character["Name"]))
-    if (character["Characteristics"]["Agility"] + roll(1, 10)) >= (enemy["Characteristics"]["Agility"] + roll(1, 10)):
-        print("{0} goes first".format(character["Name"]))
-        return False
-    print("{0} goes first".format(enemy["Name"]))
-    return True
 
 
 def generate_enemy():
