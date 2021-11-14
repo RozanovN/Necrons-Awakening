@@ -280,8 +280,22 @@ def colossus_smash(character: dict, enemy: dict):
 
 def laser_shot(character: dict, enemy: dict):
     damage = character["Characteristics"]["Intellect"]
-    print("A devastating blow of your weapon that deals {0} damage to".format(damage))
+    print("".format(damage))
     return damage
+
+
+def deus_ex_machina(character: dict, enemy: dict):
+    """
+    Use random amount of random skills
+
+    :param character:
+    :param enemy:
+    :return:
+    """
+    skills_list = [skill for skill in character["Skills"].keys()]
+    skills_list = random.choices(skills_list, k=roll(1, 10))
+    for skill in skills_list:
+        use_skill(character, skill, enemy)
 
 
 def deadly_burst(character: dict, enemy: dict):
