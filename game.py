@@ -19,7 +19,7 @@ def game():
           "Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
     print("\tBut perhaps the biggest threat you face is your fellow man, for the human soul is such "
-          "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths" 
+          "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths"
           " of damnation\n")
     print("Prior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
@@ -75,18 +75,17 @@ def generate_random_room_description():
     :postcondition: returns a random description for a room from the list of description.
     :return: the description as a string
     """
-    rooms_description = ["This room is empty", "This room is yet another empty room.",
+    rooms_description = ["Dead end", "This room is empty", "This room is yet another empty room.",
                          "This room torchers you with its boredom and emptiness.",
                          "This room has an ancient altar.",
                          "This room has a raven sitting on the bust of Pallas.",
                          "This room is full of treasures.",
                          "This room is filled with cosmic terror.",
                          "This room has not seen visitors before."]
-    return random.choice(rooms_description)
+    return random.choices(rooms_description, weights=[60, 5, 5, 5, 5, 5, 5, 5, 5], k=1)[0]
 
 
 def character_creation():
-
     character = {"Name": set_name(), "Adeptus": set_adeptus(), "Max wounds": 0, "Current wounds": 0, "Characteristics":
                  {}, "Level": (1, None), "Skills": {"Flee Away": "You retreat to the previous room"}, "X-coordinate": 0,
                  "Y-coordinate": 0, "Current experience": 0, "Experience for the next level": 1000,
@@ -109,36 +108,36 @@ def set_name():
 
 def set_adeptus():
     print(
-          "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
-          "of the various departments of the Adeptus Terra that serve the will of the \nbeneficent "
-          "Emperor. These titles are used by everyone in the service of the Emperor as part of the "
-          "Imperial service, from high ranking officials to lowly scribes.\nThe Adepta is the career your character "
-          "had before starting his life as an acolyte of an Inquisitor.\n"
-          "\n\tThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your"
-          " stats\' propensities.\n\n"
-          "\tAdeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
-          "referred as \"sorceries\", that can take a myriad of forms from\nreading one's mind to unleashing dreadful "
-          "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely "
-          "agile, instead\nthey focus on their mind's strength. However, the true Achilles heel of psykers is their own"
-          " outrageous power. Every time psyker fails to cast their psychic power,\nthey must succeed in a will power "
-          "or else they will suffer a severe punishment form warp instability. Indeed, to toy with warp is to"
-          "perform before the Gods of Chaos; they\nlove the show until they see a single failure.\n"
-          "\tAdeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close "
-          "combat. They are the brave souls that lead the Emperor's\nconquest. Those soldiers are strong and though,"
-          " yet lack in agility. As for intellect, one only needs to follow orders.\n"
-          "\tAdeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
-          " servo-skulls and dreadful servitors. Mechanics believe in\nthe supremacy of their Machine God —— Omnissiah "
-          " —— and eagerly reject their own weak flesh to get divine bionic one. As a result, they end up looking more"
-          "robotic than\ntheir own machines. The dire engineers despise involving themselves into battles, despite "
-          "having foremost strength and dexterity due to their mechanical prostheses.\nInstead they play their battles "
-          "as though they play some chess, so only thing they need is power of their brain.\n"
-          "\tAdeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
-          "menacing and terrifying ones to make them acolytes. Those\nassassins are extremely agile, even if they lack "
-          "in strength. Preferring the range combat, the best of them are elusive ghosts to their enemies."
-          "\n\nPlease, choose your adeptus carefully.")
+        "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
+        "of the various departments of the Adeptus Terra that serve the will of the \nbeneficent "
+        "Emperor. These titles are used by everyone in the service of the Emperor as part of the "
+        "Imperial service, from high ranking officials to lowly scribes.\nThe Adepta is the career your character "
+        "had before starting his life as an acolyte of an Inquisitor.\n"
+        "\n\tThere are 4 adepts in the game. Adepts (Classes) determine your maximum wounds(HP), your skills and your"
+        " stats\' propensities.\n\n"
+        "\tAdeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
+        "referred as \"sorceries\", that can take a myriad of forms from\nreading one's mind to unleashing dreadful "
+        "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely "
+        "agile, instead\nthey focus on their mind's strength. However, the true Achilles heel of psykers is their own"
+        " outrageous power. Every time psyker fails to cast their psychic power,\nthey must succeed in a will power "
+        "or else they will suffer a severe punishment form warp instability. Indeed, to toy with warp is to"
+        "perform before the Gods of Chaos; they\nlove the show until they see a single failure.\n"
+        "\tAdeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close "
+        "combat. They are the brave souls that lead the Emperor's\nconquest. Those soldiers are strong and though,"
+        " yet lack in agility. As for intellect, one only needs to follow orders.\n"
+        "\tAdeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
+        " servo-skulls and dreadful servitors. Mechanics believe in\nthe supremacy of their Machine God —— Omnissiah "
+        " —— and eagerly reject their own weak flesh to get divine bionic one. As a result, they end up looking more"
+        "robotic than\ntheir own machines. The dire engineers despise involving themselves into battles, despite "
+        "having foremost strength and dexterity due to their mechanical prostheses.\nInstead they play their battles "
+        "as though they play some chess, so only thing they need is power of their brain.\n"
+        "\tAdeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
+        "menacing and terrifying ones to make them acolytes. Those\nassassins are extremely agile, even if they lack "
+        "in strength. Preferring the range combat, the best of them are elusive ghosts to their enemies."
+        "\n\nPlease, choose your adeptus carefully.")
 
     adepts_list = ["Adeptus Astra Telepathica", "Adeptus Astra Militarum", "Adeptus Mechanicus", "Adeptus Officio"
-                   " Assassinorum"]
+                                                                                                 " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
     choice = input()
@@ -151,7 +150,7 @@ def set_adeptus():
 
 
 def set_wounds(adeptus: str):
-    print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before " 
+    print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
           "meeting the Emperor.")
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll.")
     adeptus_wounds = {"Adeptus Astra Telepathica": 17, "Adeptus Astra Militarum": 23,
@@ -200,7 +199,7 @@ def get_skills(character: dict):
                             "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "you give your foe a burst of"
                             " fire from two plasma-pistols dealing (5 + 1k10 + Agility Bonus) damage.")}
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0],
-                                    dictionary_of_skills[character["Adeptus"]][1])
+                                   dictionary_of_skills[character["Adeptus"]][1])
 
 
 def get_level_name(adeptus: str, level: int):
@@ -213,16 +212,18 @@ def get_level_name(adeptus: str, level: int):
         return level, level_dictionary[adeptus]
 
 
-def has_evaded(character_agility: int):
-    return roll(1, 100) <= character_agility
+def has_evaded(enemy):
+    if roll(1, 100) <= enemy["Characteristics"]["Agility"]:
+        print("{0} evaded the attack".format(enemy["Name"]))
+        return True
+    return False
 
 
 def lightning(character: dict, enemy: dict):
-    if not has_evaded(enemy["Characteristics"]["Agility"]):
-        damage = roll(2, 10)
-        print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
-            character["Name"], damage, enemy["Name"]))
-        enemy["Current wounds"] -= damage
+    damage = roll(2, 10)
+    print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
+        character["Name"], damage, enemy["Name"]))
+    return damage
 
 
 def colossus_smash(character: dict, enemy: dict):
@@ -509,11 +510,13 @@ def combat(character):
     user_input = None
     while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
         if enemy_has_initiative:
-            use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
-            player_turn(character, enemy)  # player's turn
+            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
+                enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+            enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character, enemy)  # player's turn
         else:
-            player_turn(character, enemy)  # player's turn
-            use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
+            enemy["Current wounds"] -= 0 if has_evaded(enemy) else player_turn(character, enemy)  # player's turn
+            character["Current wounds"] -= 0 if has_evaded(character) else use_skill(
+                enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy turn
         if random.randrange(1, 6) == 1:
             flee_away(enemy, character)
 
@@ -528,7 +531,7 @@ def player_turn(character, enemy):
 
 def enemy_has_initiative(character, enemy):
     print("Initiative check is based on 1k10 roll and Agility Bonus. If initiative is equal, {0} goes first.".format(
-          character["Name"]))
+        character["Name"]))
     if (character["Characteristics"]["Agility"] + roll(1, 10)) >= (enemy["Characteristics"]["Agility"] + roll(1, 10)):
         print("{0} goes first".format(character["Name"]))
         return False
@@ -538,10 +541,10 @@ def enemy_has_initiative(character, enemy):
 
 def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                       "Toughness": 15, "Agility": 55}, "Skills": {"Flee Away": "Flees away"}, "Will to fight": True},
-                      {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                       "Toughness": 15, "Agility": 25}, "Skills": {"Flee Away": "Rat flees away", "Rat's Bite": "Rat "
-                       "greedily bites you with its front teeth"}, "Will to fight": True}]
+                        "Toughness": 15, "Agility": 55}, "Skills": {"Flee Away": "Flees away"}, "Will to fight": True},
+                       {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
+                        "Toughness": 15, "Agility": 25}, "Skills": {"Flee Away": "Rat flees away", "Rat's Bite": "Rat "
+                        "greedily bites you with its front teeth"}, "Will to fight": True}]
     return random.choices(list_of_enemies, [0, 30], k=1)[0]
 
 
@@ -562,6 +565,34 @@ def is_alive(character: dict):
     False
     """
     return character["Current wounds"] > 0
+
+
+def show_map(board: dict, character: dict, columns: int, rows: int):
+    """
+
+    :param board:
+    :param character:
+    :param columns:
+    :param rows:
+
+
+    """
+    result = ""
+    for row in range(rows):
+        for column in range(columns):
+            if (row, column) in board.keys() and \
+                                                (row, column) == (character["Y-coordinate"], character["X-coordinate"]):
+                result += "U"
+            elif (row, column) in board.keys() and board[(row, column)] == "Dead end":
+                result += "@"
+            elif (row, column) not in board.keys():
+                result += "*"
+
+            else:
+                result += "d"
+        result += "\n"
+    print(result)
+    print("* —— wasn't discovered yet, @ —— dead end, U —— you")
 
 
 def main():
@@ -586,12 +617,12 @@ def main():
         "for all their multitudes, they are \nbarely enough to hold off the ever-present "
         "threat from aliens, heretics, mutants—and worse."), (
         "\n\tTo be a man in such times is to be one amongst untold billions. It "
-        "is to live in the cruellest and most bloody regime imaginable. Forget the power of " 
-        "technology and \nscience, for so much has been forgotten, never to be re-learned. " 
-        "Forget the promise of progress and understanding, for in the grim darkness of " 
-        "the far future, there is \nonly war. There is no peace amongst the stars, " 
+        "is to live in the cruellest and most bloody regime imaginable. Forget the power of "
+        "technology and \nscience, for so much has been forgotten, never to be re-learned. "
+        "Forget the promise of progress and understanding, for in the grim darkness of "
+        "the far future, there is \nonly war. There is no peace amongst the stars, "
         "only an eternity of carnage and slaughter, and the laughter of thirsting gods."),
-        "\nAll rights belong to Games Workshop.")
+        "\n\nAll rights belong to Games Workshop.")
     time.sleep(2)
     print("\n\n\n{:^160}".format("Welcome to the nightmarish world of Warhammer 40k Dark Heresy"))
     print("\nPlease type {0}s{1} to start the game:".format(green_text(), normal_text()))
