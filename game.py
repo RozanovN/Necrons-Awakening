@@ -47,6 +47,8 @@ def game():
             coordinates = move_character(character, user_input, available_directions)
             add_room_to_the_board(coordinates, board)
             describe_current_location(board, coordinates)
+            location_map = get_map(board, character, columns, rows)
+            print(location_map)
             time.sleep(1)
             if check_for_foes():
                 in_combat = True
@@ -571,7 +573,7 @@ def is_alive(character: dict):
     return character["Current wounds"] > 0
 
 
-def show_map(board: dict, character: dict, columns: int, rows: int):
+def get_map(board: dict, character: dict, columns: int, rows: int):
     """
 
     :param board:
@@ -595,8 +597,12 @@ def show_map(board: dict, character: dict, columns: int, rows: int):
             else:
                 result += "d"
         result += "\n"
-    print(result)
     print("* —— not discovered yet, @ —— dead end, U —— your character, d —— discovered")
+    return result
+
+
+def show_filtered_map(filter_element, location_map):
+    print("".join(filter(lambda map_element: map_element not in [filter_element], location_map)))
 
 
 def main():
