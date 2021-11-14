@@ -515,11 +515,13 @@ def combat(character):
             flee_away(enemy, character)
 
 
-"""print_numbered_list_of_possibilities(list(character["Skills"].keys()))
-            user_input = str(input())
-            while validate_option(user_input, list(character["Skills"].keys())):
-                user_input = str(input())
-            use_skill(character, list(character["Skills"].keys())[int(user_input) - 1] , enemy)"""
+def player_turn(character, enemy):
+    print_numbered_list_of_possibilities(list(character["Skills"].keys()))
+    user_input = str(input())
+    while validate_option(user_input, list(character["Skills"].keys())):
+        user_input = str(input())
+    use_skill(character, list(character["Skills"].keys())[int(user_input) - 1] , enemy)
+
 
 def generate_enemy():
     list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
