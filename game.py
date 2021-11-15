@@ -41,7 +41,7 @@ def game():
             available_directions = get_available_directions(character, rows, columns)
             print_numbered_list_of_possibilities(available_directions)
             user_input = str(input())
-            if user_input == "q":
+            if user_input in get_command_list():
                 continue
             elif not validate_option(user_input, available_directions):
                 print("{0} is not a valid input. Please, try again.".format(user_input))
@@ -124,13 +124,16 @@ def character_creation():
                  {}, "Level": (1, None), "Skills": {"Flee Away": "You retreat to the previous room"}, "X-coordinate": 0,
                  "Y-coordinate": 0, "Current experience": 0, "Experience for the next level": 1000,
                  "Will to fight": True}
-    character["Max wounds"] = set_wounds(character["Adeptus"])
-    time.sleep(3)
+    character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
-    character["Characteristics"] = get_characteristics(character["Adeptus"])
+    time.sleep(3)
+    character["Characteristics"] = get_characteristics(character)
     time.sleep(3)
     get_skills(character)
-    character["Level"] = get_level_name(character["Adeptus"], character[""])
+    print("To check the list of skills type {0}s{1}.\nRight now you have the following skills:".format(green_text(),
+          normal_text()))
+    character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
+    print("To see your wounds type {0}w{1}".format(green_text(), normal_text()))
     return character
 
 
@@ -156,7 +159,7 @@ def set_adeptus():
         "referred as \"sorceries\", that can take a myriad of forms from\nreading one's mind to unleashing dreadful "
         "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely "
         "agile, instead\nthey focus on their mind's strength. However, the true Achilles heel of psykers is their own"
-        " outrageous power. Indeed, to toy with warp is to perform before the Gods of Chaos; they\nlove the show until "
+        " outrageous power. Indeed, to toy with warp is to perform before the Gods of\nChaos; they love the show until "
         "they see a single failure.\n"
         "\tAdeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close "
         "combat. They are the brave souls that lead the Emperor's\nconquest. Those soldiers are strong and though,"
@@ -191,6 +194,7 @@ def set_wounds(character: dict):
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll.")
     adeptus_wounds = {"Adeptus Astra Telepathica": 17, "Adeptus Astra Militarum": 23,
                       "Adeptus Mechanicus": 20, "Adeptus Officio Assassinorum": 19}
+    print("Your adeptus has {0} wounds".format(adeptus_wounds[character["Adeptus"]]))
     max_wounds = adeptus_wounds[character["Adeptus"]] + roll(1, 5, character["Name"])
     print("You have {0} wounds.".format(max_wounds))
     return max_wounds
@@ -236,7 +240,7 @@ def get_skills(character: dict):
                             "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
                             "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
                             "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
-                            "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "you give your foe a burst of"
+                            "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "You give your foe a burst of"
                             " fire from two plasma-pistols dealing (5 + 1k10 + Agility Bonus) damage.")}
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0],
                                    dictionary_of_skills[character["Adeptus"]][1])
@@ -345,7 +349,7 @@ def print_dictionary_items(dictionary: dict):
 
     """
     for key in dictionary.keys():
-        print(green_text() + key, normal_text() + "is equal to", dictionary[key])
+        print(green_text() + key + normal_text() + ":", dictionary[key])
 
 
 def roll(number_of_dice: int, number_of_sides: int, name: str):
@@ -358,7 +362,7 @@ def roll(number_of_dice: int, number_of_sides: int, name: str):
 
 
     """
-    list_of_rolls = [random.randrange(1, number_of_sides + 1) for number in range(number_of_dice)]
+    list_of_rolls = [random.randrange(1, number_of_sides + 1) for _ in range(number_of_dice)]
     print("{0} rolled: {1}".format(name, list(itertools.chain(list_of_rolls))))
     print("The sum of {0} rolls is {1}".format(name, sum(list_of_rolls)))
     return sum(list_of_rolls)
@@ -402,6 +406,7 @@ def show_list_of_skills(character: dict):
 
     :param character:
     """
+    print("Right now you have the following skills:")
     print_dictionary_items(character["Skills"])
 
 
@@ -421,9 +426,9 @@ def level_up(character: dict):
     dictionary_of_skills = {("Adeptus Astra Telepathica", 2): ("Spontaneous Combustion", "Your enemy ... dealing"
                             " (Bonus Intellect)k10 damage.."), ("Adeptus Astra Militarum", 2): ("Charge", "... "
                             "dealing (3 * Bonus Strength."), ("Adeptus Mechanicus", 2): ("Robotic Wrath", "Another "
-                            "runtime error infuriates your servitor and makes it destroy everything in its way dealing"
-                            "3k(Bonus Intellect) damage"), ("Adeptus Officio Assassinorum", 2): ("Killer Instinct", "You"
-                            "spray a fan of venomous knives dealing (Bonus Agility)k5 damage"),
+                            "runtime error infuriates your servitor and makes it destroy everything in its way dealing "
+                            "3k(Bonus Intellect) damage"), ("Adeptus Officio Assassinorum", 2): ("Killer Instinct",
+                            "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage"),
                             ("Adeptus Astra Telepathica", 3): ("Chaos of Warp", "One is always equal in death. You Make"
                             " your enemy wounds equal to yours."), ("Adeptus Astra Militarum", 3): ("Rampage", "Those "
                             "who live by the sword shall die by my blade. You make a series of bloodthirsty strikes "
@@ -434,7 +439,7 @@ def level_up(character: dict):
     dictionary_of_wounds = {("Adeptus Astra Telepathica", 2): 3, ("Adeptus Astra Telepathica", 3): 3,
                             ("Adeptus Astra Militarum", 2): 10, ("Adeptus Astra Militarum", 3): 10,
                             ("Adeptus Mechanicus", 2): 7, ("Adeptus Mechanicus", 3): 8,
-                            ("Adeptus Officio Assassinorum",2): 4, ("Adeptus Officio Assassinorum", 2): 5}
+                            ("Adeptus Officio Assassinorum", 2): 4, ("Adeptus Officio Assassinorum", 2): 5}
     character["Level"] += 1
     if character["Level"] == 3:
         character["Experience for the next level"] = "Reached the maximum level."
