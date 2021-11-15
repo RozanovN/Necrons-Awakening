@@ -18,7 +18,7 @@ def game():
     board = {
         (0, 0):
             tutorial,
-        (100, 100):
+        (25, 0):
             boss
     }
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
@@ -32,10 +32,8 @@ def game():
     user_input = None
     in_combat = False
     enemy = {}
-    #  boss {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
-    #        100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
-    #        {"Flame of Chaos": 0}, "Will to fight": True}  # rework
-    while user_input != "q" and is_alive(character) and  is_goal_attained(character):  # q = quit
+
+    while user_input != "q" and is_alive(character) and is_goal_attained(character):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
                 user_input = get_command(user_input)
@@ -54,13 +52,13 @@ def game():
             user_input = int(user_input) - 1
             coordinates = move_character(character, user_input, available_directions)
             add_room_to_the_board(coordinates, board)
-            show_filtered_map(set_filter_element(), get_map(board, character, columns, rows))
+            show_filtered_map("", get_map(board, character, columns, rows))
             show_wounds(character["Current wounds"], character["Max wounds"])
             describe_current_location(board, coordinates)
             time.sleep(1)
             if check_for_foes():
                 in_combat = True   # Combat begins
-                enemy = generate_enemy()
+                enemy = generate_enemy(character["Level"][0])
         elif in_combat:
             if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
                 in_combat = False  # Combat ends
@@ -115,14 +113,30 @@ def generate_random_room_description():
     :return: the description as a string
     """
     list_of_rooms = [
-        "This room is empty", "This room is yet another empty room.",
-        "This room torchers you with its boredom and emptiness.",
+        #"This room is empty", "This room is yet another empty room.",
+        #"This room torchers you with its boredom and emptiness.",
+        empty_room
         ancient_altar_room,
-        "This room has a raven sitting on the bust of Pallas.",
-        "This room is full of treasures.",
-        "This room is filled with cosmic terror.",
-        "This room has not seen visitors before."]
-    return random.choices(list_of_rooms, weights=[5, 5, 5, 5, 5, 5, 5, 5, 5], k=1)[0]
+        crate,
+        eldritch_altar,
+        stack of books,
+        discarded_pack,
+        necronian_chest,
+        necronian_alchemy_table,
+        decorative_urn
+        iron_maiden,
+        locked_sarcophagus,
+        suit_of_armor,
+        makeshift_dining_table,
+        pile_of_bones,
+        eerie_spiderweb,
+        mummified_remains,
+        transcendent_terror,
+        iron_crown,
+        ceiling_drops
+        shifting_mist
+        ]
+    return random.choices(list_of_rooms, weights=[5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
 
 
 def character_creation():
@@ -139,7 +153,9 @@ def character_creation():
         "Y-coordinate": 0,
         "Current experience": 0,
         "Experience for the next level": 1000,
-        "Will to fight": True}
+        "Will to fight": True,
+        "Inventory": {}
+    }
     character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
     time.sleep(3)
@@ -375,6 +391,13 @@ def enemy_attack(character: dict, enemy: dict):
     pass
 
 
+def daemon_trickery(character, enemy):
+    print("{0} dirtily makes another attack".format(character["Name"]))
+    damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, character) for _ in range(5)])))
+    print("{0} deals {1} damage to {2}".format(character["Name"], damage, enemy["Name"]))
+    return damage
+
+
 def print_numbered_list_of_possibilities(list_of_options: list):
     """
     Prints a numbered list of options
@@ -426,7 +449,7 @@ def help_commands():
 
     """
     print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
-          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}m{1} —— map options\n"
+          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n"
           .format(green_text(), normal_text()))
 
 
@@ -446,7 +469,7 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "m": map_options}
+    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills,}
     return commands_dictionary[command_name]
 
 
@@ -461,7 +484,8 @@ def show_list_of_skills(character: dict):
 
 def use_skill(character: dict, skill_name: str, enemy: dict):
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
-                         "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack}
+                         "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack,
+                         "Daemon's Trickery": daemon_trickery}
     return skills_dictionary[skill_name](character, enemy)
 
 
@@ -531,9 +555,6 @@ def normal_text():
 
 def bandage(character: dict):
     character['Wounds'] += 4
-
-
-def
 
 
 def show_wounds(wounds, maximum_wounds):
@@ -776,8 +797,9 @@ def show_filtered_map(filter_element, location_map):
     >>> show_filtered_map("e", "\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
 
     """
-    # result = "".join(filter(lambda map_element: map_element not in [filter_element], location_map))
-    result = "".join([" " if letter == filter_element else letter for letter in location_map])
+    result = "".join(map(lambda ascii_character: " " if ascii_character == filter_element
+                         else ascii_character, location_map))
+    #  result = "".join([" " if letter == filter_element else letter for letter in location_map])
     print(result)
     print("* —— not discovered yet, + —— room with an altar, U —— your character, e —— an empty room"
           "█ ——")
@@ -792,9 +814,33 @@ def tutorial():
     pass
 
 
-def boss():
-    pass
-
+def boss(character):
+    if character["Level"][0] != 3:
+        print("Fear takes control over you as soon as you get close to this room.\n"
+              "You feel like you have to get more experience before facing it.\n You decide to retreat.")
+        character["X-coordinate"] = 1
+        character["Y-coordinate"] = 25
+    else:
+        print("You enter the dreadful room. The Necronian decor exactly matches the description the Inquisitor gave you"
+              ". However, your joy deserves rapidly as you notice a gigantic daemon holding the precious artefact"
+              "you are tasked to retrieve. The daemon notices you and smirks. His grotesque claws reveals his name"
+              "Goreclaw the Render, a Daemon Prince of Khorne, infamous among the inquisitors of this galaxy."
+              "\n\"Bring. It. On.\", his monstrous majesty mandates")
+        enemy = {
+            "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
+            "Max wounds": 100,
+            "Current wounds": 100,
+            "Stats": {
+                "Intellect": 45,
+                "Strength": 100,
+                "Toughness": 70,
+                "Agility": 5},
+            "Skills": {
+                "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
+                "Flame of Chaos": 0
+            }
+        }
+        combat(character, enemy)
 
 def main():
     """
