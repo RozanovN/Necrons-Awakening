@@ -55,7 +55,7 @@ def game():
             show_filtered_map("", get_map(board, character, columns, rows))
             show_wounds(character["Current wounds"], character["Max wounds"])
             show_level(character)
-            describe_current_location(board, coordinates)
+            manage_events(board, coordinates)
             time.sleep(1)
             if check_for_foes():
                 in_combat = True   # Combat begins
@@ -114,30 +114,45 @@ def generate_random_room_description():
     :return: the description as a string
     """
     list_of_rooms = [
-        #"This room is empty", "This room is yet another empty room.",
-        #"This room torchers you with its boredom and emptiness.",
-        empty_room
-        ancient_altar_room,
-        crate,
-        eldritch_altar,
-        stack of books,
-        discarded_pack,
-        necronian_chest,
-        necronian_alchemy_table,
-        decorative_urn
-        iron_maiden,
-        locked_sarcophagus,
-        suit_of_armor,
-        makeshift_dining_table,
-        pile_of_bones,
-        eerie_spiderweb,
-        mummified_remains,
-        transcendent_terror,
-        iron_crown,
-        ceiling_drops
-        shifting_mist
+        "Empty Room",
+        "Ancient Altar Room",
+        "Crate",
+        "Eldritch Altar",
+        "Stack of Books",
+        "Discarded Pack",
+        "Necronian Chest",
+        "Necronian Alchemy Table",
+        "Decorative Urn",
+        "Iron Maiden",
+        "Locked Sarcophagus",
+        "Suit of Armor",
+        "Makeshift Dining Table",
+        "Pile of Bones",
+        "Eerie Spiderweb",
+        "Mummified Remains",
+        "Transcendent Terror",
+        "Iron Crown",
+        "Ceiling Drops",
+        "Shifting Mist"
         ]
-    return random.choices(list_of_rooms, weights=[5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
+    return random.choices(list_of_rooms, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
+
+
+def process_input(character, list_of_options):
+    user_input = str(input())
+    input_is_processed = True
+    while input_is_processed:
+        if validate_option(user_input, list_of_options):
+            return user_input
+        if user_input in get_command_list():
+            if has_argument(user_input):
+                command = get_command(user_input)
+                command(character)
+            else:
+                command = get_command(user_input)
+                command()
+        print("{0} is invalid input. Please, try again:")
+        user_input = str(input())
 
 
 def character_creation():
@@ -156,7 +171,8 @@ def character_creation():
         "Experience for the next level": 1000,
         "Will to fight": True,
         "Inventory": {
-            "Bandage" : 10
+            "Bandage": 10,
+            "Torch": 10
         }
     }
     character["Max wounds"] = set_wounds(character)
@@ -557,7 +573,8 @@ def normal_text():
 
 def bandage(character: dict):
     if character["Inventory"]["Bandage"] > 0:
-        character["Current wounds"] += 4
+        character["Current wounds"] = character["Current wounds"] + 4 if character["Current wounds"] != \
+            character["Max wounds"] else character["Max wounds"]
         character["Inventory"]["Bandage"] -= 1
         show_wounds(character["Current wounds"], character["Maximum wounds"])
         print("{0} bandage{1} {2} left".format(
@@ -600,7 +617,7 @@ def show_inventory(character: dict):
     print_dictionary_items(character["Inventory"])
 
 
-def describe_current_location(board: dict, coordinates: tuple):
+def manage_events(board: dict, character: dict):
     """
     Print the description of character's location.
 
@@ -613,11 +630,149 @@ def describe_current_location(board: dict, coordinates: tuple):
                     >= 0
     :precondition: board values must have room's description as a string
     :postcondition: prints the description of character's location
-    >>> describe_current_location({(0, 0): "This room is empty"}, (0, 0)
+    >>>
     <BLANKLINE>
     This room is empty
     """
-    print("Current location is {0}.\n{1}".format(coordinates, board[coordinates]))
+    events_dictionary = {
+        "Empty Room": {
+            "Description": random.choice([
+                "This room is empty", "The emptiness of this room reminds you nothing of necrons.",
+                "This room torchers you with its boredom and emptiness."
+            ])
+        },
+        "Ancient Altar Room": {
+            "Description": random.choice([
+                "This room has an ancient altar. You feel strangely relaxed among this heresy."
+                " All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,"
+                " it heals you innocently still."
+            ]),
+            "Effect": "Heal"
+        },
+        "Crate": {
+            "Description": random.choice([
+                "This room has a large crate. Would you like to open it?",
+                "This room has a strange crate. Would you like to open it?"
+            ]),
+            "Item": random.choice([
+                "Nothing"
+                "Torch",
+                "Bandage",
+                "Shovel"
+            ]),
+            "Input": [
+                "Yes",
+                "No"
+            ]
+        },
+        "Eldritch Altar": {
+            "Description": random.choice([
+                "This room has an ominous altar. Would you like to to touch it?",
+                "This room has an altar in form of a star that pierces a crescent Earth's moon, reminding you Slaanesh"
+                " Would you like to touch it?"
+            ]),
+            "Effect": random.choices([
+                "Nothing",
+                "Damage"
+                "Random Stat Improvement"
+            ], weights=[5, 2.5, 2.5], k=1)[0],
+            "Input": [
+                "Yes",
+                "No"
+            ]
+        },
+        "Stack of Books" :{
+             "Description": random.choice([
+                 "This room has a stack of heretic books. Would you like to to touch it?",
+                 "This room has a stack of Imperium's books, which seems strange to you."
+                 " Would you like to touch it?"
+             ]),
+             "Effect": random.choices([
+                 "Damage"
+                 "Experience gain"
+             ], weights=[2.5, 2.5], k=1)[0],
+             "Input": [
+                 "Yes",
+                 "No"
+             ]
+         },
+        "Discarded Pack": {
+             "Description": random.choice([
+                 "This room has a discarded pack left by your predecessor. Would you like to open it?",
+                 "This room has a big but miserable, discarded pack. Would you like to open it?"
+             ]),
+             "Item": random.choice([
+                 "Nothing"
+                 "Torch",
+                 "Bandage",
+                 "Shovel"
+             ]),
+             "Input": [
+                 "Yes",
+                 "No"
+             ]
+         },
+        "Necronian Chest": {
+             "Description": random.choice([
+                 "This room has a mechanical Necronian chest. Would you like to open it?",
+                 "This room has a . Would you like to open it?"
+             ]),
+             "Item": random.choice([
+                 "Nothing"
+                 "Armor"
+             ]),
+             "Input": [
+                 "Yes",
+                 "No"
+             ]
+         },
+        "Necronian Alchemy Table": {
+
+         },
+        "Decorative Urn": {
+
+         },
+        "Iron Maiden": {
+
+         },
+        "Locked Sarcophagus": {
+
+         },
+        "Suit of Armor": {
+
+         },
+        "Makeshift Dining Table": {
+
+         },
+        "Pile of Bones": {
+
+         },
+        "Eerie Spiderweb": {
+
+         },
+        "Mummified Remains": {
+
+         },
+        "Transcendent Terror": {
+
+         },
+        "Iron Crown": {
+
+         },
+        "Ceiling Drops": {
+
+         },
+        "Shifting Mist": {
+
+         },
+    }
+    print(events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]]["Description"])
+    #  if has_input in keys, prompt inout
+    #  if gives_item in keys, give item
+    #  if random_effect in keys, get random effect
+    #  if has_stat in keys, improve stat
+    if "Heal" in events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]].keys():
+        character["Current wounds"] = character["Max wounds"]
 
 
 def get_available_directions(character: dict, columns: int, rows: int):
@@ -836,7 +991,7 @@ def show_map(location_map):
     
 
 def ancient_altar_room(character: dict):
-    print("This room has an ancient altar. You feel strangely relaxed among this heresy. All your wounds are healed.")
+    print()
     character["Current wounds"] = character["Maximum wounds"]
 
 
@@ -871,6 +1026,7 @@ def boss(character):
             }
         }
         combat(character, enemy)
+
 
 def main():
     """
