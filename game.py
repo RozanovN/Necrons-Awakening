@@ -15,7 +15,12 @@ def game():
     """
     rows = 25
     columns = 25
-    board = {(0, 0): "This room reminds you nothing of Necrons. Nevertheless, a hungry, giant rat looks "}
+    board = {
+        (0, 0):
+            tutorial,
+        (100, 100):
+            boss
+    }
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
           " Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
@@ -27,10 +32,10 @@ def game():
     user_input = None
     in_combat = False
     enemy = {}
-    boss = {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
-            100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
-            {"Flame of Chaos": 0}, "Will to fight": True}  # rework
-    while user_input != "q" and is_alive(character) and is_alive(boss):  # q = quit
+    #  boss {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
+    #        100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
+    #        {"Flame of Chaos": 0}, "Will to fight": True}  # rework
+    while user_input != "q" and is_alive(character) and  is_goal_attained(character):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
                 user_input = get_command(user_input)
@@ -49,9 +54,9 @@ def game():
             user_input = int(user_input) - 1
             coordinates = move_character(character, user_input, available_directions)
             add_room_to_the_board(coordinates, board)
+            show_filtered_map(set_filter_element(), get_map(board, character, columns, rows))
+            show_wounds(character["Current wounds"], character["Max wounds"])
             describe_current_location(board, coordinates)
-            location_map = get_map(board, character, columns, rows)
-            print(location_map)
             time.sleep(1)
             if check_for_foes():
                 in_combat = True   # Combat begins
@@ -293,21 +298,21 @@ def get_level_name(adeptus: str, level: int):
         return level, level_dictionary[adeptus]
 
 
-def has_evaded(enemy):
+def has_evaded(enemy: dict):
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]:
         print("{0} evaded the attack".format(enemy["Name"]))
         return True
     return False
 
 
-def has_sustained(enemy):
+def has_sustained(enemy: dict):
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]:
         print("{0} sustained the attack".format(enemy["Name"]))
         return True
     return False
 
 
-def manage_wounds(damage, character):
+def manage_wounds(damage: int, character: dict):
     if has_evaded(character):
         print("However, {0} evaded the attack.".format(character["Name"]))
     else:
@@ -366,7 +371,7 @@ def flee_away(character: dict, enemy: dict):
     return 0
 
 
-def enemy_attack(character, enemy):
+def enemy_attack(character: dict, enemy: dict):
     pass
 
 
@@ -426,7 +431,7 @@ def help_commands():
 
 
 def get_command_list():
-    commands_dictionary = ["h", "b", "s"]
+    commands_dictionary = ["h", "b", "s", "m"]
     return commands_dictionary
 
 
@@ -441,7 +446,7 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "m": 0}
+    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "m": map_options}
     return commands_dictionary[command_name]
 
 
@@ -456,7 +461,7 @@ def show_list_of_skills(character: dict):
 
 def use_skill(character: dict, skill_name: str, enemy: dict):
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
-                         "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy}
+                         "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack}
     return skills_dictionary[skill_name](character, enemy)
 
 
@@ -528,6 +533,9 @@ def bandage(character: dict):
     character['Wounds'] += 4
 
 
+def
+
+
 def show_wounds(wounds, maximum_wounds):
     """
 
@@ -540,7 +548,7 @@ def show_wounds(wounds, maximum_wounds):
     print("Wounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
-def describe_current_location(board, coordinates):
+def describe_current_location(board: dict, coordinates: tuple):
     """
     Print the description of character's location.
 
@@ -646,23 +654,21 @@ def move_character(character: dict, direction_index: int, available_directions: 
     return character["Y-coordinate"], character["X-coordinate"]
 
 
-"""def is_goal_attained(boss: dict):
-    
+def is_goal_attained(character: dict):
+    """
     Check if goal is attained.
 
-    :param boss: a dictionary
-    :precondition: boss must be a dictionary
-    :precondition: boss keys must contain Current wounds
-    :postcondition: returns True if character X-coordinate + 1 is equal to final_row and Y-coordinate + 1is equal to
-                    final column, else returns False
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :postcondition: returns True if character a Necronian artifact, else returns False
     :return: True if goal is attained, otherwise False
 
-    >>> is_goal_attained({"X-coordinate": 0, "Y-coordinate": 0}, 4, 4)
-    False
-    >>> is_goal_attained({"X-coordinate": 7, "Y-coordinate": 7}, 8, 8)
+    >>> is_goal_attained({"Artifact": "Necronian Servo-Skull"})
     True
-    
-    return boss[]"""
+    >>> is_goal_attained({"Max wounds": 1000000000})
+    False
+    """
+    return "Artifact" in character.keys()
 
 
 def check_for_foes():
@@ -675,14 +681,43 @@ def check_for_foes():
     return random.randrange(0, 6) == 0
 
 
-def generate_enemy():
-    list_of_enemies = [{"Name": "", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                        "Toughness": 15, "Agility": 55}, "Skills": {}, "Will to fight": True},
-                       {"Name": "Rat", "Max wounds": 5, "Current wounds": 5, "Stats": {"Intellect": 10, "Strength": 15,
-                        "Toughness": 15, "Agility": 25}, "Skills": {"Rat's Bite": "Rat "
-                        "greedily bites you with its front teeth"}, "Will to fight": True},
-                       ]
-    return random.choices(list_of_enemies, [0, 30], k=1)[0]
+def generate_enemy(level):
+    enemies_dictionary = {
+        1:  # Level 1
+        [
+            {  # Template
+                "Name": "",
+                "Max wounds": 5,
+                "Current wounds": 5,
+                "Stats": {
+                    "Intellect": 10,
+                    "Strength": 15,
+                    "Toughness": 15,
+                    "Agility": 55
+                },
+                "Skills": {
+
+                },
+                "Will to fight": True
+            },
+            {  # Rat
+                "Name": "Rat",
+                "Max wounds": 5,
+                "Current wounds": 5,
+                "Stats": {
+                    "Intellect": 10,
+                    "Strength": 15,
+                    "Toughness": 15,
+                    "Agility": 25
+                },
+                "Skills": {
+                    "Enemy Attack": "Rat greedily bites you with its front teeth"
+                },
+                "Will to fight": True
+            },
+        ]
+    }
+    return random.choices(enemies_dictionary[level], [0, 30], k=1)[0]
 
 
 def is_alive(character: dict):
@@ -751,6 +786,14 @@ def show_filtered_map(filter_element, location_map):
 def ancient_altar_room(character, ):
     print("This room has an ancient altar. You feel strangely relaxed among this heresy. All your wounds are healed.")
     character["Current wounds"] = character["Maximum wounds"]
+
+
+def tutorial():
+    pass
+
+
+def boss():
+    pass
 
 
 def main():
