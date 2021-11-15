@@ -71,7 +71,7 @@ def game():
             damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)  # enemy's turn
             character["Current wounds"] -= 0 if has_evaded(character) else damage / 2
             if random.randrange(1, 6) == 1:
-                flee_away(enemy, character)
+                use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
         if reached_new_level(character):
             time.sleep(1)
             print("\nYou reached new level.")
@@ -134,6 +134,7 @@ def character_creation():
           normal_text()))
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
     print("To see your wounds type {0}w{1}".format(green_text(), normal_text()))
+    print("To see your level and experience type {0}l{1}".format(green_text(), normal_text()))
     return character
 
 
@@ -270,8 +271,15 @@ def has_sustained(enemy):
     return False
 
 
-def manage_wounds(damage, character, evaded, sustained):
-    pass
+def manage_wounds(damage, character):
+    if has_evaded(character):
+        print("However, {0} evaded the attack.".format(character["Name"]))
+    else:
+        if has_sustained(character):
+            character["Current wounds"] -= damage / 2
+            print("However, {0} sustained the attack and receives only {1}".format(character["Name"], damage / 2))
+        else:
+            character["Current wounds"] -= damage
 
 
 def lightning(character: dict, enemy: dict):
@@ -311,13 +319,13 @@ def deus_ex_machina(character: dict, enemy: dict):
 
 def deadly_burst(character: dict, enemy: dict):
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10, character["Name"])
-    print("A devastating blow of your weapon that deals {0} damage to the {1}".format(damage, enemy["Name"]))
+    print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage,))
     return damage
 
 
 def flee_away(character: dict, enemy: dict):
     if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
-        use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)
+        use_skill(enemy, random.choice(list(enemy["Skills"].keys())[0::1]), character)
     character["Will to fight"] = False
     return 0
 
