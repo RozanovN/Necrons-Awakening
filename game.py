@@ -29,7 +29,7 @@ def game():
     enemy = {}
     boss = {"Name": "Goreclaw the Render, a Daemon Prince of Khorne", "Max wounds": 100, "Current wounds":
             100, "Stats": {"Intellect": 45, "Strength": 100, "Toughness": 70, "Agility": 5}, "Skills":
-            {"Flame of Chaos": 0}, "Will to fight": True}
+            {"Flame of Chaos": 0}, "Will to fight": True}  # rework
     while user_input != "q" and is_alive(character) and is_alive(boss):  # q = quit
         if user_input in get_command_list():
             if has_argument(user_input):
@@ -54,14 +54,14 @@ def game():
             print(location_map)
             time.sleep(1)
             if check_for_foes():
-                in_combat = True
+                in_combat = True   # Combat begins
                 enemy = generate_enemy()
         elif in_combat:
             if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
-                in_combat = False
+                in_combat = False  # Combat ends
             print_numbered_list_of_possibilities(list(character["Skills"].keys()))
             user_input = str(input())
-            if user_input == "q":
+            if user_input in get_command_list():
                 continue
             elif validate_option(user_input, list(character["Skills"].keys())):
                 print("{0} is not a valid input. Please, try again.".format(user_input))
@@ -76,7 +76,7 @@ def game():
             time.sleep(1)
             print("\nYou reached new level.")
             level_up(character)
-    if user_input == "q":
+    if user_input == "q":  # Make Game Over function later
         print("\nYou may deserve now, but your duty to the Emperor will last forever")
     elif is_alive(character):
         print("\nYou died. Game over!")
@@ -238,11 +238,14 @@ def get_skills(character: dict):
     >>> print(d)
     """
     dictionary_of_skills = {"Adeptus Astra Telepathica": ("Lightning", "A bolt of blinding lightning strikes from your "
-                            "hand dealing 2k10 damage."), "Adeptus Astra Militarum": ("Colossus Smash", "A devastating "
-                            "blow of your weapon that deals (1k10 + Strength Bonus) damage."), "Adeptus Mechanicus": (
-                            "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus "
-                            "damage."), "Adeptus Officio Assassinorum": ("Deadly Burst", "You give your foe a burst of"
-                            " fire from two plasma-pistols dealing (5 + 1k10 + Agility Bonus) damage.")}
+                                                          "hand dealing 2k10 damage."),
+                            "Adeptus Astra Militarum": ("Colossus Smash", "A devastating blow of your weapon that deals"
+                                                        " (1k10 + Strength Bonus) damage."),
+                            "Adeptus Mechanicus": ("Laser Shot", "Your servo-skull shots a laser beam from its eyes"
+                                                   " dealing Intellect Bonus damage."),
+                            "Adeptus Officio Assassinorum": ("Deadly Burst", "You give your foe a burst of fire from "
+                                                             "two plasma-pistols dealing (5 + 1k10 + Agility Bonus) "
+                                                             "damage.")}
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0],
                                    dictionary_of_skills[character["Adeptus"]][1])
 
@@ -385,7 +388,7 @@ def help_commands():
 
     """
     print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
-          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}m{1} —— map options"
+          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}m{1} —— map options\n"
           .format(green_text(), normal_text()))
 
 
@@ -468,6 +471,10 @@ def normal_text():
 
 def bandage(character: dict):
     character['Wounds'] += 4
+
+
+def show_wounds(wounds, maximum_wounds):
+    print("Wounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
 def describe_current_location(board, coordinates):
@@ -668,12 +675,14 @@ def show_filtered_map(filter_element, location_map):
     :param filter_element: 
     :param location_map:
 
-    >>> show_filtered_map("", "\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
+    >>> show_filtered_map("e", "\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
 
     """
-    result = "".join(filter(lambda map_element: map_element not in [filter_element], location_map))
+    # result = "".join(filter(lambda map_element: map_element not in [filter_element], location_map))
+    result = "".join([" " if letter == filter_element else letter for letter in location_map])
     print(result)
-    print("* —— not discovered yet, + —— Ancient Altar Room, U —— your character, e —— empty room")
+    print("* —— not discovered yet, + —— room with an altar, U —— your character, e —— an empty room"
+          "█ ——")
     
 
 def ancient_altar_room(character, ):
