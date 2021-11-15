@@ -54,6 +54,7 @@ def game():
             add_room_to_the_board(coordinates, board)
             show_filtered_map("", get_map(board, character, columns, rows))
             show_wounds(character["Current wounds"], character["Max wounds"])
+            show_level(character)
             describe_current_location(board, coordinates)
             time.sleep(1)
             if check_for_foes():
@@ -460,7 +461,7 @@ def get_command_list():
 
 
 def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True, "s": True}
+    commands_dictionary = {"h": False, "b": True, "s": True, "i": True}
     return commands_dictionary[command]
 
 
@@ -470,7 +471,7 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills,}
+    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "i": show_inventory}
     return commands_dictionary[command_name]
 
 
@@ -591,6 +592,12 @@ def show_level(character: dict):
             character["Experience for the next level"]
         )
     )
+
+
+def show_inventory(character: dict):
+    print("You have the following items:")
+    print("Item name \t\t\t Amount of items")
+    print_dictionary_items(character["Inventory"])
 
 
 def describe_current_location(board: dict, coordinates: tuple):
