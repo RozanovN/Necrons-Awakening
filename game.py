@@ -154,7 +154,9 @@ def character_creation():
         "Current experience": 0,
         "Experience for the next level": 1000,
         "Will to fight": True,
-        "Inventory": {}
+        "Inventory": {
+            "Bandage" : 10
+        }
     }
     character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
@@ -165,8 +167,7 @@ def character_creation():
     print("To check the list of skills type {0}s{1}.\nRight now you have the following skills:".format(green_text(),
           normal_text()))
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
-    print("To see your wounds type {0}w{1}".format(green_text(), normal_text()))
-    print("To see your level and experience type {0}l{1}".format(green_text(), normal_text()))
+    print("To see your inventory type {0}i{1}".format(green_text(), normal_text()))
     return character
 
 
@@ -449,17 +450,17 @@ def help_commands():
 
     """
     print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
-          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n"
+          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\nn{0}i{1} —— show inventory"
           .format(green_text(), normal_text()))
 
 
 def get_command_list():
-    commands_dictionary = ["h", "b", "s", "m"]
+    commands_dictionary = ["h", "b", "s", "i"]
     return commands_dictionary
 
 
 def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True, "s": True, "m": False}
+    commands_dictionary = {"h": False, "b": True, "s": True}
     return commands_dictionary[command]
 
 
@@ -554,7 +555,18 @@ def normal_text():
 
 
 def bandage(character: dict):
-    character['Wounds'] += 4
+    if character["Inventory"]["Bandage"] > 0:
+        character["Current wounds"] += 4
+        character["Inventory"]["Bandage"] -= 1
+        show_wounds(character["Current wounds"], character["Maximum wounds"])
+        print("{0} bandage{1} {2} left".format(
+            character["Inventory"]["Bandage"],
+            "s" if character["Inventory"]["Bandage"] > 1 else "",
+            "are" if character["Inventory"]["Bandage"] > 1 else "is"
+            )
+        )
+    else:
+        print("You have no bandages")
 
 
 def show_wounds(wounds, maximum_wounds):
@@ -567,6 +579,18 @@ def show_wounds(wounds, maximum_wounds):
     Wounds: 3/25
     """
     print("Wounds: {0}/{1}".format(wounds, maximum_wounds))
+
+
+def show_level(character: dict):
+    print(
+        "Level: {0}, {1}\n"
+        "Experience: {2}/{3}".format(
+            character["Level"][0],
+            character["Level"][1],
+            character["Current experience"],
+            character["Experience for the next level"]
+        )
+    )
 
 
 def describe_current_location(board: dict, coordinates: tuple):
@@ -788,24 +812,23 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     return result
 
 
-def show_filtered_map(filter_element, location_map):
+def show_map(location_map):
     r"""
-    
-    :param filter_element: 
+
     :param location_map:
 
-    >>> show_filtered_map("e", "\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
+    >>> show_map("\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
 
     """
-    result = "".join(map(lambda ascii_character: " " if ascii_character == filter_element
-                         else ascii_character, location_map))
+    #  result = "".join(map(lambda ascii_character: " " if ascii_character == filter_element
+    #                     else ascii_character, location_map))
     #  result = "".join([" " if letter == filter_element else letter for letter in location_map])
-    print(result)
+    print(location_map)
     print("* —— not discovered yet, + —— room with an altar, U —— your character, e —— an empty room"
           "█ ——")
     
 
-def ancient_altar_room(character, ):
+def ancient_altar_room(character: dict):
     print("This room has an ancient altar. You feel strangely relaxed among this heresy. All your wounds are healed.")
     character["Current wounds"] = character["Maximum wounds"]
 
