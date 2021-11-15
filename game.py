@@ -17,7 +17,7 @@ def game():
     columns = 25
     board = {(0, 0): "This room reminds you nothing of Necrons. Nevertheless, a hungry, giant rat looks "}
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
-          "Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
+          " Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
           "against heretics, aliens and witches.")
     print("\tBut perhaps the biggest threat you face is your fellow man, for the human soul is such "
           "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths"
@@ -137,6 +137,9 @@ def character_creation():
 def set_name():
     print("Enter your name:")
     name = str(input()).capitalize()
+    while name == "":
+        print("You must enter something. Even this grim dark world wants to know your name. Please, try again:")
+        name = str(input()).capitalize()
     return name
 
 
@@ -153,9 +156,8 @@ def set_adeptus():
         "referred as \"sorceries\", that can take a myriad of forms from\nreading one's mind to unleashing dreadful "
         "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely "
         "agile, instead\nthey focus on their mind's strength. However, the true Achilles heel of psykers is their own"
-        " outrageous power. Every time psyker fails to cast their psychic power,\nthey must succeed in a will power "
-        "or else they will suffer a severe punishment form warp instability. Indeed, to toy with warp is to"
-        "perform before the Gods of Chaos; they\nlove the show until they see a single failure.\n"
+        " outrageous power. Indeed, to toy with warp is to perform before the Gods of Chaos; they\nlove the show until "
+        "they see a single failure.\n"
         "\tAdeptus Astra Militarum is an adeptus of powerful warriors. They specialize in brute force and close "
         "combat. They are the brave souls that lead the Emperor's\nconquest. Those soldiers are strong and though,"
         " yet lack in agility. As for intellect, one only needs to follow orders.\n"
@@ -175,43 +177,47 @@ def set_adeptus():
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
     choice = input()
-    while validate_option(choice, adepts_list) and choice != "q":
+    while not validate_option(choice, adepts_list) and choice != "q":
         print("{0} is not a correct input, try again:".format(choice))
-        print("To choose a adeptus enter its index from the numbered list")
+        print("To choose an adeptus enter its index from the numbered list")
         print_numbered_list_of_possibilities(adepts_list)
         choice = input()
     return adepts_list[int(choice) - 1]
 
 
-def set_wounds(adeptus: str):
+def set_wounds(character: dict):
     print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
           "meeting the Emperor.")
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll.")
     adeptus_wounds = {"Adeptus Astra Telepathica": 17, "Adeptus Astra Militarum": 23,
                       "Adeptus Mechanicus": 20, "Adeptus Officio Assassinorum": 19}
-    max_wounds = adeptus_wounds[adeptus] + roll(1, 5)
+    max_wounds = adeptus_wounds[character["Adeptus"]] + roll(1, 5, character["Name"])
     print("You have {0} wounds.".format(max_wounds))
     return max_wounds
 
 
-def get_characteristics(adeptus: str):
+def get_characteristics(character: dict):
     print("\n\tCharacteristics are crucial part of the game. They determine the results of evasion, fleeing, avoiding "
           "traps. Meanwhile, bonus of your characteristic\n(characteristic divided by 10) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
           " are equal to 30 + 2k10 dice rolls.\n\nCalculating stats...")
     characteristics = {}
-    if adeptus == "Adeptus Astra Telepathica":
-        characteristics = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10),
-                           "Agility": 30 + roll(2, 10), "Willpower": 30 + roll(2, 10)}  # Willpower is unique to psykers
-    elif adeptus == "Adeptus Astra Militarum":
-        characteristics = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10),
-                           "Agility": 30 + roll(2, 10)}
-    elif adeptus == "Adeptus Mechanicus":
-        characteristics = {"Intellect": 30 + roll(3, 10), "Strength": 30 + roll(3, 10), "Toughness": 30 + roll(3, 10),
-                           "Agility": 30 + roll(3, 10)}
+    if character["Adeptus"] == "Adeptus Astra Telepathica":
+        characteristics = {"Intellect": 30 + roll(3, 10, character["Name"]), "Strength": 30 + roll(2, 10,
+                           character["Name"]), "Toughness": 30 + roll(2, 10, character["Name"]), "Agility": 30 +
+                           roll(2, 10, character["Name"])}
+    elif character["Adeptus"] == "Adeptus Astra Militarum":
+        characteristics = {"Intellect": 30 + roll(2, 10, character["Name"]), "Strength": 30 + roll(3, 10,
+                           character["Name"]), "Toughness": 30 + roll(3, 10, character["Name"]), "Agility": 30 +
+                           roll(2, 10, character["Name"])}
+    elif character["Adeptus"] == "Adeptus Mechanicus":
+        characteristics = {"Intellect": 30 + roll(3, 10, character["Name"]), "Strength": 30 + roll(3, 10,
+                           character["Name"]), "Toughness": 30 + roll(3, 10, character["Name"]), "Agility": 30 +
+                           roll(3, 10, character["Name"])}
     else:
-        characteristics = {"Intellect": 30 + roll(2, 10), "Strength": 30 + roll(2, 10), "Toughness": 30 + roll(2, 10),
-                           "Agility": 30 + roll(3, 10)}
+        characteristics = {"Intellect": 30 + roll(2, 10, character["Name"]), "Strength": 30 + roll(2, 10,
+                           character["Name"]), "Toughness": 30 + roll(2, 10, character["Name"]), "Agility": 30 +
+                           roll(3, 10, character["Name"])}
     print_dictionary_items(characteristics)
     return characteristics
 
@@ -247,14 +253,14 @@ def get_level_name(adeptus: str, level: int):
 
 
 def has_evaded(enemy):
-    if roll(1, 100) <= enemy["Characteristics"]["Agility"]:
+    if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]:
         print("{0} evaded the attack".format(enemy["Name"]))
         return True
     return False
 
 
 def has_sustained(enemy):
-    if roll(1, 100) <= enemy["Characteristics"]["Toughness"]:
+    if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]:
         print("{0} sustained the attack".format(enemy["Name"]))
         return True
     return False
@@ -265,14 +271,14 @@ def manage_wounds(damage, character, evaded, sustained):
 
 
 def lightning(character: dict, enemy: dict):
-    damage = roll(2, 10)
+    damage = roll(2, 10, character["Name"])
     print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
         character["Name"], damage, enemy["Name"]))
     return damage
 
 
 def colossus_smash(character: dict, enemy: dict):
-    damage = character["Characteristics"]["Strength"] + roll(1, 10)
+    damage = character["Characteristics"]["Strength"] + roll(1, 10, character["Name"])
     print("A devastating blow of {0} weapon rips the {1} that dealing {2} damage".format(
         character["Name"], enemy["Name"], damage))
     return damage
@@ -280,7 +286,8 @@ def colossus_smash(character: dict, enemy: dict):
 
 def laser_shot(character: dict, enemy: dict):
     damage = character["Characteristics"]["Intellect"]
-    print("".format(damage))
+    print("Your servo-skull shots a laser beam from its eyes dealing {0} damage to the {1}.".format(damage,
+          enemy["Name"]))
     return damage
 
 
@@ -293,19 +300,19 @@ def deus_ex_machina(character: dict, enemy: dict):
     :return:
     """
     skills_list = [skill for skill in character["Skills"].keys()]
-    skills_list = random.choices(skills_list, k=roll(1, 10))
+    skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
     for skill in skills_list:
         use_skill(character, skill, enemy)
 
 
 def deadly_burst(character: dict, enemy: dict):
-    damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10)
-    print("A devastating blow of your weapon that deals {0} damage".format(damage))
+    damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10, character["Name"])
+    print("A devastating blow of your weapon that deals {0} damage to the {1}".format(damage, enemy["Name"]))
     return damage
 
 
 def flee_away(character: dict, enemy: dict):
-    if roll(1, 100) > character["Characteristics"]["Agility"]:
+    if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)
     character["Will to fight"] = False
     return 0
