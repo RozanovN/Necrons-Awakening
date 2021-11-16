@@ -15,6 +15,10 @@ All of your code must go in this file.
 6. Is usage of map, itertools here overcomplicating?
 7. Ask whether the doctest should consider a program as a whole or only locally. E.g. func doesn't care about params, but program does
 8. Teleportation to th boss and cheats for marking purpose
+9. Making helper functions local to parent functions
+10. Ask about process_input function
+11. Ask about event function running out of the line limit
+12. Since you have opportunity to leave at any point, should we add that as post condition to, for example, set_name()
 """
 import random
 import time
@@ -108,6 +112,7 @@ def combat(character: dict, enemy: dict) -> None:
         not enemy["Will to fight"] else 0
     character["Will to fight"] = True
 
+
 def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     """
     Add a room to the board if the board doesn't have a room at the given coordinates
@@ -115,6 +120,7 @@ def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     :param board: a dictionary
     :param coordinates: tuple of positive integers
     :precondition: board must be a dictionary
+    :precondition: board keys must be tuples of integers
     :precondition: coordinates items must be positive integers
     :postcondition: Adds a room with random description to the board if the board doesn't have a room at the given
                     coordinates
@@ -127,10 +133,10 @@ def generate_random_room_event() -> str:
     """
     Generate a random room event.
 
-    This is a helper function for add_room_to_the_board
+    This is a helper function for add_room_to_the_board function.
 
-    :postcondition: returns a random description for a room from the list of description.
-    :return: the description as a string
+    :postcondition: returns a random event name for a room from the list of events.
+    :return: the event's name as a string
     """
     list_of_events = [
         "Empty Room",
@@ -158,6 +164,12 @@ def generate_random_room_event() -> str:
 
 
 def process_input(character: dict, list_of_options: list) -> str:
+    """
+
+    :param character:
+    :param list_of_options:
+    :return:
+    """
     user_input = str(input())
     input_is_processed = True
     while input_is_processed:
@@ -175,9 +187,15 @@ def process_input(character: dict, list_of_options: list) -> str:
 
 
 def character_creation() -> dict:
+    """
+    Create character
+
+    :postcondition: creates a character
+    :return: character as a dictionary
+    """
     character = {
         "Name": set_name(),
-        "Adeptus": set_adeptus(),
+        "Adeptus": None,
         "Max wounds": 0,
         "Current wounds": 0,
         "Characteristics": {},
@@ -194,6 +212,7 @@ def character_creation() -> dict:
             "Torch": 10
         }
     }
+    character["Adeptus"] = set_adeptus(character)
     character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
     time.sleep(3)
@@ -218,7 +237,7 @@ def set_name():
     return name
 
 
-def set_adeptus() -> str:
+def set_adeptus(character) -> str:
     print(
         "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
         "of the various departments of the Adeptus Terra that serve the will of the \nbeneficent "
@@ -256,12 +275,7 @@ def set_adeptus() -> str:
                    " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
-    choice = input()
-    while not validate_option(choice, adepts_list) and choice != "q":
-        print("{0} is not a correct input, try again:".format(choice))
-        print("To choose an adeptus enter its index from the numbered list")
-        print_numbered_list_of_possibilities(adepts_list)
-        choice = input()
+    choice = process_input(character, adepts_list)
     return adepts_list[int(choice) - 1]
 
 
