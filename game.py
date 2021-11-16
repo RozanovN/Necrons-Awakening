@@ -3,6 +3,9 @@ Your name:
 Your student number:
 
 All of your code must go in this file.
+
+1. Ask about clarity of line 38
+2.
 """
 import random
 import time
@@ -15,67 +18,33 @@ def game():
     """
     rows = 25
     columns = 25
+    print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
+          " Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
+          "against heretics, aliens and witches."
+          "\n\tBut perhaps the biggest threat you face is your fellow man, for the human soul is such "
+          "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths"
+          " of damnation\n"
+          "\n\tPrior to starting your service to the Emperor, you must first create a character.\n")
+    character = character_creation()
     board = {
         (0, 0):
-            tutorial,
+            tutorial(),
         (25, 0):
             boss
     }
-    print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
-          " Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
-          "against heretics, aliens and witches.")
-    print("\tBut perhaps the biggest threat you face is your fellow man, for the human soul is such "
-          "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths"
-          " of damnation\n")
-    print("Prior to starting your service to the Emperor, you must first create a character.\n")
-    character = character_creation()
-    user_input = None
-    in_combat = False
-    enemy = {}
-
-    while user_input != "q" and is_alive(character) and is_goal_attained(character):  # q = quit
-        if user_input in get_command_list():
-            if has_argument(user_input):
-                user_input = get_command(user_input)
-                user_input(character)
-            else:
-                user_input = get_command(user_input)
-        if not in_combat:
-            available_directions = get_available_directions(character, rows, columns)
-            print_numbered_list_of_possibilities(available_directions)
-            user_input = str(input())
-            if user_input in get_command_list():
-                continue
-            elif not validate_option(user_input, available_directions):
-                print("{0} is not a valid input. Please, try again.".format(user_input))
-                continue
-            user_input = int(user_input) - 1
-            coordinates = move_character(character, user_input, available_directions)
-            add_room_to_the_board(coordinates, board)
-            show_filtered_map("", get_map(board, character, columns, rows))
-            show_wounds(character["Current wounds"], character["Max wounds"])
-            show_level(character)
-            manage_events(board, coordinates)
-            time.sleep(1)
+    while is_alive(character) and is_goal_attained(character):
+        available_directions = get_available_directions(character, rows, columns)
+        print_numbered_list_of_possibilities(available_directions)
+        user_input = int(process_input(character, available_directions)) - 1
+        add_room_to_the_board(move_character(character, user_input, available_directions), board)
+        show_map(get_map(board, character, columns, rows))
+        show_wounds(character["Current wounds"], character["Max wounds"])
+        show_level(character)
+        manage_events(board, character)
+        time.sleep(1)
             if check_for_foes():
-                in_combat = True   # Combat begins
                 enemy = generate_enemy(character["Level"][0])
-        elif in_combat:
-            if not (is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]):
-                in_combat = False  # Combat ends
-            print_numbered_list_of_possibilities(list(character["Skills"].keys()))
-            user_input = str(input())
-            if user_input in get_command_list():
-                continue
-            elif validate_option(user_input, list(character["Skills"].keys())):
-                print("{0} is not a valid input. Please, try again.".format(user_input))
-                continue
-            damage = use_skill(character, list(character["Skills"].keys())[int(user_input) - 1], enemy)  # player's turn
-            enemy["Current wounds"] -= 0 if has_evaded(enemy) else damage / 2 if has_sustained(character) else damage
-            damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)  # enemy's turn
-            character["Current wounds"] -= 0 if has_evaded(character) else damage / 2
-            if random.randrange(1, 6) == 1:
-                use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
+                combat(character, enemy)  # Combat begins
         if reached_new_level(character):
             time.sleep(1)
             print("\nYou reached new level.")
@@ -87,6 +56,18 @@ def game():
     else:
         print("Congratulations! You slain yet another blasphemous denizen of the Realm of Chaos and retrieved"
               "an accursed Necronian artifact.\nThe end.")
+
+
+def combat(character: dict, enemy: dict):
+    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
+        print_numbered_list_of_possibilities(list(character["Skills"].keys()))
+        user_input = int(process_input(character, list(character["Skills"].keys()))) - 1
+        damage = use_skill(character, list(character["Skills"].keys())[user_input], enemy)  # player's turn
+        manage_wounds(damage, enemy)
+        damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)  # enemy's turn
+        manage_wounds(damage, enemy)
+        if random.randrange(1, 6) == 1:
+            use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
 
 
 def add_room_to_the_board(coordinates: tuple, board: dict):
@@ -138,7 +119,7 @@ def generate_random_room_description():
     return random.choices(list_of_rooms, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
 
 
-def process_input(character, list_of_options):
+def process_input(character: dict, list_of_options: list) -> str:
     user_input = str(input())
     input_is_processed = True
     while input_is_processed:
@@ -346,15 +327,15 @@ def has_sustained(enemy: dict):
     return False
 
 
-def manage_wounds(damage: int, character: dict):
-    if has_evaded(character):
-        print("However, {0} evaded the attack.".format(character["Name"]))
+def manage_wounds(damage: int, enemy: dict):
+    if has_evaded(enemy):
+        print("However, {0} evaded the attack.".format(enemy["Name"]))
     else:
-        if has_sustained(character):
-            character["Current wounds"] -= damage / 2
-            print("However, {0} sustained the attack and receives only {1}".format(character["Name"], damage / 2))
+        if has_sustained(enemy):
+            enemy["Current wounds"] -= damage / 2
+            print("However, {0} sustained the attack and receives only {1}".format(enemy["Name"], damage / 2))
         else:
-            character["Current wounds"] -= damage
+            enemy["Current wounds"] -= damage
 
 
 def lightning(character: dict, enemy: dict):
@@ -472,12 +453,18 @@ def help_commands():
 
 
 def get_command_list():
-    commands_dictionary = ["h", "b", "s", "i"]
-    return commands_dictionary
+    commands_list = ["q", "h", "b", "s", "i"]
+    return commands_list
 
 
 def has_argument(command: str):
-    commands_dictionary = {"h": False, "b": True, "s": True, "i": True}
+    commands_dictionary = {
+        "q": False,
+        "h": False,
+        "b": True,
+        "s": True,
+        "i": True
+    }
     return commands_dictionary[command]
 
 
@@ -766,13 +753,16 @@ def manage_events(board: dict, character: dict):
 
          },
     }
-    print(events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]]["Description"])
-    #  if has_input in keys, prompt inout
-    #  if gives_item in keys, give item
-    #  if random_effect in keys, get random effect
-    #  if has_stat in keys, improve stat
-    if "Heal" in events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]].keys():
-        character["Current wounds"] = character["Max wounds"]
+    if board[(character["Y-coordinate"], character["X-coordinate"])] == boss:
+        boss(character)
+    else:
+        print(events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]]["Description"])
+        #  if has_input in keys, prompt inout
+        #  if gives_item in keys, give item
+        #  if random_effect in keys, get random effect
+        #  if has_stat in keys, improve stat
+        if "Heal" in events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]].keys():
+            character["Current wounds"] = character["Max wounds"]
 
 
 def get_available_directions(character: dict, columns: int, rows: int):
