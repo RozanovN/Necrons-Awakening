@@ -6,19 +6,25 @@ All of your code must go in this file.
 
 1. Ask about clarity of line 38
 2.
-    a)If you defined a data structure, and then assign a different value to it (like in the picture), will it be still counted as one line?
-    b)If you have some function inside the data structure definition (same picture) will it be still counted as one line?
+    a)If you defined a data structure, and then assign a different value to it, will it be still counted as one line?
+    b)If you have some function inside the data structure definition, will it be still counted as one line?
     c)If you define a data structure using if and else, will it be counted as one line? For example, x = 5 if z == True <new line> else 10.
-3.
+3. Do we put a . at the end of a preconditions etc.
+4. Can we use polymorphism?
+5. ASCII art over character limit
+6. Is usage of map, itertools here overcomplicating?
+7. Ask whether the doctest should consider a program as a whole or only locally. E.g. func doesn't care about params, but program does
+8. Teleportation to th boss and cheats for marking purpose
 """
 import random
 import time
 import itertools
 
 
-def game():
+def game() -> None:
     """
     Drive the game.
+
     """
     rows = 25
     columns = 25
@@ -51,23 +57,58 @@ def game():
             combat(character, enemy)  # Combat begins
         if reached_new_level(character):
             time.sleep(1)
-            print("\nYou reached new level.")
             level_up(character)
 
 
-def combat(character: dict, enemy: dict):
+def combat(character: dict, enemy: dict) -> None:
+    """
+    Drive the combat.
+
+    :param character: a dictionary
+    :param enemy: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character keys must contain the following strings: Current wounds, Will to Fight, Skills, Current
+                   experience, Max wounds, Name, Characteristics, Inventory
+    :precondition: character value with key Current wounds must be an integer
+    :precondition: character value with key Will to fight must be a boolean
+    :precondition: character value with key Skills must contain a dictionary with strings as keys and function
+                   references as values
+    :precondition: character value with key Current experience must contain an integer
+    :precondition: character value with key Max wounds must be an integer
+    :precondition: character value with key Name must be a string
+    :precondition: character value with key Characteristics must be a dictionary with strings as keys and integers as
+                   values
+    :precondition: character value with key Inventory must be a dictionary  with strings as keys and integers as values
+    :precondition: enemy must be a dictionary
+    :precondition: enemy keys must contain the following strings: Current wounds, Will to Fight, Skills,
+                   Experience, Name, Characteristics
+    :precondition: enemy value with key Current wounds must be an integer
+    :precondition: enemy value with key Will to fight must be a boolean
+    :precondition: enemy value with key Skills must contain a dictionary with at least 2 pairs, strings as keys and
+                   function references as values
+    :precondition: enemy value with key Experience must contain an integer
+    :precondition: enemy value with key Name must be a string
+    :precondition: enemy value with key Characteristics must be a dictionary with strings as keys and integers as
+                   values
+    :postcondition: battle ends if character wounds is <= zero or if character decides to flee.
+    :postcondition: battle ends if enemy wounds is <= zero or if enemy decides to flee.
+    :postcondition: character receives full experience if enemy is killed, half experience if enemy flees, else none
+    """
     while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
+        show_wounds(character["Current wounds"], character["Max wounds"])
         print_numbered_list_of_possibilities(list(character["Skills"].keys()))
         user_input = int(process_input(character, list(character["Skills"].keys()))) - 1
         damage = use_skill(character, list(character["Skills"].keys())[user_input], enemy)  # player's turn
         manage_wounds(damage, enemy)
-        damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())), character)  # enemy's turn
+        damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys()))[1::], character)  # enemy's turn
         manage_wounds(damage, enemy)
         if random.randrange(1, 6) == 1:
             use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
+    character["Current experience"] += enemy["Experience"] if not is_alive(enemy) else enemy["Experience"] / 2 if \
+        not enemy["Will to fight"] else 0
+    character["Will to fight"] = True
 
-
-def add_room_to_the_board(coordinates: tuple, board: dict):
+def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     """
     Add a room to the board if the board doesn't have a room at the given coordinates
 
@@ -82,7 +123,7 @@ def add_room_to_the_board(coordinates: tuple, board: dict):
         board.setdefault(coordinates, generate_random_room_event())
 
 
-def generate_random_room_event():
+def generate_random_room_event() -> str:
     """
     Generate a random room event.
 
@@ -133,7 +174,7 @@ def process_input(character: dict, list_of_options: list) -> str:
         user_input = str(input())
 
 
-def character_creation():
+def character_creation() -> dict:
     character = {
         "Name": set_name(),
         "Adeptus": set_adeptus(),
@@ -169,13 +210,15 @@ def character_creation():
 def set_name():
     print("Enter your name:")
     name = str(input()).capitalize()
-    while name == "":
-        print("You must enter something. Even this grim dark world wants to know your name. Please, try again:")
-        name = str(input()).capitalize()
+    if name == "":
+        print("You must enter something. Even this grim dark world wants to know your name. Please, try again.")
+        name = set_name()
+    elif name == "q":
+        quit_game()
     return name
 
 
-def set_adeptus():
+def set_adeptus() -> str:
     print(
         "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
         "of the various departments of the Adeptus Terra that serve the will of the \nbeneficent "
@@ -222,7 +265,7 @@ def set_adeptus():
     return adepts_list[int(choice) - 1]
 
 
-def set_wounds(character: dict):
+def set_wounds(character: dict) -> int:
     print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
           "meeting the Emperor.")
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll.")
@@ -237,7 +280,7 @@ def set_wounds(character: dict):
     return max_wounds
 
 
-def get_characteristics(character: dict):
+def get_characteristics(character: dict) -> dict:
     print("\n\tCharacteristics are crucial part of the game. They determine the results of evasion, fleeing, avoiding "
           "traps. Meanwhile, bonus of your characteristic\n(characteristic divided by 10) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
@@ -275,7 +318,7 @@ def get_characteristics(character: dict):
     return characteristics
 
 
-def get_skills(character: dict):
+def get_skills(character: dict) -> None:
     """
 
     :param character:
@@ -310,21 +353,21 @@ def get_level_name(adeptus: str, level: int):
         return level, level_dictionary[adeptus]
 
 
-def has_evaded(enemy: dict):
+def has_evaded(enemy: dict) -> bool:
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]:
         print("{0} evaded the attack".format(enemy["Name"]))
         return True
     return False
 
 
-def has_sustained(enemy: dict):
+def has_sustained(enemy: dict) -> bool:
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]:
         print("{0} sustained the attack".format(enemy["Name"]))
         return True
     return False
 
 
-def manage_wounds(damage: int, enemy: dict):
+def manage_wounds(damage: int, enemy: dict) -> None:
     if has_evaded(enemy):
         print("However, {0} evaded the attack.".format(enemy["Name"]))
     else:
@@ -335,28 +378,28 @@ def manage_wounds(damage: int, enemy: dict):
             enemy["Current wounds"] -= damage
 
 
-def lightning(character: dict, enemy: dict):
+def lightning(character: dict, enemy: dict) -> int:
     damage = roll(2, 10, character["Name"])
     print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
         character["Name"], damage, enemy["Name"]))
     return damage
 
 
-def colossus_smash(character: dict, enemy: dict):
+def colossus_smash(character: dict, enemy: dict) -> int:
     damage = character["Characteristics"]["Strength"] + roll(1, 10, character["Name"])
     print("A devastating blow of {0} weapon rips the {1} that dealing {2} damage".format(
         character["Name"], enemy["Name"], damage))
     return damage
 
 
-def laser_shot(character: dict, enemy: dict):
+def laser_shot(character: dict, enemy: dict) -> int:
     damage = character["Characteristics"]["Intellect"]
     print("Your servo-skull shots a laser beam from its eyes dealing {0} damage to the {1}.".format(damage,
           enemy["Name"]))
     return damage
 
 
-def deus_ex_machina(character: dict, enemy: dict):
+def deus_ex_machina(character: dict, enemy: dict) -> int:
     """
     Use random amount of random skills
 
@@ -366,35 +409,37 @@ def deus_ex_machina(character: dict, enemy: dict):
     """
     skills_list = [skill for skill in character["Skills"].keys()]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
+    damage = 0
     for skill in skills_list:
-        use_skill(character, skill, enemy)
+       damage += use_skill(character, skill, enemy)
+    return damage
 
 
-def deadly_burst(character: dict, enemy: dict):
+def deadly_burst(character: dict, enemy: dict) -> int:
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10, character["Name"])
     print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage,))
     return damage
 
 
-def flee_away(character: dict, enemy: dict):
+def flee_away(character: dict, enemy: dict) -> 0:
     if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())[0::1]), character)
     character["Will to fight"] = False
     return 0
 
 
-def enemy_attack(character: dict, enemy: dict):
+def enemy_attack(character: dict, enemy: dict) -> int:
     pass
 
 
-def daemon_trickery(character, enemy):
+def daemon_trickery(character: dict, enemy: dict) -> int:
     print("{0} dirtily makes another attack".format(character["Name"]))
     damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, character) for _ in range(5)])))
     print("{0} deals {1} damage to {2}".format(character["Name"], damage, enemy["Name"]))
     return damage
 
 
-def print_numbered_list_of_possibilities(list_of_options: list):
+def print_numbered_list_of_possibilities(list_of_options: list) -> None:
     """
     Prints a numbered list of options
 
@@ -408,7 +453,7 @@ def print_numbered_list_of_possibilities(list_of_options: list):
         print(green_text() + str(index) + normal_text(), option_name)
 
 
-def print_dictionary_items(dictionary: dict):
+def print_dictionary_items(dictionary: dict) -> None:
     """
 
     :param dictionary:
@@ -420,7 +465,7 @@ def print_dictionary_items(dictionary: dict):
         print(green_text() + key + normal_text() + ":", dictionary[key])
 
 
-def roll(number_of_dice: int, number_of_sides: int, name: str):
+def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     """
 
     :param number_of_dice:
@@ -449,12 +494,12 @@ def help_commands():
           .format(green_text(), normal_text()))
 
 
-def get_command_list():
+def get_command_list() -> list:
     commands_list = ["q", "h", "b", "s", "i"]
     return commands_list
 
 
-def has_argument(command: str):
+def has_argument(command: str) -> bool:
     commands_dictionary = {
         "q": False,
         "h": False,
@@ -480,7 +525,7 @@ def get_command(command_name: str):
     return commands_dictionary[command_name]
 
 
-def show_list_of_skills(character: dict):
+def show_list_of_skills(character: dict) -> None:
     """
 
     :param character:
@@ -489,20 +534,20 @@ def show_list_of_skills(character: dict):
     print_dictionary_items(character["Skills"])
 
 
-def use_skill(character: dict, skill_name: str, enemy: dict):
+def use_skill(character: dict, skill_name: str, enemy: dict) -> int:
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
                          "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack,
                          "Daemon's Trickery": daemon_trickery}
     return skills_dictionary[skill_name](character, enemy)
 
 
-def reached_new_level(character: dict):
+def reached_new_level(character: dict) -> bool:
     if character["Level"] == 3:
         return False
     return character["Current experience"] >= character["Experience for the next level"]
 
 
-def level_up(character: dict):
+def level_up(character: dict) -> None:
     dictionary_of_skills = {
         2: {
             "Adeptus Astra Telepathica":
@@ -542,6 +587,7 @@ def level_up(character: dict):
             "Adeptus Officio Assassinorum": 5
         }
     }
+    print("\nYou reached new level.")
     character["Level"] += 1
     if character["Level"] == 3:
         character["Experience for the next level"] = "Reached the maximum level."
@@ -550,17 +596,18 @@ def level_up(character: dict):
                                    dictionary_of_skills[character["Level"]][character["Adeptus"]][1])
     character["Maximum wounds"] += dictionary_of_wounds[character["Level"]][character["Adeptus"]]
     character["Current wounds"] = character["Maximum wounds"]
+    get_level_name(character["Adeptus"], character["Level"][0])
 
 
-def green_text():
+def green_text() -> str:
     return "\x1b[1;32m"
 
 
-def normal_text():
+def normal_text() -> str:
     return "\x1b[0;20m"
 
 
-def bandage(character: dict):
+def bandage(character: dict) -> None:
     if character["Inventory"]["Bandage"] > 0:
         character["Current wounds"] = character["Current wounds"] + 4 if character["Current wounds"] != \
             character["Max wounds"] else character["Max wounds"]
@@ -576,7 +623,7 @@ def bandage(character: dict):
         print("You have no bandages")
 
 
-def show_wounds(wounds, maximum_wounds):
+def show_wounds(wounds, maximum_wounds) -> None:
     """
 
     :param wounds:
@@ -588,7 +635,7 @@ def show_wounds(wounds, maximum_wounds):
     print("Wounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
-def show_level(character: dict):
+def show_level(character: dict) -> None:
     print(
         "Level: {0}, {1}\n"
         "Experience: {2}/{3}".format(
@@ -600,18 +647,22 @@ def show_level(character: dict):
     )
 
 
-def show_inventory(character: dict):
+def show_inventory(character: dict) -> None:
     print("You have the following items:")
     print("Item name \t\t\t Amount of items")
     print_dictionary_items(character["Inventory"])
 
 
-def quit_game():
+def show_characteristics(character):
+
+
+
+def quit_game() -> None:
     print("\nYou may deserve now, but your duty to the Emperor will last forever")
     quit()
 
 
-def manage_events(board: dict, character: dict):
+def manage_events(board: dict, character: dict) -> None:
     """
     Print the description of character's location.
 
@@ -772,7 +823,7 @@ def manage_events(board: dict, character: dict):
             character["Current wounds"] = character["Max wounds"]
 
 
-def get_available_directions(character: dict, columns: int, rows: int):
+def get_available_directions(character: dict, columns: int, rows: int) -> list:
     """
     Get the list of available directions.
 
@@ -807,7 +858,7 @@ def get_available_directions(character: dict, columns: int, rows: int):
     return available_directions
 
 
-def validate_option(choice: str, list_of_options: list):
+def validate_option(choice: str, list_of_options: list) -> bool:
     """
     Validate option availability.
 
@@ -830,7 +881,7 @@ def validate_option(choice: str, list_of_options: list):
     return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
 
 
-def move_character(character: dict, direction_index: int, available_directions: list):
+def move_character(character: dict, direction_index: int, available_directions: list) -> tuple:
     """
     Change character's coordinates.
 
@@ -858,7 +909,7 @@ def move_character(character: dict, direction_index: int, available_directions: 
     return character["Y-coordinate"], character["X-coordinate"]
 
 
-def is_goal_attained(character: dict):
+def is_goal_attained(character: dict) -> bool:
     """
     Check if goal is attained.
 
@@ -875,7 +926,7 @@ def is_goal_attained(character: dict):
     return "Artifact" in character.keys()
 
 
-def check_for_foes():
+def check_for_foes() -> bool:
     """
     Check if foe is encountered.
 
@@ -885,7 +936,7 @@ def check_for_foes():
     return random.randrange(0, 6) == 0
 
 
-def generate_enemy(level):
+def generate_enemy(level) -> dict:
     enemies_dictionary = {
         1:  # Level 1
         [
@@ -902,7 +953,8 @@ def generate_enemy(level):
                 "Skills": {
 
                 },
-                "Will to fight": True
+                "Will to fight": True,
+                "Experience": 0
             },
             {  # Rat
                 "Name": "Rat",
@@ -917,14 +969,15 @@ def generate_enemy(level):
                 "Skills": {
                     "Enemy Attack": "Rat greedily bites you with its front teeth"
                 },
-                "Will to fight": True
+                "Will to fight": True,
+                "Experience": 50
             },
         ]
     }
     return random.choices(enemies_dictionary[level], [0, 30], k=1)[0]
 
 
-def is_alive(character: dict):
+def is_alive(character: dict) -> bool:
     """
     Determine if character is alive.
     :param character: a dictionary
@@ -951,7 +1004,7 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     :param columns:
     :param rows:
     >>> print(get_map({(0, 0): "This room is empty", (0, 1): "This room is empty", (0, 2): "This room is empty", \
-                (1, 0): "This room is empty", (1, 1): "This room is empty", (1, 2): ancient_altar_room}, \
+                (1, 0): "This room is empty", (1, 1): "This room is empty", (1, 2): "Ancient Altar"}, \
                 {"Y-coordinate": 0, "X-coordinate": 0}, 5, 5))
 
     """
@@ -971,7 +1024,7 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     return result
 
 
-def show_map(location_map):
+def show_map(location_map) -> None:
     r"""
 
     :param location_map:
@@ -985,18 +1038,13 @@ def show_map(location_map):
     print(location_map)
     print("* —— not discovered yet, + —— room with an altar, U —— your character, e —— an empty room"
           "█ ——")
-    
-
-def ancient_altar_room(character: dict):
-    print()
-    character["Current wounds"] = character["Maximum wounds"]
 
 
 def tutorial():
-    pass
 
 
-def boss(character):
+
+def boss(character) -> None:
     if character["Level"][0] != 3:
         print("Fear takes control over you as soon as you get close to this room.\n"
               "You feel like you have to get more experience before facing it.\n You decide to retreat.")
@@ -1007,6 +1055,7 @@ def boss(character):
               ". However, your joy deserves rapidly as you notice a gigantic daemon holding the precious artefact"
               "you are tasked to retrieve. The daemon notices you and smirks. His grotesque claws reveals his name ——"
               "Goreclaw the Render, a Daemon Prince of Khorne —— infamous among the inquisitors of this galaxy."
+              "You know it will be a deadly battle with no opportunity to flee."
               "\n\"Bring. It. On.\", his monstrous majesty mandates")
         enemy = {
             "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
@@ -1022,10 +1071,12 @@ def boss(character):
                 "Flame of Chaos": 0
             }
         }
+        character.setdefault("Artifact", "Necronian artifact")
+        character["Skills"]["Flee away"].pop()
         combat(character, enemy)
 
 
-def game_over(character: dict):
+def game_over(character: dict) -> None:
     if not is_alive(character):
         print(
                 ("▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****\n"
@@ -1063,9 +1114,10 @@ def game_over(character: dict):
 \n\n\nYou slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.""")
 
 
-def main():
+def main() -> None:
     """
-    Drive the program
+    Drive the program.
+
     """
     print("{:^160}".format("It is the 41st Millennium… "), (
         "\n \tFor more than a hundred centuries the Emperor has sat immobile on the Golden Throne "
@@ -1093,7 +1145,7 @@ def main():
         "\n\nAll rights belong to Games Workshop.")
     time.sleep(2)
     print("\n\n\n{:^160}".format("Welcome to the nightmarish world of Warhammer 40k Dark Heresy"))
-    print("You may desert anytime by typing {0}q{1}.".format(green_text(), normal_text()))
+    print("\n\nYou may desert anytime by typing {0}q{1}.\n\n".format(green_text(), normal_text()))
     game()
 
 
