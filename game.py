@@ -6,6 +6,10 @@ All of your code must go in this file.
 
 1. Ask about clarity of line 38
 2.
+    a)If you defined a data structure, and then assign a different value to it (like in the picture), will it be still counted as one line?
+    b)If you have some function inside the data structure definition (same picture) will it be still counted as one line?
+    c)If you define a data structure using if and else, will it be counted as one line? For example, x = 5 if z == True <new line> else 10.
+3.
 """
 import random
 import time
@@ -42,20 +46,13 @@ def game():
         show_level(character)
         manage_events(board, character)
         time.sleep(1)
-            if check_for_foes():
-                enemy = generate_enemy(character["Level"][0])
-                combat(character, enemy)  # Combat begins
+        if check_for_foes():
+            enemy = generate_enemy(character["Level"][0])
+            combat(character, enemy)  # Combat begins
         if reached_new_level(character):
             time.sleep(1)
             print("\nYou reached new level.")
             level_up(character)
-    if user_input == "q":  # Make Game Over function later
-        print("\nYou may deserve now, but your duty to the Emperor will last forever")
-    elif is_alive(character):
-        print("\nYou died. Game over!")
-    else:
-        print("Congratulations! You slain yet another blasphemous denizen of the Realm of Chaos and retrieved"
-              "an accursed Necronian artifact.\nThe end.")
 
 
 def combat(character: dict, enemy: dict):
@@ -82,19 +79,19 @@ def add_room_to_the_board(coordinates: tuple, board: dict):
                     coordinates
     """
     if coordinates not in board.keys():
-        board.setdefault(coordinates, generate_random_room_description())
+        board.setdefault(coordinates, generate_random_room_event())
 
 
-def generate_random_room_description():
+def generate_random_room_event():
     """
-    Generate a random room description.
+    Generate a random room event.
 
-    This is a helper function for make_board().
+    This is a helper function for add_room_to_the_board
 
     :postcondition: returns a random description for a room from the list of description.
     :return: the description as a string
     """
-    list_of_rooms = [
+    list_of_events = [
         "Empty Room",
         "Ancient Altar Room",
         "Crate",
@@ -116,7 +113,7 @@ def generate_random_room_description():
         "Ceiling Drops",
         "Shifting Mist"
         ]
-    return random.choices(list_of_rooms, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
+    return random.choices(list_of_events, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
 
 
 def process_input(character: dict, list_of_options: list) -> str:
@@ -448,7 +445,7 @@ def help_commands():
 
     """
     print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
-          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\nn{0}i{1} —— show inventory"
+          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}i{1} —— show inventory"
           .format(green_text(), normal_text()))
 
 
@@ -474,7 +471,12 @@ def get_command(command_name: str):
     :param command_name:
     :return:
     """
-    commands_dictionary = {"h": help_commands, "b": bandage, "s": show_list_of_skills, "i": show_inventory}
+    commands_dictionary = {
+        "q": quit_game,
+        "h": help_commands,
+        "b": bandage,
+        "s": show_list_of_skills,
+        "i": show_inventory}
     return commands_dictionary[command_name]
 
 
@@ -604,12 +606,17 @@ def show_inventory(character: dict):
     print_dictionary_items(character["Inventory"])
 
 
+def quit_game():
+    print("\nYou may deserve now, but your duty to the Emperor will last forever")
+    quit()
+
+
 def manage_events(board: dict, character: dict):
     """
     Print the description of character's location.
 
     :param board: a dictionary
-    :param coordinates: a tuple of positive integers
+    :param character: a tuple of positive integers
     :precondition: board must be a dictionary
     :precondition: coordinates must be positive integers
     :precondition: character values must be integers that are >= 0
@@ -998,8 +1005,8 @@ def boss(character):
     else:
         print("You enter the dreadful room. The Necronian decor exactly matches the description the Inquisitor gave you"
               ". However, your joy deserves rapidly as you notice a gigantic daemon holding the precious artefact"
-              "you are tasked to retrieve. The daemon notices you and smirks. His grotesque claws reveals his name"
-              "Goreclaw the Render, a Daemon Prince of Khorne, infamous among the inquisitors of this galaxy."
+              "you are tasked to retrieve. The daemon notices you and smirks. His grotesque claws reveals his name ——"
+              "Goreclaw the Render, a Daemon Prince of Khorne —— infamous among the inquisitors of this galaxy."
               "\n\"Bring. It. On.\", his monstrous majesty mandates")
         enemy = {
             "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
@@ -1016,6 +1023,44 @@ def boss(character):
             }
         }
         combat(character, enemy)
+
+
+def game_over(character: dict):
+    if not is_alive(character):
+        print(
+                ("▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****\n"
+                 "*▒██**██▒***▒██▒**██▒****██**▓██▒*********▒██▀*██▌***▓██▒***▓█***▀****▒██▀*██▌***\"\n"
+                 "**▒██*██░***▒██░**██▒***▓██**▒██░*********░██***█▌***▒██▒***▒███******░██***█▌***\n"
+                 "**░*▐██▓░***▒██***██░***▓▓█**░██░*********░▓█▄***▌***░██░***▒▓█**▄****░▓█▄***▌***\n"
+                 "**░*██▒▓░***░*████▓▒░***▒▒█████▓**********░▒████▓****░██░***░▒████▒***░▒████▓****\n"
+                 "***██▒▒▒****░*▒░▒░▒░****░▒▓▒*▒*▒**********▒▒▓**▒******░▓*****░░*▒░*░**▒▒▓**▒****\n"
+                 "*▓██*░▒░******░*▒*▒░****░░▒░*░*░**********░*▒**▒*****▒*░****░*░**░****░*▒**▒****\n"
+                 "*░*░************░*░********░********************░********░********░**░******░*******\n"
+                 "*░*░******************************************░***************************░*********\n"
+                 "**▄████*****▄▄▄**********███▄*▄███▓***▓█████***********▒█████******██▒***█▓***▓█████*****██▀███**\n"
+                 "*██▒*▀█▒***▒████▄*******▓██▒▀█▀*██▒***▓█***▀**********▒██▒**██▒***▓██░***█▒***▓█***▀****▓██*▒*██▒\n"
+                 "▒██░▄▄▄░***▒██**▀█▄*****▓██****▓██░***▒███************▒██░**██▒****▓██**█▒░***▒███******▓██*░▄█*▒\n"
+                 "░▓█**██▓***░██▄▄▄▄██****▒██****▒██****▒▓█**▄**********▒██***██░*****▒██*█░░***▒▓█**▄****▒██▀▀█▄**\n"
+                 "░▒▓███▀▒****▓█***▓██▒***▒██▒***░██▒***░▒████▒*********░*████▓▒░******▒▀█░*****░▒████▒***░██▓*▒██▒\n"
+                 "*░▒***▒*****▒▒***▓▒█░***░*▒░***░**░***░░*▒░*░*********░*▒░▒░▒░*******░*▐░*****░░*▒░*░***░*▒▓*░▒▓░\n"
+                 "**░***░******▒***▒▒*░***░**░******░****░*░**░***********░*▒*▒░*******░*░░******░*░**░*****░▒*░*▒░\n"
+                 "░*░***░******░***▒******░******░*********░************░*░*░*▒**********░░********░********░░***░*\n"
+                 "******░**********░**░**********░*********░**░*************░*░***********░********░**░******░*****\n"
+                 "***********************************************************************░*************************\n"
+                 ))
+    else:
+        print(
+                """
+*▄████████**▄██████▄**███▄▄▄▄******▄██████▄*****▄████████****▄████████*****███*****███****█▄***▄█**********▄████████*****███******▄█***▄██████▄**███▄▄▄▄******▄████████*
+███****███*███****███*███▀▀▀██▄***███****███***███****███***███****███*▀█████████▄*███****███*███*********███****███*▀█████████▄*███**███****███*███▀▀▀██▄***███****███*
+███****█▀**███****███*███***███***███****█▀****███****███***███****███****▀███▀▀██*███****███*███*********███****███****▀███▀▀██*███▌*███****███*███***███***███****█▀**
+███********███****███*███***███**▄███*********▄███▄▄▄▄██▀***███****███*****███***▀*███****███*███*********███****███*****███***▀*███▌*███****███*███***███***███********
+███********███****███*███***███*▀▀███*████▄**▀▀███▀▀▀▀▀***▀███████████*****███*****███****███*███*******▀███████████*****███*****███▌*███****███*███***███*▀███████████*
+███****█▄**███****███*███***███***███****███*▀███████████***███****███*****███*****███****███*███*********███****███*****███*****███**███****███*███***███**********███*
+███****███*███****███*███***███***███****███***███****███***███****███*****███*****███****███*███▌****▄***███****███*****███*****███**███****███*███***███****▄█****███*
+████████▀***▀██████▀***▀█***█▀****████████▀****███****███***███****█▀*****▄████▀***████████▀**█████▄▄██***███****█▀*****▄████▀***█▀****▀██████▀***▀█***█▀***▄████████▀**
+***********************************************███****███*************************************▀*************************************************************************
+\n\n\nYou slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.""")
 
 
 def main():
@@ -1048,10 +1093,8 @@ def main():
         "\n\nAll rights belong to Games Workshop.")
     time.sleep(2)
     print("\n\n\n{:^160}".format("Welcome to the nightmarish world of Warhammer 40k Dark Heresy"))
-    print("\nPlease type {0}s{1} to start the game:".format(green_text(), normal_text()))
     print("You may desert anytime by typing {0}q{1}.".format(green_text(), normal_text()))
-    if str(input()) == 's':
-        game()
+    game()
 
 
 if __name__ == '__main__':
