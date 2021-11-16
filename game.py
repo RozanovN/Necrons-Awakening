@@ -19,6 +19,7 @@ All of your code must go in this file.
 10. Ask about process_input function
 11. Ask about event function running out of the line limit
 12. Since you have opportunity to leave at any point, should we add that as post condition to, for example, set_name()
+13. Tuple vs dict for enemy_attack and generate enemy
 """
 import random
 import time
@@ -221,12 +222,18 @@ def character_creation() -> dict:
     get_skills(character)
     print("To check the list of skills type {0}s{1}.\nRight now you have the following skills:".format(green_text(),
           normal_text()))
+    show_list_of_skills(character)
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
     print("To see your inventory type {0}i{1}".format(green_text(), normal_text()))
     return character
 
 
 def set_name():
+    """
+
+
+    :return:
+    """
     print("Enter your name:")
     name = str(input()).capitalize()
     if name == "":
@@ -238,6 +245,11 @@ def set_name():
 
 
 def set_adeptus(character) -> str:
+    """
+
+    :param character:
+    :return:
+    """
     print(
         "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
         "of the various departments of the Adeptus Terra that serve the will of the \nbeneficent "
@@ -443,14 +455,40 @@ def flee_away(character: dict, enemy: dict) -> 0:
 
 
 def enemy_attack(character: dict, enemy: dict) -> int:
-    pass
+    damage = roll(character["Skills"][])
+    print
 
 
 def daemon_trickery(character: dict, enemy: dict) -> int:
+    """
+    Use Daemon Trickery skill
+
+    Roll is counted toward damage only if it's an even number.
+
+    :param character:
+    :param enemy:
+    :return:
+    """
     print("{0} dirtily makes another attack".format(character["Name"]))
-    damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, character) for _ in range(5)])))
+    damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, character["Name"]) for _ in
+                                                                            range(5)])))
     print("{0} deals {1} damage to {2}".format(character["Name"], damage, enemy["Name"]))
     return damage
+
+
+def blade_of_chaos(character: dict, enemy: dict):
+    print("You notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
+          "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet)"
+          "\nEnter the first letters of 2 body parts (AB for arms and body):")
+    correct_answer = random.choice(list(itertools.combinations("HBAF", 2)))
+    correct_answer = [correct_answer, correct_answer[::-1]]
+    if str(input()).replace(" ", "").upper() in correct_answer:
+        print("Success! Who is smirking now?")
+        character["Current wounds"] -= 8
+        return 0
+    else:
+        print("Failure! The Daemon smirks and deals {0} to {1}".format(8, enemy["Name"]))
+        return 8
 
 
 def print_numbered_list_of_possibilities(list_of_options: list) -> None:
@@ -490,7 +528,7 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
 
     """
     list_of_rolls = [random.randrange(1, number_of_sides + 1) for _ in range(number_of_dice)]
-    print("{0} rolled: {1}".format(name, list(itertools.chain(list_of_rolls))))
+    print("{0} rolled: {1}".format(name, list_of_rolls))
     print("The sum of {0} rolls is {1}".format(name, sum(list_of_rolls)))
     return sum(list_of_rolls)
 
@@ -668,7 +706,15 @@ def show_inventory(character: dict) -> None:
 
 
 def show_characteristics(character):
+    """
 
+    :param character:
+
+    >>> show_characteristics({"Characteristics": {"Intellect: 30"}})
+
+    """
+    print("Your characteristics are:")
+    print_dictionary_items(character["Characteristics"])
 
 
 def quit_game() -> None:
@@ -965,7 +1011,12 @@ def generate_enemy(level) -> dict:
                     "Agility": 55
                 },
                 "Skills": {
-
+                    "Flee away": "Flees away",
+                    "Enemy attack": {#("description", "int amount of dices", "int number of sides")
+                        "description": "abc",
+                        "amount of dices": 1,
+                        "int number of sides": 5
+                    }
                 },
                 "Will to fight": True,
                 "Experience": 0
@@ -981,11 +1032,17 @@ def generate_enemy(level) -> dict:
                     "Agility": 25
                 },
                 "Skills": {
-                    "Enemy Attack": "Rat greedily bites you with its front teeth"
+                    "Enemy Attack": ("Rat greedily bites you with its front teeth", 1, 5)
                 },
                 "Will to fight": True,
                 "Experience": 50
             },
+        ],
+        2: [
+
+        ],
+        3: [
+
         ]
     }
     return random.choices(enemies_dictionary[level], [0, 30], k=1)[0]
@@ -1028,7 +1085,7 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
             if (row, column) in board.keys() and (row, column) == \
                     (character["Y-coordinate"], character["X-coordinate"]):
                 result += green_text() + "U" + normal_text() + " "
-            elif (row, column) in board.keys() and board[(row, column)] == ancient_altar_room:
+            elif (row, column) in board.keys() and board[(row, column)] == "Ancient Altar room":
                 result += green_text() + "+" + normal_text() + " "
             elif (row, column) not in board.keys():
                 result += "*" + " "
