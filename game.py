@@ -1023,14 +1023,14 @@ def manage_events(board: dict, character: dict) -> None:
             ],
             "Input": {
                 "Yes": {
+                    "Check item": "Shovel",
                     "Effect": {
-                        ("Nothing", "You see clearly now"),
-                        ("Damage", "As soon as you lit your torch, the mist explodes.")
+                        ("Nothing", "You clear path without any problem."),
                     }
                 },
                 "No": {
                     "Effect": {
-                        ("Damage", "Without")
+                        ("Damage", "Without a shovel it takes a tremendous amount of effort and 4 of your wounds")
                     }
                 }
             }
@@ -1045,7 +1045,7 @@ def manage_events(board: dict, character: dict) -> None:
                     "Check item": "Torch",
                     "Effect": {
                         ("Nothing", "You see clearly now"),
-                        ("Damage", "As soon as you lit your torch, the mist explodes.")
+                        ("Damage", "As soon as you lit your torch, the mist explodes. It takes 4 of your wounds")
                     }
                 },
                 "No": {
@@ -1102,7 +1102,9 @@ def event_with_effect(effects: dict, character: dict):
 def event_with_item(items, character):
     item = random.choice(items)
     print(item[1])
-    if item != "Nothing":
+    if "Armor" in item:
+        character["Max wounds"] += 2 if item == "Armor" else 1
+    elif item != "Nothing":
         if item[0] in character["Inventory"]:
             character["Inventory"][item[0]] += 1
         else:
