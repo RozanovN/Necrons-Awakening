@@ -20,6 +20,7 @@ All of your code must go in this file.
 11. Ask about event function running out of the line limit
 12. Since you have opportunity to leave at any point, should we add that as post condition to, for example, set_name()
 13. Tuple vs dict for enemy_attack and generate enemy
+14. Ask about "incorrect" spellings like adepta
 """
 import random
 import time
@@ -546,7 +547,7 @@ def help_commands():
     print("This is the list of the available commands:\n"
           "{0}h{1} —— show list of commands with a short description\n"
           "{0}q{1} —— quit the game\n"
-          "{0}b{1} —— bandage your injuries and restore 3 wounds\n"
+          "{0}b{1} —— bandage your injuries and restore 4 wounds\n"
           "{0}s{1} —— show list of your skills\n"
           "{0}c{1} —— show your characteristics\n"
           "{0}i{1} —— show your inventory\n"
@@ -669,7 +670,7 @@ def normal_text() -> str:
 
 
 def bandage(character: dict) -> None:
-    if character["Inventory"]["Bandage"] > 0:
+    if has_item("Bandage", character["Inventory"]):
         character["Current wounds"] = character["Current wounds"] + 4 if character["Current wounds"] != \
             character["Max wounds"] else character["Max wounds"]
         character["Inventory"]["Bandage"] -= 1
@@ -1019,36 +1020,59 @@ def manage_events(board: dict, character: dict) -> None:
             "Effect": [
                 "Ceiling"
             ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": {
+                        ("Nothing", "You see clearly now"),
+                        ("Damage", "As soon as you lit your torch, the mist explodes.")
+                    }
+                },
+                "No": {
+                    "Effect": {
+                        ("Damage", "Without")
+                    }
+                }
+            }
          },
         "Shifting Mist": {
             "Description": [
                 "This room has a strange shifting mist. Would you like to light a torch?",
                 "You are unable to see anything because of the mist. Would you to use a torch?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage",
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Check item": ["Torch"],
+                    "Effect": {
+                        ("Nothing", "You see clearly now"),
+                        ("Damage", "As soon as you lit your torch, the mist explodes.")
+                    }
+                },
+                "No": {
+                    "Effect": {
+                        ("Nothing", "You eventually find your way")
+                    }
+                }
+            }
          }
     }
-    if board[(character["Y-coordinate"], character["X-coordinate"])] == boss:
+    event = board[(character["Y-coordinate"], character["X-coordinate"])]
+    if  event == boss:
         boss(character)
     else:
-        print(events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]]["Description"])
-        #  if has_input in keys, prompt inout
-        #  if gives_item in keys, give item
-        #  if random_effect in keys, get random effect
-        #  if has_stat in keys, improve stat
-        if "Heal" in events_dictionary[board[(character["Y-coordinate"], character["X-coordinate"])]].keys():
-            character["Current wounds"] = character["Max wounds"]
+        print(events_dictionary[event]["Description"])
+        if "Input" in events_dictionary[event].keys():
+            event_with_input(character, events_dictionary[event])
+        elif "Effect" in events_dictionary[event].keys():
+
+        elif "Item" in events_dictionary[event].keys():
+
+
+def event_with_input(character: dict, event: dict):
+    user_input = process_input(character, ["Yes, No"])
+    if user_input == "Yes":
+        if "Check item" in event["Input"]["Yes"] and has_item(event["Input"]["Yes"]["Check item"], character):
+
+
 
 
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
@@ -1162,6 +1186,10 @@ def check_for_foes() -> bool:
     :return: True if foe is encountered, otherwise False
     """
     return random.randrange(0, 6) == 0
+
+
+def has_item(item: str, character: dict):
+    return character["Inventory"][item] > 0
 
 
 def generate_enemy(level) -> dict:
