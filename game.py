@@ -219,9 +219,10 @@ def character_creation() -> dict:
     time.sleep(3)
     character["Characteristics"] = get_characteristics(character)
     time.sleep(3)
+    show_characteristics(character)
+    time.sleep(3)
     get_skills(character)
-    print("To check the list of skills type {0}s{1}.\nRight now you have the following skills:".format(green_text(),
-          normal_text()))
+    print("Right now you have the following skills:".format(green_text(),normal_text()))
     show_list_of_skills(character)
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
     print("To see your inventory type {0}i{1}".format(green_text(), normal_text()))
@@ -340,7 +341,6 @@ def get_characteristics(character: dict) -> dict:
             "Toughness": 30 + roll(2, 10, character["Name"]),
             "Agility": 30 + roll(3, 10, character["Name"])
         }
-    print_dictionary_items(characteristics)
     return characteristics
 
 
@@ -381,26 +381,26 @@ def get_level_name(adeptus: str, level: int):
 
 def has_evaded(enemy: dict) -> bool:
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]:
-        print("{0} evaded the attack".format(enemy["Name"]))
         return True
     return False
 
 
 def has_sustained(enemy: dict) -> bool:
     if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]:
-        print("{0} sustained the attack".format(enemy["Name"]))
         return True
     return False
 
 
 def manage_wounds(damage: int, enemy: dict) -> None:
     if has_evaded(enemy):
-        print("However, {0} evaded the attack.".format(enemy["Name"]))
+        print("However, {0} evades the attack.".format(enemy["Name"]))
     else:
+        print("{0} was not able to evade".format(enemy["Name"]))
         if has_sustained(enemy):
             enemy["Current wounds"] -= damage / 2
-            print("However, {0} sustained the attack and receives only {1}".format(enemy["Name"], damage / 2))
+            print("However, {0} sustains the attack and receives only {1}".format(enemy["Name"], damage / 2))
         else:
+            print("{0} was not able to sustain".format(enemy["Name"]))
             enemy["Current wounds"] -= damage
 
 
@@ -443,7 +443,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
 
 def deadly_burst(character: dict, enemy: dict) -> int:
     damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10, character["Name"])
-    print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage,))
+    print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
     return damage
 
 
@@ -455,8 +455,10 @@ def flee_away(character: dict, enemy: dict) -> 0:
 
 
 def enemy_attack(character: dict, enemy: dict) -> int:
-    damage = roll(character["Skills"][])
-    print
+    damage = roll(character["Skills"]["Enemy Attack"]["Amount of dice"],
+                  character["Skills"]["Enemy Attack"]["Number of sides"])
+    print(character["Skills"]["Enemy Attack"]["Description"].format(damage, enemy["Name"]))
+    return damage
 
 
 def daemon_trickery(character: dict, enemy: dict) -> int:
@@ -478,7 +480,8 @@ def daemon_trickery(character: dict, enemy: dict) -> int:
 
 def blade_of_chaos(character: dict, enemy: dict):
     print("You notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
-          "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet)"
+          "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet). He certainly will not be able to"
+          "evade or sustain it."
           "\nEnter the first letters of 2 body parts (AB for arms and body):")
     correct_answer = random.choice(list(itertools.combinations("HBAF", 2)))
     correct_answer = [correct_answer, correct_answer[::-1]]
@@ -486,9 +489,8 @@ def blade_of_chaos(character: dict, enemy: dict):
         print("Success! Who is smirking now?")
         character["Current wounds"] -= 8
         return 0
-    else:
-        print("Failure! The Daemon smirks and deals {0} to {1}".format(8, enemy["Name"]))
-        return 8
+    print("Failure! The Daemon smirks and deals {0} to {1}".format(8, enemy["Name"]))
+    return 8
 
 
 def print_numbered_list_of_possibilities(list_of_options: list) -> None:
@@ -541,13 +543,18 @@ def help_commands():
     >>> help_commands()
 
     """
-    print("{0}h{1} —— show list of commands with a short description\n{0}q{1} —— quit the game\n{0}b{1} —— bandage your"
-          "injuries and restore 3 wounds\n{0}s{1} —— show list of skills\n{0}i{1} —— show inventory"
+    print("This is the list of the available commands:\n"
+          "{0}h{1} —— show list of commands with a short description\n"
+          "{0}q{1} —— quit the game\n"
+          "{0}b{1} —— bandage your injuries and restore 3 wounds\n"
+          "{0}s{1} —— show list of your skills\n"
+          "{0}c{1} —— show your characteristics\n"
+          "{0}i{1} —— show your inventory\n"
           .format(green_text(), normal_text()))
 
 
 def get_command_list() -> list:
-    commands_list = ["q", "h", "b", "s", "i"]
+    commands_list = ["q", "h", "b", "s", "i", "c"]
     return commands_list
 
 
@@ -557,7 +564,8 @@ def has_argument(command: str) -> bool:
         "h": False,
         "b": True,
         "s": True,
-        "i": True
+        "i": True,
+        "c": True
     }
     return commands_dictionary[command]
 
@@ -573,7 +581,8 @@ def get_command(command_name: str):
         "h": help_commands,
         "b": bandage,
         "s": show_list_of_skills,
-        "i": show_inventory}
+        "i": show_inventory,
+        "c": show_characteristics}
     return commands_dictionary[command_name]
 
 
@@ -1012,10 +1021,10 @@ def generate_enemy(level) -> dict:
                 },
                 "Skills": {
                     "Flee away": "Flees away",
-                    "Enemy attack": {#("description", "int amount of dices", "int number of sides")
-                        "description": "abc",
-                        "amount of dices": 1,
-                        "int number of sides": 5
+                    "Enemy attack": {  # ("description", "int amount of dices", "int number of sides")
+                        "Description": "abc",
+                        "Amount of dice": 1,
+                        "Number of sides": 5
                     }
                 },
                 "Will to fight": True,
@@ -1111,8 +1120,22 @@ def show_map(location_map) -> None:
           "█ ——")
 
 
-def tutorial():
-
+def tutorial(character):
+    print("\tYour inquisitor, Scythia, gave a crucial tusk to retrieve a Necronian artifact. She enlightens you "
+          "that it's a sphere of incredible power. Surprisingly, no one knows what it does, but every cultist desires"
+          " it. Hence, it's now your job as an acolyte to retrieve the miserable artifact that lies among the ruins of"
+          "great stasis-tombs."
+          "\n\tYou arrive to unnamed deserted planet. Nothing indicates that here was once a paramount nation of"
+          "servants of C'tan. Eventually, you found out ruins that matches the Necronian decor."
+          "\n\tAs you enter the tomb, it strikes you as odd. The insides of this dungeon are far from being ruins;"
+          "it is the complete opposite of what you saw before. The soft green light of some unknown kind of latter"
+          "kindly lightens the room. Apparently, it was a complete waste of time to bring torches with or was it?."
+          "A sudden feel of being watched stops your vague reflection. You turn around and notice a giant rat greedily"
+          "watching you."
+          "\n\tYour mission begins."
+          "\n\n\n\n\nHere are some helpful tips to help in your path of inquisitor:")
+    help_commands()
+    print("\n\n To choose an option from a numbered list enter its index.")
 
 
 def boss(character) -> None:
@@ -1148,10 +1171,55 @@ def boss(character) -> None:
 
 
 def game_over(character: dict) -> None:
+    """
+    Print game over phrase.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character keys must contain Current wounds string
+    :precondition: character value with Current wounds key must be an integer
+    :postcondition: prints "you died\n game over" ascii art if Current wounds <= 0,
+                    else prints "congratulations" ascii art and victory phrase
+
+    >>> game_over({"Current wounds": 0})
+    ▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****
+    *▒██**██▒***▒██▒**██▒****██**▓██▒*********▒██▀*██▌***▓██▒***▓█***▀****▒██▀*██▌***
+    **▒██*██░***▒██░**██▒***▓██**▒██░*********░██***█▌***▒██▒***▒███******░██***█▌***
+    **░*▐██▓░***▒██***██░***▓▓█**░██░*********░▓█▄***▌***░██░***▒▓█**▄****░▓█▄***▌***
+    **░*██▒▓░***░*████▓▒░***▒▒█████▓**********░▒████▓****░██░***░▒████▒***░▒████▓****
+    ***██▒▒▒****░*▒░▒░▒░****░▒▓▒*▒*▒**********▒▒▓**▒******░▓*****░░*▒░*░**▒▒▓**▒****
+    *▓██*░▒░******░*▒*▒░****░░▒░*░*░**********░*▒**▒*****▒*░****░*░**░****░*▒**▒****
+    *░*░************░*░********░********************░********░********░**░******░*******
+    *░*░******************************************░***************************░*********
+    **▄████*****▄▄▄**********███▄*▄███▓***▓█████***********▒█████******██▒***█▓***▓█████*****██▀███**
+    *██▒*▀█▒***▒████▄*******▓██▒▀█▀*██▒***▓█***▀**********▒██▒**██▒***▓██░***█▒***▓█***▀****▓██*▒*██▒
+    ▒██░▄▄▄░***▒██**▀█▄*****▓██****▓██░***▒███************▒██░**██▒****▓██**█▒░***▒███******▓██*░▄█*▒
+    ░▓█**██▓***░██▄▄▄▄██****▒██****▒██****▒▓█**▄**********▒██***██░*****▒██*█░░***▒▓█**▄****▒██▀▀█▄**
+    ░▒▓███▀▒****▓█***▓██▒***▒██▒***░██▒***░▒████▒*********░*████▓▒░******▒▀█░*****░▒████▒***░██▓*▒██▒
+    *░▒***▒*****▒▒***▓▒█░***░*▒░***░**░***░░*▒░*░*********░*▒░▒░▒░*******░*▐░*****░░*▒░*░***░*▒▓*░▒▓░
+    **░***░******▒***▒▒*░***░**░******░****░*░**░***********░*▒*▒░*******░*░░******░*░**░*****░▒*░*▒░
+    ░*░***░******░***▒******░******░*********░************░*░*░*▒**********░░********░********░░***░*
+    ******░**********░**░**********░*********░**░*************░*░***********░********░**░******░*****
+    ***********************************************************************░*************************
+    >>> game_over({"Current wounds": 5})
+    *▄████████**▄██████▄**███▄▄▄▄******▄██████▄*****▄████████****▄████████*****███*****███****█▄***▄█**********▄████████*****███******▄█***▄██████▄**███▄▄▄▄******▄████████*
+    ███****███*███****███*███▀▀▀██▄***███****███***███****███***███****███*▀█████████▄*███****███*███*********███****███*▀█████████▄*███**███****███*███▀▀▀██▄***███****███*
+    ███****█▀**███****███*███***███***███****█▀****███****███***███****███****▀███▀▀██*███****███*███*********███****███****▀███▀▀██*███▌*███****███*███***███***███****█▀**
+    ███********███****███*███***███**▄███*********▄███▄▄▄▄██▀***███****███*****███***▀*███****███*███*********███****███*****███***▀*███▌*███****███*███***███***███********
+    ███********███****███*███***███*▀▀███*████▄**▀▀███▀▀▀▀▀***▀███████████*****███*****███****███*███*******▀███████████*****███*****███▌*███****███*███***███*▀███████████*
+    ███****█▄**███****███*███***███***███****███*▀███████████***███****███*****███*****███****███*███*********███****███*****███*****███**███****███*███***███**********███*
+    ███****███*███****███*███***███***███****███***███****███***███****███*****███*****███****███*███▌****▄***███****███*****███*****███**███****███*███***███****▄█****███*
+    ████████▀***▀██████▀***▀█***█▀****████████▀****███****███***███****█▀*****▄████▀***████████▀**█████▄▄██***███****█▀*****▄████▀***█▀****▀██████▀***▀█***█▀***▄████████▀**
+    ***********************************************███****███*************************************▀*************************************************************************
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    You slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.
+    """
     if not is_alive(character):
         print(
                 ("▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****\n"
-                 "*▒██**██▒***▒██▒**██▒****██**▓██▒*********▒██▀*██▌***▓██▒***▓█***▀****▒██▀*██▌***\"\n"
+                 "*▒██**██▒***▒██▒**██▒****██**▓██▒*********▒██▀*██▌***▓██▒***▓█***▀****▒██▀*██▌***\n"
                  "**▒██*██░***▒██░**██▒***▓██**▒██░*********░██***█▌***▒██▒***▒███******░██***█▌***\n"
                  "**░*▐██▓░***▒██***██░***▓▓█**░██░*********░▓█▄***▌***░██░***▒▓█**▄****░▓█▄***▌***\n"
                  "**░*██▒▓░***░*████▓▒░***▒▒█████▓**********░▒████▓****░██░***░▒████▒***░▒████▓****\n"
@@ -1168,21 +1236,20 @@ def game_over(character: dict) -> None:
                  "**░***░******▒***▒▒*░***░**░******░****░*░**░***********░*▒*▒░*******░*░░******░*░**░*****░▒*░*▒░\n"
                  "░*░***░******░***▒******░******░*********░************░*░*░*▒**********░░********░********░░***░*\n"
                  "******░**********░**░**********░*********░**░*************░*░***********░********░**░******░*****\n"
-                 "***********************************************************************░*************************\n"
+                 "***********************************************************************░*************************"
                  ))
     else:
         print(
-                """
-*▄████████**▄██████▄**███▄▄▄▄******▄██████▄*****▄████████****▄████████*****███*****███****█▄***▄█**********▄████████*****███******▄█***▄██████▄**███▄▄▄▄******▄████████*
-███****███*███****███*███▀▀▀██▄***███****███***███****███***███****███*▀█████████▄*███****███*███*********███****███*▀█████████▄*███**███****███*███▀▀▀██▄***███****███*
-███****█▀**███****███*███***███***███****█▀****███****███***███****███****▀███▀▀██*███****███*███*********███****███****▀███▀▀██*███▌*███****███*███***███***███****█▀**
-███********███****███*███***███**▄███*********▄███▄▄▄▄██▀***███****███*****███***▀*███****███*███*********███****███*****███***▀*███▌*███****███*███***███***███********
-███********███****███*███***███*▀▀███*████▄**▀▀███▀▀▀▀▀***▀███████████*****███*****███****███*███*******▀███████████*****███*****███▌*███****███*███***███*▀███████████*
-███****█▄**███****███*███***███***███****███*▀███████████***███****███*****███*****███****███*███*********███****███*****███*****███**███****███*███***███**********███*
-███****███*███****███*███***███***███****███***███****███***███****███*****███*****███****███*███▌****▄***███****███*****███*****███**███****███*███***███****▄█****███*
-████████▀***▀██████▀***▀█***█▀****████████▀****███****███***███****█▀*****▄████▀***████████▀**█████▄▄██***███****█▀*****▄████▀***█▀****▀██████▀***▀█***█▀***▄████████▀**
-***********************************************███****███*************************************▀*************************************************************************
-\n\n\nYou slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.""")
+    "*▄████████**▄██████▄**███▄▄▄▄******▄██████▄*****▄████████****▄████████*****███*****███****█▄***▄█**********▄████████*****███******▄█***▄██████▄**███▄▄▄▄******▄████████*\n"
+    "███****███*███****███*███▀▀▀██▄***███****███***███****███***███****███*▀█████████▄*███****███*███*********███****███*▀█████████▄*███**███****███*███▀▀▀██▄***███****███*\n"
+    "███****█▀**███****███*███***███***███****█▀****███****███***███****███****▀███▀▀██*███****███*███*********███****███****▀███▀▀██*███▌*███****███*███***███***███****█▀**\n"
+    "███********███****███*███***███**▄███*********▄███▄▄▄▄██▀***███****███*****███***▀*███****███*███*********███****███*****███***▀*███▌*███****███*███***███***███********\n"
+    "███********███****███*███***███*▀▀███*████▄**▀▀███▀▀▀▀▀***▀███████████*****███*****███****███*███*******▀███████████*****███*****███▌*███****███*███***███*▀███████████*\n"
+    "███****█▄**███****███*███***███***███****███*▀███████████***███****███*****███*****███****███*███*********███****███*****███*****███**███****███*███***███**********███*\n"
+    "███****███*███****███*███***███***███****███***███****███***███****███*****███*****███****███*███▌****▄***███****███*****███*****███**███****███*███***███****▄█****███*\n"
+    "████████▀***▀██████▀***▀█***█▀****████████▀****███****███***███****█▀*****▄████▀***████████▀**█████▄▄██***███****█▀*****▄████▀***█▀****▀██████▀***▀█***█▀***▄████████▀**\n"
+    "***********************************************███****███*************************************▀*************************************************************************\n"
+    "\n\n\nYou slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.")
 
 
 def main() -> None:
