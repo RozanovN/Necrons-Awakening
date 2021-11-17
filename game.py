@@ -21,6 +21,7 @@ All of your code must go in this file.
 12. Since you have opportunity to leave at any point, should we add that as post condition to, for example, set_name()
 13. Tuple vs dict for enemy_attack and generate enemy
 14. Ask about "incorrect" spellings like adepta
+15. Instead of the teleportation to boss at level 3, increase chance of next tile being a boss tile
 """
 import random
 import time
@@ -1041,7 +1042,7 @@ def manage_events(board: dict, character: dict) -> None:
             ],
             "Input": {
                 "Yes": {
-                    "Check item": ["Torch"],
+                    "Check item": "Torch",
                     "Effect": {
                         ("Nothing", "You see clearly now"),
                         ("Damage", "As soon as you lit your torch, the mist explodes.")
@@ -1071,8 +1072,16 @@ def event_with_input(character: dict, event: dict):
     user_input = process_input(character, ["Yes, No"])
     if user_input == "Yes":
         if "Check item" in event["Input"]["Yes"] and has_item(event["Input"]["Yes"]["Check item"], character):
-
-
+            character["Inventory"][event["Input"]["Yes"]["Check item"]] -= 1
+            if "Effect" in event.keys():
+                event_with_effect(event["Input"]["Yes"]["Effect"], character)
+            elif "Item" in event.keys():
+                event_with_etem(event["Input"]["Yes"]["Item"], character)
+    else:
+        if "Effect" in event.keys():
+            event_with_effect(event["Input"]["No"]["Effect"], character)
+        elif "Item" in event.keys():
+            event_with_etem(event["Input"]["No"]["Item"], character)
 
 
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
