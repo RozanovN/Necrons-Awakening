@@ -395,14 +395,14 @@ def has_sustained(enemy: dict) -> bool:
 
 def manage_wounds(damage: int, enemy: dict) -> None:
     if has_evaded(enemy):
-        print("However, {0} evades the attack.".format(enemy["Name"]))
+        print("However, {0} evades it.".format(enemy["Name"]))
     else:
-        print("{0} was not able to evade".format(enemy["Name"]))
+        print("{0} was not able to evade.".format(enemy["Name"]))
         if has_sustained(enemy):
             enemy["Current wounds"] -= damage / 2
-            print("However, {0} sustains the attack and receives only {1}".format(enemy["Name"], damage / 2))
+            print("However, {0} sustains it and receives only {1}.".format(enemy["Name"], damage / 2))
         else:
-            print("{0} was not able to sustain".format(enemy["Name"]))
+            print("{0} was not able to sustain.".format(enemy["Name"]))
             enemy["Current wounds"] -= damage
 
 
@@ -1064,8 +1064,8 @@ def manage_events(board: dict, character: dict) -> None:
         if "Input" in events_dictionary[event].keys():
             event_with_input(character, events_dictionary[event])
         elif "Effect" in events_dictionary[event].keys():
-
-        elif "Item" in events_dictionary[event].keys():
+            event_with_effect(event["Effect"], character)
+        #  elif "Item" in events_dictionary[event].keys():
 
 
 def event_with_input(character: dict, event: dict):
@@ -1081,7 +1081,22 @@ def event_with_input(character: dict, event: dict):
         if "Effect" in event.keys():
             event_with_effect(event["Input"]["No"]["Effect"], character)
         elif "Item" in event.keys():
-            event_with_etem(event["Input"]["No"]["Item"], character)
+            event_with_item(event["Input"]["No"]["Item"], character)
+
+
+def event_with_effect(effects: dict, character: dict):
+    effect = random.choice(list(effects))
+    print(effect[1])
+    character["Current wounds"] = character["Max wounds"] if effect[0] == "Heal" else character["Current wounds"]
+    if effect == "Damage":
+        manage_wounds(4, character)
+    character["Current Experience"] += 50 if effect[0] == "Experience gain" else 0
+    if effect[0] == "Random Stat Improvement":
+        character[random.choice(list(character["Characteristics"].keys()))] += 2
+    elif effect[0] == "Random Stat Deterioration":
+        character[random.choice(list(character["Characteristics"].keys()))] -= 2
+    if effect[0] == "Battle":
+        combat(character, generate_enemy(character["Level"][0]))
 
 
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
