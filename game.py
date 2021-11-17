@@ -717,7 +717,12 @@ def show_inventory(character: dict) -> None:
 def show_characteristics(character):
     """
 
-    :param character:
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character keys must contain Characteristics string
+    :precondition: Characteristics value must be a dictionary
+    :precondition: Characteristics value keys must be strings with integer values
+    :postcondition: prints character's characteristics
 
     >>> show_characteristics({"Characteristics": {"Intellect: 30"}})
 
@@ -750,135 +755,289 @@ def manage_events(board: dict, character: dict) -> None:
     """
     events_dictionary = {
         "Empty Room": {
-            "Description": random.choice([
+            "Description": [
                 "This room is empty", "The emptiness of this room reminds you nothing of necrons.",
                 "This room torchers you with its boredom and emptiness."
-            ])
+            ]
         },
         "Ancient Altar Room": {
-            "Description": random.choice([
-                "This room has an ancient altar. You feel strangely relaxed among this heresy."
-                " All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,"
+            "Description": [
+                "This room has an ancient altar. You feel strangely relaxed among this heresy.",
+                " All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,",
                 " it heals you innocently still."
-            ]),
+            ],
             "Effect": "Heal"
         },
         "Crate": {
-            "Description": random.choice([
+            "Description": [
                 "This room has a large crate. Would you like to open it?",
                 "This room has a strange crate. Would you like to open it?"
-            ]),
-            "Item": random.choice([
+            ],
+            "Item": [
                 "Nothing"
                 "Torch",
                 "Bandage",
                 "Shovel"
-            ]),
+            ],
             "Input": [
                 "Yes",
                 "No"
             ]
         },
         "Eldritch Altar": {
-            "Description": random.choice([
+            "Description": [
                 "This room has an ominous altar. Would you like to to touch it?",
-                "This room has an altar in form of a star that pierces a crescent Earth's moon, reminding you Slaanesh"
+                "This room has an altar in form of a star that pierces a crescent Earth's moon, reminding you Slaanesh",
                 " Would you like to touch it?"
-            ]),
-            "Effect": random.choices([
+            ],
+            "Effect": [
                 "Nothing",
                 "Damage"
                 "Random Stat Improvement"
-            ], weights=[5, 2.5, 2.5], k=1)[0],
+            ],
             "Input": [
                 "Yes",
                 "No"
             ]
         },
-        "Stack of Books" :{
-             "Description": random.choice([
+        "Stack of Books": {
+             "Description": [
                  "This room has a stack of heretic books. Would you like to to touch it?",
-                 "This room has a stack of Imperium's books, which seems strange to you."
+                 "This room has a stack of Imperium's books, which seems strange to you.",
                  " Would you like to touch it?"
-             ]),
-             "Effect": random.choices([
+             ],
+             "Effect": [
                  "Damage"
                  "Experience gain"
-             ], weights=[2.5, 2.5], k=1)[0],
+             ],
              "Input": [
                  "Yes",
                  "No"
              ]
          },
         "Discarded Pack": {
-             "Description": random.choice([
+             "Description": [
                  "This room has a discarded pack left by your predecessor. Would you like to open it?",
                  "This room has a big but miserable, discarded pack. Would you like to open it?"
-             ]),
-             "Item": random.choice([
+             ],
+             "Item": [
                  "Nothing"
                  "Torch",
                  "Bandage",
                  "Shovel"
-             ]),
+             ],
              "Input": [
                  "Yes",
                  "No"
              ]
          },
         "Necronian Chest": {
-             "Description": random.choice([
+             "Description": [
                  "This room has a mechanical Necronian chest. Would you like to open it?",
-                 "This room has a . Would you like to open it?"
-             ]),
-             "Item": random.choice([
+                 "This room has a chest made of green steel. Would you like to open it?"
+             ],
+             "Item": [
                  "Nothing"
                  "Armor"
-             ]),
+                 "Broken Armor"
+             ],
              "Input": [
                  "Yes",
                  "No"
              ]
          },
         "Necronian Alchemy Table": {
-
+            "Description": [
+                "This room has a Necronian alchemy table with food on it. Would you like to eat it?",
+                "This room has a potion standing on some kind of alchemy pentagram. Would you like to drink it?",
+                "This room has a myriad of bulbs and flasks. Would you like to drink any?"
+            ],
+            "Effect": [
+                "Nothing",
+                "Damage",
+                "Random Stat Improvement"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Decorative Urn": {
-
+            "Description": [
+                "This room has a marble, giant urn. Would you like to look inside?",
+                "This room has multiple broken urns. Would you like to try finding anything?"
+            ],
+            "Item": [
+                "Nothing"
+                "Armor"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Iron Maiden": {
-
+            "Description": [
+                "This room has a dreadful iron maiden. Would you like to look inside?",
+                "This room has mechanical cage in form of star. Would you like to look inside?"
+            ],
+            "Effect": [
+                "Nothing",
+                "Damage",
+            ],
+            "Item": [
+                "Nothing"
+                "Armor"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Locked Sarcophagus": {
-
+            "Description": [
+                "This room has a dreadful iron maiden. Would you like to look inside?",
+                "This room has mechanical cage in the form of a star. Would you like to look inside?"
+            ],
+            "Effect": [
+                "Nothing",
+                "Damage",
+            ],
+            "Item": [
+                "Nothing"
+                "Armor"
+                "Broken Armor"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Suit of Armor": {
-
+            "Description": [
+                "This room is armory. Would you like to wear some new armor pieces?",
+                "This room has a set of mechanical, ancient armor. Would you like to wear it?"
+            ],
+            "Item": [
+                "Nothing"
+                "Armor"
+                "Broken Armor"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Makeshift Dining Table": {
-
+            "Description": [
+                "This room has a makeshift dining table with food on it. Would you like to eat it?",
+                "This room has a package of uneaten food. Would you like to eat it?",
+                "This room has some vases of water. Would you like to drink any?"
+            ],
+            "Effect": [
+                "Nothing",
+                "Damage",
+                "Random Stat Deterioration"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Pile of Bones": {
-
+            "Description": [
+                "This room has a pile of robotic, countless bones.",
+                "This room is full of robotic skulls",
+                "This room a robotic skeleton sitting on a throne."
+            ],
+            "Effect": [
+                "Nothing",
+                "Battle"
+            ],
          },
         "Eerie Spiderweb": {
-
+            "Description": [
+                "This room is full of eerie spiderweb. Would you like to use a torch?",
+                "You struggle to see anything because of the spiderweb. Would you like to use a torch?"
+            ],
+            "Effect": [
+                "Damage",
+                "Battle"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Mummified Remains": {
-
+            "Description": [
+                "Mummified remains majestically reigns inside this empty room. Would you like to burn it?",
+                "This room has no lightning. Would you like to use a torch?"
+            ],
+            "Effect": [
+                "Damage",
+                "Battle"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Transcendent Terror": {
-
+            "Description": [
+                "You feel the instability of the Realm of Souls.",
+                "You feel the cosmic terror of this world.",
+                "You hear the whispers from beyond."
+            ],
+            "Effect": [
+                "Damage",
+                "Battle",
+                "Random Stat Deterioration"
+            ],
          },
         "Iron Crown": {
-
+            "Description": [
+                "In this restless room you see a crown. Would you like to wear it?",
+                "An iron crown stands still on the green, marble pedestal. Would you like to wear this crown?"
+            ],
+            "Item": [
+                "Armor",
+                "Broken Armor"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Ceiling Drops": {
-
+            "Description": [
+                "As you enter this room, the ceiling above you drops. You were able to evade it, but now you need to go"
+                " through this mess. Would like to use a shovel?",
+                "Before you enter the next room you hear how its ceiling drops. now you need to go through this mess. "
+                "Would like to use a shovel??"
+            ],
+            "Effect": [
+                "Ceiling"
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
          },
         "Shifting Mist": {
-
-         },
+            "Description": [
+                "This room has a strange shifting mist. Would you like to light a torch?",
+                "You are unable to see anything because of the mist. Would you to use a torch?"
+            ],
+            "Effect": [
+                "Nothing",
+                "Damage",
+            ],
+            "Input": [
+                "Yes",
+                "No"
+            ]
+         }
     }
     if board[(character["Y-coordinate"], character["X-coordinate"])] == boss:
         boss(character)
