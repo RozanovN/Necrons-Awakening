@@ -1057,7 +1057,7 @@ def manage_events(board: dict, character: dict) -> None:
          }
     }
     event = board[(character["Y-coordinate"], character["X-coordinate"])]
-    if  event == boss:
+    if event == boss:
         boss(character)
     else:
         print(events_dictionary[event]["Description"])
@@ -1076,7 +1076,7 @@ def event_with_input(character: dict, event: dict):
             if "Effect" in event.keys():
                 event_with_effect(event["Input"]["Yes"]["Effect"], character)
             elif "Item" in event.keys():
-                event_with_etem(event["Input"]["Yes"]["Item"], character)
+                event_with_item(event["Input"]["Yes"]["Item"], character)
     else:
         if "Effect" in event.keys():
             event_with_effect(event["Input"]["No"]["Effect"], character)
@@ -1097,6 +1097,16 @@ def event_with_effect(effects: dict, character: dict):
         character[random.choice(list(character["Characteristics"].keys()))] -= 2
     if effect[0] == "Battle":
         combat(character, generate_enemy(character["Level"][0]))
+
+
+def event_with_item(items, character):
+    item = random.choice(items)
+    print(item[1])
+    if item != "Nothing":
+        if item[0] in character["Inventory"]:
+            character["Inventory"][item[0]] += 1
+        else:
+            character["Inventory"].setdefault([item][0], 1)
 
 
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
