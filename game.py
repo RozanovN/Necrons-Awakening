@@ -4,17 +4,17 @@ Your student number:
 
 All of your code must go in this file.
 
-1. Ask about clarity of line 38
+1. Ask about clarity of line 57
 2.
     a)If you defined a data structure, and then assign a different value to it, will it be still counted as one line?
     b)If you have some function inside the data structure definition, will it be still counted as one line?
     c)If you define a data structure using if and else, will it be counted as one line? For example, x = 5 if z == True <new line> else 10.
 3. Do we put a . at the end of a preconditions etc.
-4. Can we use polymorphism?
+4. Can we use ?polymorphism? since we went over it last lecture?
 5. ASCII art over character limit
 6. Is usage of map, itertools here overcomplicating?
-7. Ask whether the doctest should consider a program as a whole or only locally. E.g. func doesn't care about params, but program does
-8. Teleportation to th boss and cheats for marking purpose
+7. Ask whether the doctest should consider a program as a whole or only locally. E.g. func doesn't care about params, but program does (combat function)
+8. Teleportation to the boss and cheats for marking purpose
 9. Making helper functions local to parent functions
 10. Ask about process_input function
 11. Ask about event function running out of the line limit
@@ -22,6 +22,7 @@ All of your code must go in this file.
 13. Tuple vs dict for enemy_attack and generate enemy
 14. Ask about "incorrect" spellings like adepta
 15. Instead of the teleportation to boss at level 3, increase chance of next tile being a boss tile
+16. Ask about getting a feedback on the previous lab before the deadline for this assignment
 """
 import random
 import time
@@ -45,7 +46,7 @@ def game() -> None:
     character = character_creation()
     board = {
         (0, 0):
-            tutorial(),
+            tutorial(character),
         (25, 0):
             boss
     }
@@ -166,11 +167,12 @@ def generate_random_room_event() -> str:
     return random.choices(list_of_events, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
 
 
-def process_input(character: dict, list_of_options: list) -> str:
+def process_input(character=None, list_of_options=None, is_setting_name=False) -> str:
     """
 
     :param character:
     :param list_of_options:
+    :param is_setting_name:
     :return:
     """
     user_input = str(input())
@@ -179,12 +181,9 @@ def process_input(character: dict, list_of_options: list) -> str:
         if validate_option(user_input, list_of_options):
             return user_input
         if user_input in get_command_list():
-            if has_argument(user_input):
-                command = get_command(user_input)
-                command(character)
-            else:
-                command = get_command(user_input)
-                command()
+            process_command(user_input, character)
+        if is_setting_name and user_input != "":
+            return user_input
         print("{0} is invalid input. Please, try again:")
         user_input = str(input())
 
@@ -238,12 +237,7 @@ def set_name():
     :return:
     """
     print("Enter your name:")
-    name = str(input()).capitalize()
-    if name == "":
-        print("You must enter something. Even this grim dark world wants to know your name. Please, try again.")
-        name = set_name()
-    elif name == "q":
-        quit_game()
+    name = process_input({}, [], True)
     return name
 
 
@@ -382,15 +376,11 @@ def get_level_name(adeptus: str, level: int):
 
 
 def has_evaded(enemy: dict) -> bool:
-    if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]:
-        return True
-    return False
+    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]
 
 
 def has_sustained(enemy: dict) -> bool:
-    if roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]:
-        return True
-    return False
+    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]
 
 
 def manage_wounds(damage: int, enemy: dict) -> None:
@@ -765,7 +755,7 @@ def manage_events(board: dict, character: dict) -> None:
         "Ancient Altar Room": {
             "Description": [
                 "This room has an ancient altar. You feel strangely relaxed among this heresy.",
-                " All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,",
+                "All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,",
                 " it heals you innocently still."
             ],
             "Effect": "Heal"
@@ -775,78 +765,101 @@ def manage_events(board: dict, character: dict) -> None:
                 "This room has a large crate. Would you like to open it?",
                 "This room has a strange crate. Would you like to open it?"
             ],
-            "Item": [
-                "Nothing"
-                "Torch",
-                "Bandage",
-                "Shovel"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Torch", "You find a torch."),
+                        ("Bandage", "You find a bandage.")
+                    ],
+                },
+                "No": {
+                    "Item": [
+                        ("Torch", "As you leave, you find a torch on the floor."),
+                        ("Bandage", "As you leave, you find a bandage on the floor")
+                    ]
+                }
+             }
         },
         "Eldritch Altar": {
             "Description": [
                 "This room has an ominous altar. Would you like to to touch it?",
-                "This room has an altar in form of a star that pierces a crescent Earth's moon, reminding you Slaanesh",
+                "This room has an altar in form of a star that pierces a crescent moon, reminding you of Slaanesh",
                 " Would you like to touch it?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage"
-                "Random Stat Improvement"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Damage", "This altar tortures your mind and takes away 4 of your wounds."),
+                        ("Random Stat Improvement", "This altar tortures your mind, yet makes you stronger.")
+                    ],
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You have no time for such heresy."),
+                    ]
+                }
+             }
         },
         "Stack of Books": {
              "Description": [
-                 "This room has a stack of heretic books. Would you like to to touch it?",
+                 "This room has a stack of heretic books. Would you like to to read one?",
                  "This room has a stack of Imperium's books, which seems strange to you.",
-                 " Would you like to touch it?"
+                 " Would you like to read one?"
              ],
-             "Effect": [
-                 "Damage"
-                 "Experience gain"
-             ],
-             "Input": [
-                 "Yes",
-                 "No"
-             ]
+             "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Damage", "This damned heresy poisons your mind and takes away 4 of your wounds."),
+                        ("Experience gain", "You find some useful knowledge from Necrons. Current experience + 50.")
+                    ],
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You have no time for this nonsense.")
+                    ]
+                }
+             }
          },
         "Discarded Pack": {
              "Description": [
                  "This room has a discarded pack left by your predecessor. Would you like to open it?",
                  "This room has a big but miserable, discarded pack. Would you like to open it?"
              ],
-             "Item": [
-                 "Nothing"
-                 "Torch",
-                 "Bandage",
-                 "Shovel"
-             ],
-             "Input": [
-                 "Yes",
-                 "No"
-             ]
+             "Input": {
+                "Yes": {
+                    "Item": [
+                        ("Torch", "You find a torch."),
+                        ("Bandage",  "You find a bandage."),
+                        ("Shovel", "You find a shovel.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You are here for the artifact and not for looting, right?")
+                    ]
+                }
+             }
          },
         "Necronian Chest": {
              "Description": [
                  "This room has a mechanical Necronian chest. Would you like to open it?",
                  "This room has a chest made of green steel. Would you like to open it?"
              ],
-             "Item": [
-                 "Nothing"
-                 "Armor"
-                 "Broken Armor"
-             ],
-             "Input": [
-                 "Yes",
-                 "No"
-             ]
+             "Input": {
+                "Yes": {
+                    "Item": [
+                        ("Armor", "You find a ring with C'tan insignia. Your wounds are increased by 2."),
+                        ("Broken Armor",  "You find a ring, but its insignia was diligently erased. "
+                                          "Your wounds are increased by 1."),
+                        ("Shovel", "You find a simple shovel..")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You are here for the artifact and not for looting, right?")
+                    ]
+                }
+             }
          },
         "Necronian Alchemy Table": {
             "Description": [
@@ -854,81 +867,109 @@ def manage_events(board: dict, character: dict) -> None:
                 "This room has a potion standing on some kind of alchemy pentagram. Would you like to drink it?",
                 "This room has a myriad of bulbs and flasks. Would you like to drink any?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage",
-                "Random Stat Improvement"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Nothing", "It has no effect."),
+                        ("Damage", "It wasn't delicious. Such bitterness takes away 4 of your wounds."),
+                        ("Random Stat Improvement", "Mens sana in corpore sano.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You are not hungry anyway.")
+                    ]
+                }
+            }
          },
         "Decorative Urn": {
             "Description": [
                 "This room has a marble, giant urn. Would you like to look inside?",
                 "This room has multiple broken urns. Would you like to try finding anything?"
             ],
-            "Item": [
-                "Nothing"
-                "Armor"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Item": [
+                        ("Armor", "Inside you find a necklace enchanted with psykana that increases your wounds by 2."),
+                        ("Broken Armor", "You find a broken piece of mechanical bracelet. Your wounds are increased "
+                                         "by 1."),
+                        ("Torch", "You find a torch."),
+                        ("Bandage", "You find a bandage."),
+                        ("Shovel", "You find a shovel.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You decide not to wear anything")
+                    ]
+                }
+            }
          },
         "Iron Maiden": {
             "Description": [
                 "This room has a dreadful iron maiden. Would you like to look inside?",
                 "This room has mechanical cage in form of star. Would you like to look inside?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage",
-            ],
-            "Item": [
-                "Nothing"
-                "Armor"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Damage", "As you open the torture mechanism, it sends a fan of knives that takes away 4 of "
+                                   "your wounds")
+                    ],
+                    "Item": [
+                        ("Armor", "Inside you find a set of mechanical armor that increases your wounds by 2."),
+                        ("Broken Armor", "You find a set of worn out armor. Your wounds are increased by 1.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You decide not to disturb the dead.")
+                    ]
+                }
+            }
          },
         "Locked Sarcophagus": {
             "Description": [
-                "This room has a dreadful iron maiden. Would you like to look inside?",
-                "This room has mechanical cage in the form of a star. Would you like to look inside?"
+                "This room has a mysterious sarcophagus. Would you like to look inside?",
+                "This room is a necronian cemetery. Would you like to look inside of sarcophagus?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage",
-            ],
-            "Item": [
-                "Nothing"
-                "Armor"
-                "Broken Armor"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Damage", "As you open the sarcophagus, a hidden blade cuts you and takes away 4 of your "
+                                   "wounds")
+                    ],
+                    "Item": [
+                        ("Armor", "Inside you find a set of mechanical armor that increases your wounds by 2."),
+                        ("Broken Armor", "You find a set of clearly worn out armor. Your wounds are increased by 1.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You decide not to wear anything")
+                    ]
+                }
+            }
          },
         "Suit of Armor": {
             "Description": [
-                "This room is armory. Would you like to wear some new armor pieces?",
+                "This room is an armory. Would you like to wear some new armor pieces?",
                 "This room has a set of mechanical, ancient armor. Would you like to wear it?"
             ],
-            "Item": [
-                "Nothing"
-                "Armor"
-                "Broken Armor"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Item": [
+                        ("Armor", "This blasphemous, mechanical armor increases your wounds by 2."),
+                        ("Broken Armor", "This armor is broken; however, cursed psykana protects you nonetheless. "
+                                         "Your wounds are increased by 1.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You decide not to wear anything")
+                    ]
+                }
+            }
          },
         "Makeshift Dining Table": {
             "Description": [
@@ -936,15 +977,19 @@ def manage_events(board: dict, character: dict) -> None:
                 "This room has a package of uneaten food. Would you like to eat it?",
                 "This room has some vases of water. Would you like to drink any?"
             ],
-            "Effect": [
-                "Nothing",
-                "Damage",
-                "Random Stat Deterioration"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Effect": [
+                        ("Damage", "Necronian cuisine is not the best. It takes 4 of your wounds."),
+                        ("Random Stat Deterioration", "This accursed cuisine has surely influenced your organism.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You are not hungry anyway.")
+                    ]
+                }
+            }
          },
         "Pile of Bones": {
             "Description": [
@@ -953,37 +998,52 @@ def manage_events(board: dict, character: dict) -> None:
                 "This room a robotic skeleton sitting on a throne."
             ],
             "Effect": [
-                "Nothing",
-                "Battle"
+                ("Nothing", "Dead men remain dead"),
+                ("Battle", 2, "Necronian skeleton", "Those sitting bones would like to see you dead as well.")
             ],
          },
         "Eerie Spiderweb": {
             "Description": [
-                "This room is full of eerie spiderweb. Would you like to use a torch?",
-                "You struggle to see anything because of the spiderweb. Would you like to use a torch?"
+                "This room is full of eerie spiderweb. Would you like to burn it with a torch?",
+                "You struggle to see anything because of the spiderweb. Would you like to burn it with a torch?"
             ],
-            "Effect": [
-                "Damage",
-                "Battle"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Check item": "Torch",
+                    "Effect": [
+                        ("Damage", "A small spider managed to bite you and take away 4 of your wounds "
+                                   "before burning to ashes."),
+                        ("Nothing", "You burn down the web without any problems.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Damage", "A small spider bites while try to break through the web."),
+                        ("Battle", 2, "Giant Spider", "A giant spider is not fond of your intrusion ")
+                    ]
+                }
+            }
          },
         "Mummified Remains": {
             "Description": [
                 "Mummified remains majestically reigns inside this empty room. Would you like to burn it?",
                 "This room has no lightning. Would you like to use a torch?"
             ],
-            "Effect": [
-                "Damage",
-                "Battle"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Check item": "Shovel",
+                    "Effect": [
+                        ("Damage", "Fire activates the trap which takes 4 of your wounds."),
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "Nothing happens, but you feel like someone eyeing you."),
+                        ("Battle", 2, "Mummified Necron", "A mummified Necron awakes. You are clearly not welcomed "
+                                                          "here.")
+                    ]
+                }
+            }
          },
         "Transcendent Terror": {
             "Description": [
@@ -992,9 +1052,11 @@ def manage_events(board: dict, character: dict) -> None:
                 "You hear the whispers from beyond."
             ],
             "Effect": [
-                "Damage",
-                "Battle",
-                "Random Stat Deterioration"
+                ("Damage", "This mental torture takes away 4 of your wounds"),
+                ("Battle", 3, "The entity of the warp", "You encounter a terrible indescribable thing."
+                                                     "A shapeless congeries of protoplasmic bubbles and myriads of "
+                                                     "temporary eyes."),
+                ("Random Stat Deterioration", "You are forever changed by this.")
             ],
          },
         "Iron Crown": {
@@ -1002,14 +1064,20 @@ def manage_events(board: dict, character: dict) -> None:
                 "In this restless room you see a crown. Would you like to wear it?",
                 "An iron crown stands still on the green, marble pedestal. Would you like to wear this crown?"
             ],
-            "Item": [
-                "Armor",
-                "Broken Armor"
-            ],
-            "Input": [
-                "Yes",
-                "No"
-            ]
+            "Input": {
+                "Yes": {
+                    "Item": [
+                        ("Armor", "This cursed mechanical crown increases your wounds by 2."),
+                        ("Broken Armor", "This crown is broken, yet powerful machinery protects you still. "
+                                         "Your wounds are increased by 1.")
+                    ]
+                },
+                "No": {
+                    "Effect": [
+                        ("Nothing", "You decide not to wear anything")
+                    ]
+                }
+            }
          },
         "Ceiling Drops": {
             "Description": [
@@ -1018,20 +1086,17 @@ def manage_events(board: dict, character: dict) -> None:
                 "Before you enter the next room you hear how its ceiling drops. now you need to go through this mess. "
                 "Would like to use a shovel??"
             ],
-            "Effect": [
-                "Ceiling"
-            ],
             "Input": {
                 "Yes": {
                     "Check item": "Shovel",
-                    "Effect": {
+                    "Effect": [
                         ("Nothing", "You clear path without any problem."),
-                    }
+                    ]
                 },
                 "No": {
-                    "Effect": {
+                    "Effect": [
                         ("Damage", "Without a shovel it takes a tremendous amount of effort and 4 of your wounds")
-                    }
+                    ]
                 }
             }
          },
@@ -1043,29 +1108,28 @@ def manage_events(board: dict, character: dict) -> None:
             "Input": {
                 "Yes": {
                     "Check item": "Torch",
-                    "Effect": {
+                    "Effect": [
                         ("Nothing", "You see clearly now"),
                         ("Damage", "As soon as you lit your torch, the mist explodes. It takes 4 of your wounds")
-                    }
+                    ]
                 },
                 "No": {
-                    "Effect": {
+                    "Effect": [
                         ("Nothing", "You eventually find your way")
-                    }
+                    ]
                 }
             }
          }
     }
     event = board[(character["Y-coordinate"], character["X-coordinate"])]
     if event == boss:
-        boss(character)
+        event(character)
     else:
         print(events_dictionary[event]["Description"])
         if "Input" in events_dictionary[event].keys():
             event_with_input(character, events_dictionary[event])
         elif "Effect" in events_dictionary[event].keys():
             event_with_effect(event["Effect"], character)
-        #  elif "Item" in events_dictionary[event].keys():
 
 
 def event_with_input(character: dict, event: dict):
@@ -1084,26 +1148,28 @@ def event_with_input(character: dict, event: dict):
             event_with_item(event["Input"]["No"]["Item"], character)
 
 
-def event_with_effect(effects: dict, character: dict):
-    effect = random.choice(list(effects))
-    print(effect[1])
+def event_with_effect(effects: list, character: dict):
+    effect = random.choice(effects)
+    print(effect[-1::])
     character["Current wounds"] = character["Max wounds"] if effect[0] == "Heal" else character["Current wounds"]
     if effect == "Damage":
         manage_wounds(4, character)
-    character["Current Experience"] += 50 if effect[0] == "Experience gain" else 0
+    character["Current experience"] += 50 if effect[0] == "Experience gain" else 0
     if effect[0] == "Random Stat Improvement":
         character[random.choice(list(character["Characteristics"].keys()))] += 2
     elif effect[0] == "Random Stat Deterioration":
-        character[random.choice(list(character["Characteristics"].keys()))] -= 2
+        stat = random.choice(list(character["Characteristics"].keys()))
+        character[stat] -= 2
+        print(f"Your {stat} is decreased by 2")
     if effect[0] == "Battle":
-        combat(character, generate_enemy(character["Level"][0]))
+        combat(character, generate_enemy(effect[1], effect[2]))
 
 
 def event_with_item(items, character):
     item = random.choice(items)
     print(item[1])
-    if "Armor" in item:
-        character["Max wounds"] += 2 if item == "Armor" else 1
+    if "Armor" in item[0]:
+        character["Max wounds"] += 2 if item[0] == "Armor" else 1
     elif item != "Nothing":
         if item[0] in character["Inventory"]:
             character["Inventory"][item[0]] += 1
@@ -1169,6 +1235,15 @@ def validate_option(choice: str, list_of_options: list) -> bool:
     return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
 
 
+def process_command(command, character):
+    if has_argument(command):
+        command = get_command(command)
+        command(character)
+    else:
+        command = get_command(command)
+        command()
+
+
 def move_character(character: dict, direction_index: int, available_directions: list) -> tuple:
     """
     Change character's coordinates.
@@ -1203,7 +1278,7 @@ def is_goal_attained(character: dict) -> bool:
 
     :param character: a dictionary
     :precondition: character must be a dictionary
-    :postcondition: returns True if character a Necronian artifact, else returns False
+    :postcondition: returns True if character has a Necronian artifact, else returns False
     :return: True if goal is attained, otherwise False
 
     >>> is_goal_attained({"Artifact": "Necronian Servo-Skull"})
@@ -1228,7 +1303,7 @@ def has_item(item: str, character: dict):
     return character["Inventory"][item] > 0
 
 
-def generate_enemy(level) -> dict:
+def generate_enemy(level, specific_enemy=None) -> dict:
     enemies_dictionary = {
         1:  # Level 1
         [
@@ -1274,9 +1349,24 @@ def generate_enemy(level) -> dict:
 
         ],
         3: [
-
+            {
+                "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
+                "Max wounds": 100,
+                "Current wounds": 100,
+                "Stats": {
+                    "Intellect": 45,
+                    "Strength": 100,
+                    "Toughness": 70,
+                    "Agility": 5},
+                "Skills": {
+                    "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
+                    "Blade of Chaos": ""
+                }
+            }
         ]
     }
+    if specific_enemy is not None:
+        return enemies_dictionary[level][specific_enemy]
     return random.choices(enemies_dictionary[level], [0, 30], k=1)[0]
 
 
@@ -1374,23 +1464,9 @@ def boss(character) -> None:
               "Goreclaw the Render, a Daemon Prince of Khorne —— infamous among the inquisitors of this galaxy."
               "You know it will be a deadly battle with no opportunity to flee."
               "\n\"Bring. It. On.\", his monstrous majesty mandates")
-        enemy = {
-            "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
-            "Max wounds": 100,
-            "Current wounds": 100,
-            "Stats": {
-                "Intellect": 45,
-                "Strength": 100,
-                "Toughness": 70,
-                "Agility": 5},
-            "Skills": {
-                "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
-                "Flame of Chaos": 0
-            }
-        }
         character.setdefault("Artifact", "Necronian artifact")
         character["Skills"]["Flee away"].pop()
-        combat(character, enemy)
+        combat(character, generate_enemy(3, "Boss"))
 
 
 def game_over(character: dict) -> None:
@@ -1472,7 +1548,8 @@ def game_over(character: dict) -> None:
     "███****███*███****███*███***███***███****███***███****███***███****███*****███*****███****███*███▌****▄***███****███*****███*****███**███****███*███***███****▄█****███*\n"
     "████████▀***▀██████▀***▀█***█▀****████████▀****███****███***███****█▀*****▄████▀***████████▀**█████▄▄██***███****█▀*****▄████▀***█▀****▀██████▀***▀█***█▀***▄████████▀**\n"
     "***********************************************███****███*************************************▀*************************************************************************\n"
-    "\n\n\nYou slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.")
+    "\n\n\n"
+    "You slain yet another blasphemous denizen of the Realm of Chaos and retrieved the accursed Necronian artifact.")
 
 
 def main() -> None:
