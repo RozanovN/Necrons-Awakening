@@ -3,26 +3,7 @@ Your name:
 Your student number:
 
 All of your code must go in this file.
-
-1. Ask about clarity of line 57
-2.
-    a)If you defined a data structure, and then assign a different value to it, will it be still counted as one line?
-    b)If you have some function inside the data structure definition, will it be still counted as one line?
-    c)If you define a data structure using if and else, will it be counted as one line? For example, x = 5 if z == True <new line> else 10.
-3. Do we put a . at the end of a preconditions etc.
-4. Can we use ?polymorphism? since we went over it last lecture?
-5. ASCII art over character limit
-6. Is usage of map, itertools here overcomplicating?
-7. Ask whether the doctest should consider a program as a whole or only locally. E.g. func doesn't care about params, but program does (combat function)
-8. Teleportation to the boss and cheats for marking purpose
-9. Making helper functions local to parent functions
-10. Ask about process_input function
-11. Ask about event function running out of the line limit
-12. Since you have opportunity to leave at any point, should we add that as post condition to, for example, set_name()
-13. Tuple vs dict for enemy_attack and generate enemy
-14. Ask about "incorrect" spellings like adepta
-15. Instead of the teleportation to boss at level 3, increase chance of next tile being a boss tile
-16. Ask about getting a feedback on the previous lab before the deadline for this assignment
+rework characteristics
 """
 import random
 import time
@@ -39,10 +20,10 @@ def game() -> None:
     columns = 25
     print("\tYou stand on the front line of a great and secret war. As an Acolyte of the powerful"
           " Inquisition, you will root out threats to the Imperium of Man. You will engage\nin deadly combat"
-          "against heretics, aliens and witches."
+          " against heretics, aliens and witches."
           "\n\tBut perhaps the biggest threat you face is your fellow man, for the human soul is such "
           "fertile ground for corruption. It is your duty to shepherd mankind from the\nmanifold paths"
-          " of damnation\n"
+          " of damnation.\n"
           "\n\tPrior to starting your service to the Emperor, you must first create a character.\n")
     character = character_creation()
     board = {
@@ -51,8 +32,10 @@ def game() -> None:
         (25, 0):
             boss
     }
+    board[(0, 0)] = "Entrance"
     while is_alive(character) and not is_goal_attained(character):
         available_directions = get_available_directions(character, rows, columns)
+        print("\nWhere would you like to go?")
         print_numbered_list_of_possibilities(available_directions)
         user_input = int(process_input(character, available_directions)) - 1
         add_room_to_the_board(move_character(character, user_input, available_directions), board)
@@ -67,6 +50,7 @@ def game() -> None:
         if reached_new_level(character):
             time.sleep(1)
             level_up(character)
+    game_over(character)
 
 
 def combat(character: dict, enemy: dict) -> None:
@@ -104,40 +88,44 @@ def combat(character: dict, enemy: dict) -> None:
     :postcondition: character receives full experience if enemy is killed, half experience if enemy flees, else none
     """
     print("\nCombat between {0} and {1} begins.".format(character["Name"], enemy["Name"]))
-    while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
+    while is_alive(character) and is_alive(enemy) and enemy["Will to fight"]:
         show_wounds(character["Current wounds"], character["Max wounds"])
         print_numbered_list_of_possibilities(list(character["Skills"].keys()))
         user_input = int(process_input(character, list(character["Skills"].keys()))) - 1
         damage = use_skill(character, list(character["Skills"].keys())[user_input], enemy)  # player's turn
+        if not character["Will to fight"]:
+            break
         manage_wounds(damage, enemy)
         damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
         manage_wounds(damage, character)
         if random.randrange(1, 6) == 1:
             use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
-    character["Current experience"] += enemy["Experience"] if not is_alive(enemy) else enemy["Experience"] / 2 if \
-        not enemy["Will to fight"] else 0
+    if is_alive(character) and character["Will to fight"]:
+        character["Current experience"] += enemy["Experience"] if enemy["Will to fight"] else math.floor(
+                                           enemy["Experience"] / 2)
     if not character["Will to fight"]:
-        move_character(character, character["Previous coordinates"])
-    print("The battle is over.")
+        move_character(character)
+    time.sleep(2)
+    print("\nThe battle is over.")
     show_level(character)
-
     character["Will to fight"] = True
 
 
 def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     """
-    Add a room to the board if the board doesn't have a room at the given coordinates
+    Add a room to the board if the board doesn't have a room at the given coordinates.
 
     :param board: a dictionary
     :param coordinates: tuple of positive integers
     :precondition: board must be a dictionary
     :precondition: board keys must be tuples of integers
     :precondition: coordinates items must be positive integers
-    :postcondition: Adds a room with random description to the board if the board doesn't have a room at the given
-                    coordinates
+    :postcondition: Adds a room with a list with a random event and a boolean that is equal to False
+                    to the board if the board doesn't have a room at the given coordinates
+    :postcondition:
     """
     if coordinates not in board.keys():
-        board.setdefault(coordinates, generate_random_room_event())
+        board.setdefault(coordinates, generate_random_room_event(),)
 
 
 def generate_random_room_event() -> str:
@@ -233,7 +221,9 @@ def character_creation() -> dict:
     time.sleep(3)
     get_skills(character)
     show_list_of_skills(character)
+    time.sleep(3)
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
+    show_level(character)
     return character
 
 
@@ -266,7 +256,7 @@ def set_adeptus(character) -> str:
         
         "\tAdeptus Astra Telepathica is an adeptus of fearsome psykers. They operate with psychic powers, sometimes "
         "referred as \"sorceries\", that can take a myriad of forms from\nreading one's mind to unleashing dreadful "
-        "lightnings. Psykers' might comes from warp and the Gods of Chaos. Psykers are physically weak and barely "
+        "lightnings. Psykers' might comes from the warp and the Gods of Chaos. Psykers are physically weak and barely "
         "agile, instead\nthey focus on their mind's strength. However, the true Achilles heel of psykers is their own"
         " outrageous power. Indeed, to toy with warp is to perform before the Gods of\nChaos; they love the show until "
         "they see a single failure.\n"
@@ -276,11 +266,12 @@ def set_adeptus(character) -> str:
         " yet lack in agility. As for intellect, one only needs to follow orders.\n"
         
         "\tAdeptus Mechanicus is an adeptus of clever engineers. They specialize in machinery and fight with help of "
-        " servo-skulls and dreadful servitors. Mechanics believe in\nthe supremacy of their Machine God —— Omnissiah "
-        " —— and eagerly reject their own weak flesh to get divine bionic one. As a result, they end up looking more"
-        "robotic than\ntheir own machines. The dire engineers despise involving themselves into battles, despite "
-        "having foremost strength and dexterity due to their mechanical prostheses.\nInstead they play their battles "
-        "as though they play some chess, so only thing they need is power of their brain.\n"
+        "their servo-skulls and dreadful servitors. Mechanics believe in\nthe supremacy of their Machine God —— "
+        "Omnissiah  —— and eagerly reject their own weak flesh to get the divine bionic one. As a result, they end "
+        "up looking more robotic than\ntheir own machines. The dire engineers despise involving themselves into "
+        "battles, despite "
+        "having foremost strength and dexterity due to their mechanical prostheses.\nInstead, they play their battles "
+        "as though they play a game of chess. Thus, the only thing they need is the power of their brain.\n"
         
         "\tAdeptus Officio Assassinorum is an \"elite\" adepta of rogues and hitmen. Inquisitors recruit the most "
         "menacing and terrifying ones to make them acolytes. Those\nassassins are extremely agile, even if they lack "
@@ -307,6 +298,7 @@ def set_wounds(character: dict) -> int:
     print("Your adeptus has {0} wounds".format(adeptus_wounds[character["Adeptus"]]))
     max_wounds = adeptus_wounds[character["Adeptus"]] + roll(1, 5, character["Name"])
     print("You have {0} wounds.".format(max_wounds))
+    time.sleep(4)
     return max_wounds
 
 
@@ -315,35 +307,43 @@ def get_characteristics(character: dict) -> dict:
           "traps. Meanwhile, bonus of your characteristic\n(first digit of the characteristic) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
           " are equal to 30 + 2k10 dice rolls.\n\nCalculating stats...")
-    characteristics = {}
-    if character["Adeptus"] == "Adeptus Astra Telepathica":
-        characteristics = {
-            "Intellect": 30 + roll(3, 10, character["Name"]),
-            "Strength": 30 + roll(2, 10, character["Name"]),
-            "Toughness": 30 + roll(2, 10, character["Name"]),
-            "Agility": 30 + roll(2, 10, character["Name"])
-        }
-    elif character["Adeptus"] == "Adeptus Astra Militarum":
-        characteristics = {
-            "Intellect": 30 + roll(2, 10, character["Name"]),
-            "Strength": 30 + roll(3, 10, character["Name"]),
-            "Toughness": 30 + roll(3, 10, character["Name"]),
-            "Agility": 30 + roll(2, 10, character["Name"])
-        }
-    elif character["Adeptus"] == "Adeptus Mechanicus":
-        characteristics = {
-            "Intellect": 30 + roll(3, 10, character["Name"]),
-            "Strength": 30 + roll(3, 10, character["Name"]),
-            "Toughness": 30 + roll(3, 10, character["Name"]),
-            "Agility": 30 + roll(3, 10, character["Name"])
-        }
-    else:
-        characteristics = {
-            "Intellect": 30 + roll(2, 10, character["Name"]),
-            "Strength": 30 + roll(2, 10, character["Name"]),
-            "Toughness": 30 + roll(2, 10, character["Name"]),
-            "Agility": 30 + roll(3, 10, character["Name"])
-        }
+    time.sleep(4)
+    characteristics_dictionary = {
+        "Adeptus Astra Telepathica": [
+            (30, 3),
+            (30, 2),
+            (30, 2),
+            (30, 2),
+        ],
+        "Adeptus Astra Militarum": [
+            (30, 2),
+            (30, 3),
+            (30, 3),
+            (30, 2),
+        ],
+        "Adeptus Mechanicus": [
+            (30, 3),
+            (30, 3),
+            (30, 3),
+            (30, 3),
+        ],
+        "Adeptus Officio Assassinorum": [
+            (30, 2),
+            (30, 2),
+            (30, 2),
+            (30, 3),
+        ]
+    }
+    characteristics = {
+        "Intellect": characteristics_dictionary[character["Adeptus"]][0][0] +
+                     roll(characteristics_dictionary[character["Adeptus"]][0][1], 10, character["Name"]),
+        "Strength": characteristics_dictionary[character["Adeptus"]][1][0] +
+                     roll(characteristics_dictionary[character["Adeptus"]][1][1], 10, character["Name"]),
+        "Toughness": characteristics_dictionary[character["Adeptus"]][2][0] +
+                     roll(characteristics_dictionary[character["Adeptus"]][2][1], 10, character["Name"]),
+        "Agility": characteristics_dictionary[character["Adeptus"]][3][0] +
+                     roll(characteristics_dictionary[character["Adeptus"]][3][1], 10, character["Name"])
+    }
     return characteristics
 
 
@@ -395,44 +395,47 @@ def manage_wounds(damage: int, enemy: dict) -> None:
         print("However, {0} evades it.".format(enemy["Name"]))
     else:
         print("{0} was not able to evade.".format(enemy["Name"]))
+        time.sleep(2)
         if has_sustained(enemy):
-            enemy["Current wounds"] -= math.floor(damage / 2)
-            print("However, {0} sustains it and receives only {1}.".format(enemy["Name"], damage / 2))
+            damage = math.floor(damage / 2)
+            enemy["Current wounds"] -= damage
+            print("However, {0} sustains it and receives only {1}.".format(enemy["Name"], damage))
         else:
+            time.sleep(2)
             print("{0} was not able to sustain.".format(enemy["Name"]))
             enemy["Current wounds"] -= damage
 
 
 def lightning(character: dict, enemy: dict) -> int:
     damage = roll(2, 10, character["Name"])
-    print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to {2}.".format(
+    print("\nA bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to {2}.".format(
         character["Name"], damage, enemy["Name"]))
     return damage
 
 
 def spontaneous_combustion(character: dict, enemy: dict) -> int:
     damage = roll(math.floor(character["Characteristics"]["Intellect"]), 10, character["Name"])
-    print("The power of your mind ignites {0} dealing {1} damage.".format(enemy["Name"], damage))
+    print("\nThe power of your mind ignites {0} dealing {1} damage.".format(enemy["Name"], damage))
     return damage
 
 
 def chaos_of_warp(character: dict, enemy: dict) -> int:
     enemy["Max wounds"] = character["Max wounds"]
     enemy["Current wounds"] = enemy["Max wounds"]
-    print("You make {0}'s wounds equal to {1}.".format(enemy["Name"], enemy["Current wounds"]))
+    print("\nYou make {0}'s wounds equal to {1}.".format(enemy["Name"], enemy["Current wounds"]))
     return 0
 
 
 def colossus_smash(character: dict, enemy: dict) -> int:
     damage = math.floor(character["Characteristics"]["Strength"] / 10) + roll(1, 10, character["Name"])
-    print("A devastating blow of {0} weapon rips and tears {1} dealing {2} damage\n".format(
+    print("\nA devastating blow of {0} weapon rips and tears {1} dealing {2} damage\n".format(
         character["Name"], enemy["Name"], damage))
     return damage
 
 
 def charge(character: dict, enemy: dict) -> int:
     damage = math.floor(character["Characteristics"]["Strength"] / 10) * 3
-    print("{0}'s enormous body charges into {1} dealing {2} damage\n".format(
+    print("\n{0}'s enormous body charges into {1} dealing {2} damage\n".format(
         character["Name"], enemy["Name"], damage))
     return damage
 
@@ -440,20 +443,20 @@ def charge(character: dict, enemy: dict) -> int:
 def rampage(character: dict, enemy: dict) -> int:
     damage = roll(roll(1, math.floor(character["Characteristics"]["Strength"] / 10), character["Name"]), 10,
                   character["Name"])
-    print("{0} makes a series of bloodthirsty slashes dealing {1} damage\n".format(
+    print("\n{0} makes a series of bloodthirsty slashes dealing {1} damage\n".format(
         character["Name"], damage))
     return damage
 
 
 def laser_shot(character: dict, enemy: dict) -> int:
     damage = math.floor(character["Characteristics"]["Intellect"] / 10)
-    print("Your servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage, enemy["Name"]))
     return damage
 
 
 def robotic_wrath(character: dict, enemy: dict) -> int:
     damage = roll(3, math.floor(character["Characteristics"]["Intellect"] / 10), character["Name"])
-    print("\"TRACEBACK (MOST RECENT CALL LAST):\n FILE C:/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
+    print("\n\"TRACEBACK (MOST RECENT CALL LAST):\n FILE C:/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
           "ZERO DIVISION ERROR: DIVISION BY ZERO\n"
           "[FINISHED IN 0.314s WITH EXIT CODE ROBOTIC WRATH]\""
           " —— your Servitor roars robotically."
@@ -473,7 +476,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
     skills_list = [skill for skill in character["Skills"].keys()]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
     damage = 0
-    print("You pray Omnissiah to slay fools who cannot see the stupor mundi of machines.")
+    print("\nYou pray Omnissiah to slay fools who cannot see the stupor mundi of machines.")
     for skill in skills_list:
         damage += use_skill(character, skill, enemy)
     return damage
@@ -481,28 +484,31 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
 
 def deadly_burst(character: dict, enemy: dict) -> int:
     damage = math.floor(character["Characteristics"]["Agility"] / 10) + 5 + roll(1, 10, character["Name"])
-    print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
+    print("\nYou give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
     return damage
 
 
 def killer_instinct(character: dict, enemy: dict) -> int:
     damage = roll(math.floor(character["Characteristics"]["Agility"] / 10), 5, character["Name"])
-    print("You spray a fan of venomous knives dealing dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    print("\nYou spray a fan of venomous knives dealing dealing {0} damage to {1}.".format(damage, enemy["Name"]))
     return damage
 
 
 def vendetta(character: dict, enemy: dict) -> int:
     damage = roll(1, 100, character["Name"])
-    print("Your fatal shot deals {0} damage to {1}.".format(damage, enemy["Name"]))
+    print("\nYour fatal shot deals {0} damage to {1}.".format(damage, enemy["Name"]))
     if damage < 20:
         print("V means very random.")
     return damage
 
 
 def flee_away(character: dict, enemy: dict) -> 0:
+    print("\n{0} decides to flee away".format(character["Name"]))
     if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
-        print("You are not quick enough to flee without damage.")
+        print("{0} is not quick enough to flee without damage.".format(character["Name"]))
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())[0::1]), character)
+    else:
+        print("{0} flees without damage.".format(character["Name"]))
     character["Will to fight"] = False
     return 0
 
@@ -510,7 +516,7 @@ def flee_away(character: dict, enemy: dict) -> 0:
 def enemy_attack(character: dict, enemy: dict) -> int:
     damage = roll(character["Skills"]["Enemy Attack"][1],
                   character["Skills"]["Enemy Attack"][2], character["Name"])
-    print(character["Skills"]["Enemy Attack"][0] + "dealing {0}".format(damage))
+    print("\n" + character["Skills"]["Enemy Attack"][0] + " dealing {0}".format(damage))
     return damage
 
 
@@ -524,7 +530,7 @@ def daemon_trickery(character: dict, enemy: dict) -> int:
     :param enemy:
     :return:
     """
-    print("{0} dirtily makes another attack".format(character["Name"]))
+    print("\n{0} dirtily makes another attack".format(character["Name"]))
     damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, character["Name"]) for _ in
                                                                             range(5)])))
     print("{0} deals {1} damage to {2}".format(character["Name"], damage, enemy["Name"]))
@@ -532,7 +538,7 @@ def daemon_trickery(character: dict, enemy: dict) -> int:
 
 
 def blade_of_chaos(character: dict, enemy: dict):
-    print("You notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
+    print("\nYou notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
           "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet). He certainly will not be able to"
           "evade or sustain it."
           "\nEnter the first letters of 2 body parts (AB for arms and body):")
@@ -585,6 +591,7 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     list_of_rolls = [random.randrange(1, number_of_sides + 1) for _ in range(number_of_dice)]
     print("\n{0} rolled:".format(name))
     for single_roll in list_of_rolls:
+        time.sleep(1)
         print("{0}{1}{2}".format(single_roll, green_text(), normal_text()))
     print("The sum of {0} rolls is {1}{2}{3}".format(name, green_text(), sum(list_of_rolls), normal_text()))
     return sum(list_of_rolls)
@@ -748,14 +755,15 @@ def show_wounds(wounds, maximum_wounds) -> None:
     :param maximum_wounds:
 
     >>> show_wounds(3, 25)
+    <BLANKLINE>
     Wounds: 3/25
     """
-    print("Wounds: {0}/{1}".format(wounds, maximum_wounds))
+    print("\nWounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
 def show_level(character: dict) -> None:
     print(
-        "Level: {0}, {1}\n"
+        "\nLevel: {0}, {1}\n"
         "Experience: {2}/{3}".format(
             character["Level"][0],
             character["Level"][1],
@@ -811,6 +819,16 @@ def manage_events(board: dict, character: dict) -> None:
     This room is empty
     """
     events_dictionary = {
+        "Entrance": {
+            "Description": [
+                "This is the entrance to the tomb."
+            ]
+        },
+        "There is nothing here anymore": {
+            "Description": [
+                "There is nothing here anymore"
+            ]
+        },
         "Empty Room": {
             "Description": [
                 "This room is empty", "The emptiness of this room reminds you nothing of necrons.",
@@ -820,17 +838,19 @@ def manage_events(board: dict, character: dict) -> None:
         "Ancient Altar Room": {
             "Description": [
                 "This room has an ancient altar. You feel strangely relaxed among this heresy.",
-                "All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,",
+                "All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,"
                 " it heals you innocently still."
             ],
             "Effect": "Heal"
         },
         "Crate": {
+            "After-effect": False,
             "Description": [
-                "This room has a large crate. Would you like to open it?",
-                "This room has a strange crate. Would you like to open it?"
+                "This room has a large crate.",
+                "This room has a strange crate."
             ],
             "Input": {
+                "Description": "Would you like to open it?",
                 "Yes": {
                     "Effect": [
                         ("Torch", "You find a torch."),
@@ -847,11 +867,11 @@ def manage_events(board: dict, character: dict) -> None:
         },
         "Eldritch Altar": {
             "Description": [
-                "This room has an ominous altar. Would you like to to touch it?",
+                "This room has an ominous altar.",
                 "This room has an altar in form of a star that pierces a crescent moon, reminding you of Slaanesh",
-                " Would you like to touch it?"
             ],
             "Input": {
+                "Description": "Would you like to to touch it?",
                 "Yes": {
                     "Effect": [
                         ("Damage", "This altar tortures your mind and takes away 4 of your wounds."),
@@ -866,12 +886,13 @@ def manage_events(board: dict, character: dict) -> None:
              }
         },
         "Stack of Books": {
+             "After-effect": False,
              "Description": [
-                 "This room has a stack of heretic books. Would you like to to read one?",
+                 "This room has a stack of heretic books.",
                  "This room has a stack of Imperium's books, which seems strange to you.",
-                 " Would you like to read one?"
              ],
              "Input": {
+                "Description": "Would you like to read one?",
                 "Yes": {
                     "Effect": [
                         ("Damage", "This damned heresy poisons your mind and takes away 4 of your wounds."),
@@ -886,11 +907,13 @@ def manage_events(board: dict, character: dict) -> None:
              }
          },
         "Discarded Pack": {
+             "After-effect": False,
              "Description": [
-                 "This room has a discarded pack left by your predecessor. Would you like to open it?",
-                 "This room has a big but miserable, discarded pack. Would you like to open it?"
+                 "This room has a discarded pack left by your predecessor.",
+                 "This room has a big but miserable, discarded pack."
              ],
              "Input": {
+                "Description": "Would you like to open it?",
                 "Yes": {
                     "Item": [
                         ("Torch", "You find a torch."),
@@ -906,11 +929,13 @@ def manage_events(board: dict, character: dict) -> None:
              }
          },
         "Necronian Chest": {
+             "After-effect": False,
              "Description": [
-                 "This room has a mechanical Necronian chest. Would you like to open it?",
-                 "This room has a chest made of green steel. Would you like to open it?"
+                 "This room has a mechanical Necronian chest.",
+                 "This room has a chest made of green steel."
              ],
              "Input": {
+                "Description": "Would you like to open it?",
                 "Yes": {
                     "Item": [
                         ("Armor", "You find a ring with C'tan insignia. Your wounds are increased by 2."),
@@ -927,12 +952,14 @@ def manage_events(board: dict, character: dict) -> None:
              }
          },
         "Necronian Alchemy Table": {
+            "After-effect": False,
             "Description": [
-                "This room has a Necronian alchemy table with food on it. Would you like to eat it?",
-                "This room has a potion standing on some kind of alchemy pentagram. Would you like to drink it?",
-                "This room has a myriad of bulbs and flasks. Would you like to drink any?"
+                "This room has a Necronian alchemy table with food on it.",
+                "This room has a potion standing on some kind of alchemy pentagram.",
+                "This room has a myriad of bulbs and flasks."
             ],
             "Input": {
+                "Description": "Would you like to taste it?",
                 "Yes": {
                     "Effect": [
                         ("Nothing", "It has no effect."),
@@ -948,11 +975,13 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Decorative Urn": {
+            "After-effect": False,
             "Description": [
-                "This room has a marble, giant urn. Would you like to look inside?",
-                "This room has multiple broken urns. Would you like to try finding anything?"
+                "This room has a marble, giant urn.",
+                "This room has multiple broken urns."
             ],
             "Input": {
+                "Description": "Would you like to look for anything?",
                 "Yes": {
                     "Item": [
                         ("Armor", "Inside you find a necklace enchanted with psykana that increases your wounds by 2."),
@@ -971,11 +1000,13 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Iron Maiden": {
+            "After-effect": False,
             "Description": [
-                "This room has a dreadful iron maiden. Would you like to look inside?",
-                "This room has mechanical cage in form of star. Would you like to look inside?"
+                "This room has a dreadful iron maiden.",
+                "This room has mechanical cage in form of star."
             ],
             "Input": {
+                "Description": "Would you like to look inside?",
                 "Yes": {
                     "Effect": [
                         ("Damage", "As you open the torture mechanism, it sends a fan of knives that takes away 4 of "
@@ -994,11 +1025,13 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Locked Sarcophagus": {
+            "After-effect": False,
             "Description": [
-                "This room has a mysterious sarcophagus. Would you like to look inside?",
-                "This room is a necronian cemetery. Would you like to look inside of sarcophagus?"
+                "This room has a mysterious sarcophagus.",
+                "This room is a necronian cemetery."
             ],
             "Input": {
+                "Description": "Would you like to look inside?",
                 "Yes": {
                     "Effect": [
                         ("Damage", "As you open the sarcophagus, a hidden blade cuts you and takes away 4 of your "
@@ -1017,11 +1050,13 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Suit of Armor": {
+            "After-effect": False,
             "Description": [
-                "This room is an armory. Would you like to wear some new armor pieces?",
-                "This room has a set of mechanical, ancient armor. Would you like to wear it?"
+                "This room is an armory.",
+                "This room has a set of mechanical, ancient armor."
             ],
             "Input": {
+                "Description": "Would you like to take some new armor pieces?",
                 "Yes": {
                     "Item": [
                         ("Armor", "This blasphemous, mechanical armor increases your wounds by 2."),
@@ -1037,12 +1072,14 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Makeshift Dining Table": {
+            "After-effect": False,
             "Description": [
-                "This room has a makeshift dining table with food on it. Would you like to eat it?",
-                "This room has a package of uneaten food. Would you like to eat it?",
-                "This room has some vases of water. Would you like to drink any?"
+                "This room has a makeshift dining table with food on it.",
+                "This room has a package of uneaten food.",
+                "This room has some vases of water."
             ],
             "Input": {
+                "Description": "Would you like to taste it?",
                 "Yes": {
                     "Effect": [
                         ("Damage", "Necronian cuisine is not the best. It takes 4 of your wounds."),
@@ -1068,11 +1105,13 @@ def manage_events(board: dict, character: dict) -> None:
             ],
          },
         "Eerie Spiderweb": {
+            "After-effect": False,
             "Description": [
-                "This room is full of eerie spiderweb. Would you like to burn it with a torch?",
-                "You struggle to see anything because of the spiderweb. Would you like to burn it with a torch?"
+                "This room is full of eerie spiderweb.",
+                "You struggle to see anything because of the spiderweb."
             ],
             "Input": {
+                "Description": "Would you like to burn some of it with a torch?",
                 "Yes": {
                     "Check item": "Torch",
                     "Effect": [
@@ -1090,13 +1129,15 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Mummified Remains": {
+            "After-effect": False,
             "Description": [
-                "Mummified remains majestically reigns inside this empty room. Would you like to burn it?",
-                "This room has no lightning. Would you like to use a torch?"
+                "This is room is devoured by darkness.",
+                "This room has no lightning."
             ],
             "Input": {
+                "Description": "Would you like to use a torch?",
                 "Yes": {
-                    "Check item": "Shovel",
+                    "Check item": "Torch",
                     "Effect": [
                         ("Damage", "Fire activates the trap which takes 4 of your wounds."),
                     ]
@@ -1125,11 +1166,13 @@ def manage_events(board: dict, character: dict) -> None:
             ],
          },
         "Iron Crown": {
+            "After-effect": False,
             "Description": [
-                "In this restless room you see a crown. Would you like to wear it?",
-                "An iron crown stands still on the green, marble pedestal. Would you like to wear this crown?"
+                "In this restless room you see a crown.",
+                "An iron crown stands still on the green, marble pedestal."
             ],
             "Input": {
+                "Description": "Would you like to wear it?",
                 "Yes": {
                     "Item": [
                         ("Armor", "This cursed mechanical crown increases your wounds by 2."),
@@ -1145,13 +1188,14 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Ceiling Drops": {
+            "After-effect": True,
             "Description": [
                 "As you enter this room, the ceiling above you drops. You were able to evade it, but now you need to go"
-                " through this mess. Would like to use a shovel?",
+                " through this mess.",
                 "Before you enter the next room you hear how its ceiling drops. now you need to go through this mess. "
-                "Would like to use a shovel??"
             ],
             "Input": {
+                "Description": "Would like to use a shovel?",
                 "Yes": {
                     "Check item": "Shovel",
                     "Effect": [
@@ -1166,11 +1210,13 @@ def manage_events(board: dict, character: dict) -> None:
             }
          },
         "Shifting Mist": {
+            "After-effect": False,
             "Description": [
-                "This room has a strange shifting mist. Would you like to light a torch?",
-                "You are unable to see anything because of the mist. Would you to use a torch?"
+                "This room has a strange shifting mist.",
+                "You are unable to see anything because of the mist."
             ],
             "Input": {
+                "Description": "Would you like to light a torch?",
                 "Yes": {
                     "Check item": "Torch",
                     "Effect": [
@@ -1186,31 +1232,45 @@ def manage_events(board: dict, character: dict) -> None:
             }
          }
     }
-    event = board[(character["Y-coordinate"], character["X-coordinate"])]
-    if event == boss:
-        event(character)
+    event = board[(character["Y-coordinate"], character["X-coordinate"])][0]
+    if event[0] == boss:
+        event[0](character)
     else:
         print(events_dictionary[event]["Description"])
         if "Input" in events_dictionary[event].keys():
             event_with_input(character, events_dictionary[event])
         elif "Effect" in events_dictionary[event].keys():
             event_with_effect(event["Effect"], character)
+        elif "After-effect" in events_dictionary[event].keys() and events_dictionary[event]["After-effect"]:
+            board[(character["Y-coordinate"], character["X-coordinate"])] = "There is nothing here anymore"
 
 
 def event_with_input(character: dict, event: dict):
+    print(event["Input"]["Description"])
     user_input = process_input(character, ["Yes, No"])
     if user_input == "Yes":
-        if "Check item" in event["Input"]["Yes"] and has_item(event["Input"]["Yes"]["Check item"], character):
-            character["Inventory"][event["Input"]["Yes"]["Check item"]] -= 1
+        if "Check item" in event["Input"]["Yes"]:
+            event_with_check_of_item(character, event)
+        else:
             if "Effect" in event.keys():
                 event_with_effect(event["Input"]["Yes"]["Effect"], character)
             elif "Item" in event.keys():
                 event_with_item(event["Input"]["Yes"]["Item"], character)
+        event["After-effect"] = True
     else:
         if "Effect" in event.keys():
             event_with_effect(event["Input"]["No"]["Effect"], character)
+
+
+def event_with_check_of_item(character: dict, event: dict):
+    if has_item(event["Input"]["Yes"]["Check item"], character):
+        character["Inventory"][event["Input"]["Yes"]["Check item"]] -= 1
+        if "Effect" in event.keys():
+            event_with_effect(event["Input"]["Yes"]["Effect"], character)
         elif "Item" in event.keys():
-            event_with_item(event["Input"]["No"]["Item"], character)
+            event_with_item(event["Input"]["Yes"]["Item"], character)
+    else:
+        print("You have no such item.")
 
 
 def event_with_effect(effects: list, character: dict):
@@ -1309,7 +1369,7 @@ def process_command(command, character):
         command()
 
 
-def move_character(character: dict, direction_index: int, available_directions=None) -> tuple:
+def move_character(character: dict, direction_index=None, available_directions=None) -> tuple:
     """
     Change character's coordinates.
 
@@ -1323,15 +1383,17 @@ def move_character(character: dict, direction_index: int, available_directions=N
     :postcondition: updates character X or Y coordinate based on direction choice
     :return: new character's coordinates as a tuple
 
-    >>> protagonist = {"X-coordinate": 0, "Y-coordinate": 0}
+    >>> protagonist = {"X-coordinate": 0, "Y-coordinate": 0, "Previous coordinates": (0, 1)}
     >>> move_character(protagonist, 0, ["south", "west"])
     >>> print(protagonist)
+
+    >>>move_character(protagonist)
     {'X-coordinate': 0, 'Y-coordinate': 1}
     """
     directions_dictionary = {"north": -1, "south": 1, "west": -1, "east": 1}
-    direction = available_directions[direction_index]
-    character["Previous coordinates"] = character["Y-coordinate"], character["X-coordinate"]
     if available_directions is not None:
+        direction = available_directions[direction_index]
+        character["Previous coordinates"] = character["Y-coordinate"], character["X-coordinate"]
         if direction in "north south":
             character["Y-coordinate"] += directions_dictionary[direction]
         else:
@@ -1379,7 +1441,7 @@ def generate_enemy(level, specific_enemy=None) -> dict:
         {
             "the rat":
             {
-                "Name": "Rat",
+                "Name": "the rat",
                 "Max wounds": 5,
                 "Current wounds": 5,
                 "Characteristics": {
@@ -1597,23 +1659,26 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     :param character:
     :param columns:
     :param rows:
-    >>> print(get_map({(0, 0): "This room is empty", (0, 1): "This room is empty", (0, 2): "This room is empty", \
-                (1, 0): "This room is empty", (1, 1): "This room is empty", (1, 2): "Ancient Altar"}, \
-                {"Y-coordinate": 0, "X-coordinate": 0}, 5, 5))
+    >>>
 
     """
     result = ""
+    map_dictionary = {
+        "Ancient Altar room": "✙\t",
+        "Entrance": "🚪\t",
+        "Empty Room": "☐"
+    }
     for row in range(rows):
         for column in range(columns):
             if (row, column) in board.keys() and (row, column) == \
                     (character["Y-coordinate"], character["X-coordinate"]):
-                result += green_text() + "U" + normal_text() + " "
-            elif (row, column) in board.keys() and board[(row, column)] == "Ancient Altar room":
-                result += green_text() + "+" + normal_text() + " "
+                result += green_text() + "U" + normal_text() + "\t"
             elif (row, column) not in board.keys():
-                result += "*" + " "
-            elif (row, column) in board.keys() and "empty" in board[(row, column)]:
-                result += "e" + " "
+                result += "*\t"
+            elif (row, column) in board.keys() and board[(row, column)][0] not in map_dictionary.keys():
+                result += "d\t"
+            else:
+                result += map_dictionary[board[(row, column)]]
         result += "\n"
     return result
 
@@ -1623,34 +1688,34 @@ def show_map(location_map) -> None:
 
     :param location_map:
 
-    >>> show_map("\x1b[1;32mU\x1b[0;20mee**\nee\x1b[1;32m+\x1b[0;20m**\n*****\n*****\n*****\n")
+    >>>
 
     """
-    #  result = "".join(map(lambda ascii_character: " " if ascii_character == filter_element
-    #                     else ascii_character, location_map))
-    #  result = "".join([" " if letter == filter_element else letter for letter in location_map])
     print(location_map)
-    print("* —— not discovered yet, + —— room with an altar, U —— your character, e —— an empty room"
-          "█ ——")
+    print("* —— not discovered yet, ✙ —— room with an altar, U —— your character, ☐ —— an empty room"
+          "\n🚪 —— entrance, d —— discovered")
 
 
 def tutorial(character):
-    print("\n\tYour inquisitor, Scythia, gave a crucial tusk to retrieve a Necronian artifact. She enlightens you "
+    time.sleep(3)
+    print("\n\tYour inquisitor, Scythia, gave a you crucial tusk to retrieve a Necronian artifact. She enlightens you "
           "that it's a sphere of incredible power. Surprisingly, no one knows\nwhat it does, but every cultist desires"
           " it. Hence, it's now your job as an acolyte to retrieve the miserable artifact that lies among the ruins of"
           "great stasis-tombs."
-          "\n\tYou arrive to unnamed deserted planet. Nothing indicates that here was once a paramount nation of"
-          "servants of C'tan. Eventually, you found out ruins matching the\nNecronian decor."
+          "\n\tYou arrive to unnamed, deserted planet. Nothing indicates that here was once a paramount nation of"
+          "servants of C'tan. Eventually, you found the ruins matching the\nNecronian decor."
           "\n\tAs you enter the tomb, it strikes you as odd. The insides of this dungeon are far from being ruins;"
-          "it is the complete opposite of what you saw before. The soft green\nlight of some unknown kind of latter"
-          "kindly lightens the room. Apparently, it was a complete waste of time to bring torches with or was it?."
-          "A sudden feel of being watched\nstops your vague reflection. You turn around and notice a giant rat greedily"
-          "watching you."
+          "it is rather the complete opposite of what you saw before. The soft green\nlight of some unknown kind of "
+          "latter kindly lightens the room. Apparently, it was a complete waste of time to bring torches with or was "
+          "it?. A sudden feel of being watched\nstops your vague reflection. You turn around and notice a giant rat "
+          "greedily watching you."
           "\n\tYour mission begins."
-          "\n\n\n\n\nHere are some helpful tips for your path of inquisitor:")
+          "\nHere are some helpful tips for your path of inquisitor:")
+    time.sleep(4)
     help_commands()
     print("\n\nTo choose an option from a numbered list enter its index.")
-    combat(character, generate_enemy(1, "Rat"))
+    time.sleep(2)
+    combat(character, generate_enemy(1, "the rat"))
 
 
 def boss(character) -> None:
@@ -1775,7 +1840,7 @@ def main() -> None:
         "Imperial Guard and countless\nplanetary defence forces, the ever-vigilant "
         "Inquisition and the Tech-Priests of the Adeptus Mechanicus, to name but a few. But "
         "for all their multitudes, they are \nbarely enough to hold off the ever-present "
-        "threat from aliens, heretics, mutants—and worse."), (
+        "threat from aliens, heretics, mutants and worse."), (
         "\n\tTo be a man in such times is to be one amongst untold billions. It "
         "is to live in the cruellest and most bloody regime imaginable. Forget the power of "
         "technology and \nscience, for so much has been forgotten, never to be re-learned. "
