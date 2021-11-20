@@ -27,6 +27,7 @@ All of your code must go in this file.
 import random
 import time
 import itertools
+import math
 
 
 def game() -> None:
@@ -50,7 +51,7 @@ def game() -> None:
         (25, 0):
             boss
     }
-    while is_alive(character) and is_goal_attained(character):
+    while is_alive(character) and not is_goal_attained(character):
         available_directions = get_available_directions(character, rows, columns)
         print_numbered_list_of_possibilities(available_directions)
         user_input = int(process_input(character, available_directions)) - 1
@@ -102,18 +103,24 @@ def combat(character: dict, enemy: dict) -> None:
     :postcondition: battle ends if enemy wounds is <= zero or if enemy decides to flee.
     :postcondition: character receives full experience if enemy is killed, half experience if enemy flees, else none
     """
+    print("\nCombat between {0} and {1} begins.".format(character["Name"], enemy["Name"]))
     while is_alive(character) and is_alive(enemy) and character["Will to fight"] and enemy["Will to fight"]:
         show_wounds(character["Current wounds"], character["Max wounds"])
         print_numbered_list_of_possibilities(list(character["Skills"].keys()))
         user_input = int(process_input(character, list(character["Skills"].keys()))) - 1
         damage = use_skill(character, list(character["Skills"].keys())[user_input], enemy)  # player's turn
         manage_wounds(damage, enemy)
-        damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys()))[1::], character)  # enemy's turn
-        manage_wounds(damage, enemy)
+        damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
+        manage_wounds(damage, character)
         if random.randrange(1, 6) == 1:
             use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
     character["Current experience"] += enemy["Experience"] if not is_alive(enemy) else enemy["Experience"] / 2 if \
         not enemy["Will to fight"] else 0
+    if not character["Will to fight"]:
+        move_character(character, character["Previous coordinates"])
+    print("The battle is over.")
+    show_level(character)
+
     character["Will to fight"] = True
 
 
@@ -180,11 +187,12 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
     while input_is_processed:
         if validate_option(user_input, list_of_options):
             return user_input
-        if user_input in get_command_list():
+        elif user_input in get_command_list():
             process_command(user_input, character)
-        if is_setting_name and user_input != "":
+        elif is_setting_name and user_input != "":
             return user_input
-        print("{0} is invalid input. Please, try again:")
+        else:
+            print("{0} is invalid input. Please, try again:".format(user_input))
         user_input = str(input())
 
 
@@ -206,6 +214,7 @@ def character_creation() -> dict:
             "Flee Away": "You retreat to the previous room"},
         "X-coordinate": 0,
         "Y-coordinate": 0,
+        "Previous coordinates": (0, 0),
         "Current experience": 0,
         "Experience for the next level": 1000,
         "Will to fight": True,
@@ -223,10 +232,8 @@ def character_creation() -> dict:
     show_characteristics(character)
     time.sleep(3)
     get_skills(character)
-    print("Right now you have the following skills:".format(green_text(),normal_text()))
     show_list_of_skills(character)
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
-    print("To see your inventory type {0}i{1}".format(green_text(), normal_text()))
     return character
 
 
@@ -305,7 +312,7 @@ def set_wounds(character: dict) -> int:
 
 def get_characteristics(character: dict) -> dict:
     print("\n\tCharacteristics are crucial part of the game. They determine the results of evasion, fleeing, avoiding "
-          "traps. Meanwhile, bonus of your characteristic\n(characteristic divided by 10) affects your damage. "
+          "traps. Meanwhile, bonus of your characteristic\n(first digit of the characteristic) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
           " are equal to 30 + 2k10 dice rolls.\n\nCalculating stats...")
     characteristics = {}
@@ -389,7 +396,7 @@ def manage_wounds(damage: int, enemy: dict) -> None:
     else:
         print("{0} was not able to evade.".format(enemy["Name"]))
         if has_sustained(enemy):
-            enemy["Current wounds"] -= damage / 2
+            enemy["Current wounds"] -= math.floor(damage / 2)
             print("However, {0} sustains it and receives only {1}.".format(enemy["Name"], damage / 2))
         else:
             print("{0} was not able to sustain.".format(enemy["Name"]))
@@ -398,22 +405,60 @@ def manage_wounds(damage: int, enemy: dict) -> None:
 
 def lightning(character: dict, enemy: dict) -> int:
     damage = roll(2, 10, character["Name"])
-    print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to the {2}.".format(
+    print("A bolt of blinding lightning strikes from {0}'s hand dealing {1} damage to {2}.".format(
         character["Name"], damage, enemy["Name"]))
     return damage
 
 
+def spontaneous_combustion(character: dict, enemy: dict) -> int:
+    damage = roll(math.floor(character["Characteristics"]["Intellect"]), 10, character["Name"])
+    print("The power of your mind ignites {0} dealing {1} damage.".format(enemy["Name"], damage))
+    return damage
+
+
+def chaos_of_warp(character: dict, enemy: dict) -> int:
+    enemy["Max wounds"] = character["Max wounds"]
+    enemy["Current wounds"] = enemy["Max wounds"]
+    print("You make {0}'s wounds equal to {1}.".format(enemy["Name"], enemy["Current wounds"]))
+    return 0
+
+
 def colossus_smash(character: dict, enemy: dict) -> int:
-    damage = character["Characteristics"]["Strength"] + roll(1, 10, character["Name"])
-    print("A devastating blow of {0} weapon rips the {1} that dealing {2} damage".format(
+    damage = math.floor(character["Characteristics"]["Strength"] / 10) + roll(1, 10, character["Name"])
+    print("A devastating blow of {0} weapon rips and tears {1} dealing {2} damage\n".format(
         character["Name"], enemy["Name"], damage))
     return damage
 
 
+def charge(character: dict, enemy: dict) -> int:
+    damage = math.floor(character["Characteristics"]["Strength"] / 10) * 3
+    print("{0}'s enormous body charges into {1} dealing {2} damage\n".format(
+        character["Name"], enemy["Name"], damage))
+    return damage
+
+
+def rampage(character: dict, enemy: dict) -> int:
+    damage = roll(roll(1, math.floor(character["Characteristics"]["Strength"] / 10), character["Name"]), 10,
+                  character["Name"])
+    print("{0} makes a series of bloodthirsty slashes dealing {1} damage\n".format(
+        character["Name"], damage))
+    return damage
+
+
 def laser_shot(character: dict, enemy: dict) -> int:
-    damage = character["Characteristics"]["Intellect"]
-    print("Your servo-skull shots a laser beam from its eyes dealing {0} damage to the {1}.".format(damage,
-          enemy["Name"]))
+    damage = math.floor(character["Characteristics"]["Intellect"] / 10)
+    print("Your servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    return damage
+
+
+def robotic_wrath(character: dict, enemy: dict) -> int:
+    damage = roll(3, math.floor(character["Characteristics"]["Intellect"] / 10), character["Name"])
+    print("\"TRACEBACK (MOST RECENT CALL LAST):\n FILE C:/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
+          "ZERO DIVISION ERROR: DIVISION BY ZERO\n"
+          "[FINISHED IN 0.314s WITH EXIT CODE ROBOTIC WRATH]\""
+          " —— your Servitor roars robotically."
+          "\nThe enraged servitor destroys everything in the way dealing {0} damage to {1}.".format(damage,
+                                                                                                    enemy["Name"]))
     return damage
 
 
@@ -428,28 +473,44 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
     skills_list = [skill for skill in character["Skills"].keys()]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
     damage = 0
+    print("You pray Omnissiah to slay fools who cannot see the stupor mundi of machines.")
     for skill in skills_list:
-       damage += use_skill(character, skill, enemy)
+        damage += use_skill(character, skill, enemy)
     return damage
 
 
 def deadly_burst(character: dict, enemy: dict) -> int:
-    damage = character["Characteristics"]["Agility"] + 5 + roll(1, 10, character["Name"])
+    damage = math.floor(character["Characteristics"]["Agility"] / 10) + 5 + roll(1, 10, character["Name"])
     print("You give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
+    return damage
+
+
+def killer_instinct(character: dict, enemy: dict) -> int:
+    damage = roll(math.floor(character["Characteristics"]["Agility"] / 10), 5, character["Name"])
+    print("You spray a fan of venomous knives dealing dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    return damage
+
+
+def vendetta(character: dict, enemy: dict) -> int:
+    damage = roll(1, 100, character["Name"])
+    print("Your fatal shot deals {0} damage to {1}.".format(damage, enemy["Name"]))
+    if damage < 20:
+        print("V means very random.")
     return damage
 
 
 def flee_away(character: dict, enemy: dict) -> 0:
     if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
+        print("You are not quick enough to flee without damage.")
         use_skill(enemy, random.choice(list(enemy["Skills"].keys())[0::1]), character)
     character["Will to fight"] = False
     return 0
 
 
 def enemy_attack(character: dict, enemy: dict) -> int:
-    damage = roll(character["Skills"]["Enemy Attack"]["Amount of dice"],
-                  character["Skills"]["Enemy Attack"]["Number of sides"])
-    print(character["Skills"]["Enemy Attack"]["Description"].format(damage, enemy["Name"]))
+    damage = roll(character["Skills"]["Enemy Attack"][1],
+                  character["Skills"]["Enemy Attack"][2], character["Name"])
+    print(character["Skills"]["Enemy Attack"][0].format(damage, enemy["Name"]))
     return damage
 
 
@@ -522,8 +583,10 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
 
     """
     list_of_rolls = [random.randrange(1, number_of_sides + 1) for _ in range(number_of_dice)]
-    print("{0} rolled: {1}".format(name, list_of_rolls))
-    print("The sum of {0} rolls is {1}".format(name, sum(list_of_rolls)))
+    print("\n{0} rolled:".format(name))
+    for single_roll in list_of_rolls:
+        print("{0}{1}{2}".format(single_roll, green_text(), normal_text()))
+    print("The sum of {0} rolls is {1}{2}{3}".format(name, green_text(), sum(list_of_rolls), normal_text()))
     return sum(list_of_rolls)
 
 
@@ -535,7 +598,7 @@ def help_commands():
     >>> help_commands()
 
     """
-    print("This is the list of the available commands:\n"
+    print("\nThis is the list of the available commands:\n"
           "{0}h{1} —— show list of commands with a short description\n"
           "{0}q{1} —— quit the game\n"
           "{0}b{1} —— bandage your injuries and restore 4 wounds\n"
@@ -583,14 +646,17 @@ def show_list_of_skills(character: dict) -> None:
 
     :param character:
     """
-    print("Right now you have the following skills:")
+    print("\nRight now you have the following skills:")
     print_dictionary_items(character["Skills"])
 
 
 def use_skill(character: dict, skill_name: str, enemy: dict) -> int:
     skills_dictionary = {"Lightning": lightning, "Colossus Smash": colossus_smash, "Laser Shot": laser_shot,
                          "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack,
-                         "Daemon's Trickery": daemon_trickery}
+                         "Daemon's Trickery": daemon_trickery, "Spontaneous Combustion": spontaneous_combustion,
+                         "Charge": charge, "Robotic Wrath": robotic_wrath, "Killer Instinct": killer_instinct,
+                         "Chaos of Warp": chaos_of_warp, "Rampage": rampage, "Deus ex machina": deus_ex_machina,
+                         "Vendetta": vendetta}
     return skills_dictionary[skill_name](character, enemy)
 
 
@@ -604,20 +670,22 @@ def level_up(character: dict) -> None:
     dictionary_of_skills = {
         2: {
             "Adeptus Astra Telepathica":
-                ("Spontaneous Combustion", "Your enemy ... dealing (Bonus Intellect)k10 damage.."),
+                ("Spontaneous Combustion", "The power of your mind ignites your enemy dealing (Bonus Intellect)k10"
+                                           " damage."),
             "Adeptus Astra Militarum":
-                ("Charge", "... dealing (3 * Bonus Strength."),
+                ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaically, yet effective"
+                           ""),
             "Adeptus Mechanicus":
                 ("Robotic Wrath", "Another runtime error infuriates your servitor and makes it destroy everything in "
                                   "its way dealing 3k(Bonus Intellect) damage"),
             "Adeptus Officio Assassinorum":
-                ("Killer Instinct ", "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage")
+                ("Killer Instinct", "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage")
         },
         3: {
             "Adeptus Astra Telepathica":
                 ("Chaos of Warp", "One is always equal in death. You make your enemy wounds equal to yours."),
             "Adeptus Astra Militarum":
-                ("Rampage", "Those who live by the sword shall die by my blade. You make a series of bloodthirsty"
+                ("Rampage", "Those who live by the sword shall die by your blade.\nYou make a series of bloodthirsty"
                             " slashes dealing (1k(Bonus Strength))k10 damage"),
             "Adeptus Mechanicus":
                 ("Deus ex machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines."
@@ -661,17 +729,14 @@ def normal_text() -> str:
 
 
 def bandage(character: dict) -> None:
-    if has_item("Bandage", character["Inventory"]):
+    if has_item("Bandage", character):
         character["Current wounds"] = character["Current wounds"] + 4 if character["Current wounds"] != \
             character["Max wounds"] else character["Max wounds"]
         character["Inventory"]["Bandage"] -= 1
-        show_wounds(character["Current wounds"], character["Maximum wounds"])
-        print("{0} bandage{1} {2} left".format(
-            character["Inventory"]["Bandage"],
-            "s" if character["Inventory"]["Bandage"] > 1 else "",
-            "are" if character["Inventory"]["Bandage"] > 1 else "is"
-            )
-        )
+        show_wounds(character["Current wounds"], character["Max wounds"])
+        print("{0} bandage{1} {2} left".format(character["Inventory"]["Bandage"],
+                                               "s" if character["Inventory"]["Bandage"] > 1 else "",
+                                               "are" if character["Inventory"]["Bandage"] > 1 else "is"))
     else:
         print("You have no bandages")
 
@@ -702,7 +767,7 @@ def show_level(character: dict) -> None:
 
 def show_inventory(character: dict) -> None:
     print("You have the following items:")
-    print("Item name \t\t\t Amount of items")
+    print("Item name: Amount of items")
     print_dictionary_items(character["Inventory"])
 
 
@@ -719,12 +784,12 @@ def show_characteristics(character):
     >>> show_characteristics({"Characteristics": {"Intellect: 30"}})
 
     """
-    print("Your characteristics are:")
+    print("\nYour characteristics are:")
     print_dictionary_items(character["Characteristics"])
 
 
 def quit_game() -> None:
-    print("\nYou may deserve now, but your duty to the Emperor will last forever")
+    print("\nYou may deserve now, but your duty to the Emperor will last forever.")
     quit()
 
 
@@ -1244,7 +1309,7 @@ def process_command(command, character):
         command()
 
 
-def move_character(character: dict, direction_index: int, available_directions: list) -> tuple:
+def move_character(character: dict, direction_index: int, available_directions=None) -> tuple:
     """
     Change character's coordinates.
 
@@ -1265,10 +1330,15 @@ def move_character(character: dict, direction_index: int, available_directions: 
     """
     directions_dictionary = {"north": -1, "south": 1, "west": -1, "east": 1}
     direction = available_directions[direction_index]
-    if direction in "north south":
-        character["Y-coordinate"] += directions_dictionary[direction]
+    character["Previous coordinates"] = character["Y-coordinate"], character["X-coordinate"]
+    if available_directions is not None:
+        if direction in "north south":
+            character["Y-coordinate"] += directions_dictionary[direction]
+        else:
+            character["X-coordinate"] += directions_dictionary[direction]
     else:
-        character["X-coordinate"] += directions_dictionary[direction]
+        character["Y-coordinate"] = character["Previous coordinates"][0]
+        character["X-coordinate"] = character["Previous coordinates"][1]
     return character["Y-coordinate"], character["X-coordinate"]
 
 
@@ -1306,64 +1376,66 @@ def has_item(item: str, character: dict):
 def generate_enemy(level, specific_enemy=None) -> dict:
     enemies_dictionary = {
         1:  # Level 1
-        [
-            {  # Template
-                "Name": "",
-                "Max wounds": 5,
-                "Current wounds": 5,
-                "Stats": {
-                    "Intellect": 10,
-                    "Strength": 15,
-                    "Toughness": 15,
-                    "Agility": 55
-                },
-                "Skills": {
-                    "Flee away": "Flees away",
-                    "Enemy attack": {  # ("description", "int amount of dices", "int number of sides")
-                        "Description": "abc",
-                        "Amount of dice": 1,
-                        "Number of sides": 5
-                    }
-                },
-                "Will to fight": True,
-                "Experience": 0
-            },
+        {
+            # "abc":{  # Template
+            #    "Name": "",
+            #    "Max wounds": 5,
+            #   "Current wounds": 5,
+            #    "Characteristics": {
+            #        "Intellect": 10,
+            #        "Strength": 15,
+            #        "Toughness": 15,
+            #        "Agility": 55
+            #    },
+            #    "Skills": {
+             #       "Flee Away": "Flees away",
+              #      "Enemy attack": {  # ("description", "int amount of dices", "int number of sides")
+               #         "Description": "abc",
+                #        "Amount of dice": 1,
+                 #  }
+            #    },
+            #    "Will to fight": True,
+            #    "Experience": 0
+            #},
+            "Rat":
             {  # Rat
                 "Name": "Rat",
                 "Max wounds": 5,
                 "Current wounds": 5,
-                "Stats": {
+                "Characteristics": {
                     "Intellect": 10,
                     "Strength": 15,
                     "Toughness": 15,
                     "Agility": 25
                 },
                 "Skills": {
+                    "Flee Away": "Rat flees away.",
                     "Enemy Attack": ("Rat greedily bites you with its front teeth", 1, 5)
                 },
                 "Will to fight": True,
                 "Experience": 50
-            },
-        ],
-        2: [
-
-        ],
-        3: [
-            {
-                "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
-                "Max wounds": 100,
-                "Current wounds": 100,
-                "Stats": {
-                    "Intellect": 45,
-                    "Strength": 100,
-                    "Toughness": 70,
-                    "Agility": 5},
-                "Skills": {
-                    "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
-                    "Blade of Chaos": ""
-                }
             }
-        ]
+        },
+        2: {
+
+        },
+        3: {
+
+        },
+        "Boss": {
+            "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
+            "Max wounds": 100,
+            "Current wounds": 100,
+            "Characteristics": {
+                "Intellect": 45,
+                "Strength": 100,
+                "Toughness": 70,
+                "Agility": 5},
+            "Skills": {
+                "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
+                "Blade of Chaos": ""
+            }
+        }
     }
     if specific_enemy is not None:
         return enemies_dictionary[level][specific_enemy]
@@ -1434,21 +1506,22 @@ def show_map(location_map) -> None:
 
 
 def tutorial(character):
-    print("\tYour inquisitor, Scythia, gave a crucial tusk to retrieve a Necronian artifact. She enlightens you "
-          "that it's a sphere of incredible power. Surprisingly, no one knows what it does, but every cultist desires"
+    print("\n\tYour inquisitor, Scythia, gave a crucial tusk to retrieve a Necronian artifact. She enlightens you "
+          "that it's a sphere of incredible power. Surprisingly, no one knows\nwhat it does, but every cultist desires"
           " it. Hence, it's now your job as an acolyte to retrieve the miserable artifact that lies among the ruins of"
           "great stasis-tombs."
           "\n\tYou arrive to unnamed deserted planet. Nothing indicates that here was once a paramount nation of"
-          "servants of C'tan. Eventually, you found out ruins that matches the Necronian decor."
+          "servants of C'tan. Eventually, you found out ruins matching the\nNecronian decor."
           "\n\tAs you enter the tomb, it strikes you as odd. The insides of this dungeon are far from being ruins;"
-          "it is the complete opposite of what you saw before. The soft green light of some unknown kind of latter"
+          "it is the complete opposite of what you saw before. The soft green\nlight of some unknown kind of latter"
           "kindly lightens the room. Apparently, it was a complete waste of time to bring torches with or was it?."
-          "A sudden feel of being watched stops your vague reflection. You turn around and notice a giant rat greedily"
+          "A sudden feel of being watched\nstops your vague reflection. You turn around and notice a giant rat greedily"
           "watching you."
           "\n\tYour mission begins."
-          "\n\n\n\n\nHere are some helpful tips to help in your path of inquisitor:")
+          "\n\n\n\n\nHere are some helpful tips for your path of inquisitor:")
     help_commands()
-    print("\n\n To choose an option from a numbered list enter its index.")
+    print("\n\nTo choose an option from a numbered list enter its index.")
+    combat(character, generate_enemy(1, "Rat"))
 
 
 def boss(character) -> None:
@@ -1466,7 +1539,7 @@ def boss(character) -> None:
               "\n\"Bring. It. On.\", his monstrous majesty mandates")
         character.setdefault("Artifact", "Necronian artifact")
         character["Skills"]["Flee away"].pop()
-        combat(character, generate_enemy(3, "Boss"))
+        combat(character, generate_enemy("Boss"))
 
 
 def game_over(character: dict) -> None:
