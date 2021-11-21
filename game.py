@@ -69,6 +69,10 @@ def combat(character: dict, enemy: dict) -> None:
     :postcondition: battle ends if enemy wounds is <= zero or if enemy decides to flee
     :postcondition: character receives experience only if they are alive and not decided to flee away
     :postcondition: character receives full experience if enemy is killed, half experience if enemy flees
+    :postcondition: prints the beginning combat phrase
+    :postcondition: prints the ending combat phrase
+    :postcondition: prints turn phrases if in while loop
+    :postcondition: prints the phrase about enemy's death if enemy is dead
     """
     print("\nCombat between {0} and {1} begins.".format(character["Name"], enemy["Name"]))
     while enemy["Will to fight"]:
@@ -191,6 +195,7 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
 
 def proceed_further():
     """
+    Proceeds further or quit.
 
     :postcondition: executes quit_game function if input is q, else proceeds further
     """
@@ -243,20 +248,24 @@ def character_creation() -> dict:
 
 def set_name():
     """
+    Set character's name.
 
+    This is a helper function for character_creation function..
 
-    :return:
+    :postcondition: returns capitalized, non-empty string
+    :return: name as a string
     """
     print("Enter your name:")
     name = process_input(is_setting_name=True)
     return name.capitalize()
 
 
-def set_adeptus(character) -> str:
+def set_adeptus() -> str:
     """
+    Set adeptus.
 
-    :param character:
-    :return:
+    :postcondition: returns a chosen string from the adepts_list
+    :return: adeptus as a string
     """
     print(
         "\n\tAdepts, Adepta or Adeptus is the formal title given to the individual Imperial servants "
@@ -296,11 +305,19 @@ def set_adeptus(character) -> str:
                    " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
     print_numbered_list_of_possibilities(adepts_list)
-    choice = process_input(character, adepts_list)
+    choice = process_input(list_of_options=adepts_list)
     return adepts_list[int(choice) - 1]
 
 
 def set_wounds(character: dict) -> int:
+    """
+    Set wounds.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :postcondition: character must
+    :return:
+    """
     print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
           "meeting the Emperor.")
     print("Your character's wounds are determined by the chosen adeptus and 1k5 dice roll.")
@@ -380,7 +397,7 @@ def get_skills(character: dict) -> None:
             "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing (3 + Intellect Bonus) damage."),
         "Adeptus Officio Assassinorum": (
             "Deadly Burst", "You give your foe a burst of fire from two plasma-pistols dealing"
-            " (5 + 1k10 + Agility Bonus) damage.")
+            " (2 + 1k10 + Agility Bonus) damage.")
     }
     character["Skills"].setdefault(dictionary_of_skills[character["Adeptus"]][0],
                                    dictionary_of_skills[character["Adeptus"]][1])
@@ -492,6 +509,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
     :param character:
     :param enemy:
     :return:
+
     """
     skills_list = [skill for skill in list(character["Skills"].keys())[1:3]]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
@@ -503,7 +521,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
 
 
 def deadly_burst(character: dict, enemy: dict) -> int:
-    damage = math.floor(character["Characteristics"]["Agility"] / 10) + 5 + roll(1, 10, character["Name"])
+    damage = math.floor(character["Characteristics"]["Agility"] / 10) + 2 + roll(1, 10, character["Name"])
     print("\nYou give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
     return damage
 
@@ -685,7 +703,7 @@ def use_skill(character: dict, skill_name: str, enemy: dict) -> int:
                          "Deadly Burst": deadly_burst, "Flee Away": flee_away, "Enemy Attack": enemy_attack,
                          "Daemon's Trickery": daemon_trickery, "Spontaneous Combustion": spontaneous_combustion,
                          "Charge": charge, "Robotic Wrath": robotic_wrath, "Killer Instinct": killer_instinct,
-                         "Chaos of Warp": chaos_of_warp, "Rampage": rampage, "Deus ex machina": deus_ex_machina,
+                         "Chaos of Warp": chaos_of_warp, "Rampage": rampage, "Deus ex Machina": deus_ex_machina,
                          "Vendetta": vendetta}
     return skills_dictionary[skill_name](character, enemy)
 
@@ -718,9 +736,9 @@ def level_up(character: dict) -> None:
                 ("Rampage", "Those who live by the sword shall die by your blade.\nYou make a series of bloodthirsty"
                             " slashes dealing (1k(Bonus Strength))k10 damage"),
             "Adeptus Mechanicus":
-                ("Deus ex Machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines."
-                                    " You use 1k10 of your skills in one round. Skills are chosen randomly"
-                                    "between Robotic Wrath and Laser Shot"),
+                ("Deus ex Machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines.\n"
+                                    "You use 1k10 of your skills in one round. Skills are chosen randomly"
+                                    " between Robotic Wrath and Laser Shot"),
             "Adeptus Officio Assassinorum":
                 ("Vendetta", "You make a single fatal shot dealing 1k100 damage")
         }
@@ -1687,20 +1705,23 @@ def generate_enemy(level, specific_enemy=None) -> dict:
                 },
         },
         "Boss": {
-            "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
-            "Max wounds": 100,
-            "Current wounds": 100,
-            "Characteristics": {
-                "Intellect": 45,
-                "Strength": 100,
-                "Toughness": 70,
-                "Agility": 5},
-            "Skills": {
-                "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
-                "Blade of Chaos": ""
-            },
-            "Will to fight": True,
-            "Experience": 2000
+            "Boss" :
+            {
+                "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
+                "Max wounds": 100,
+                "Current wounds": 100,
+                "Characteristics": {
+                    "Intellect": 45,
+                    "Strength": 100,
+                    "Toughness": 70,
+                    "Agility": 5},
+                "Skills": {
+                    "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
+                    "Blade of Chaos": ""
+                },
+                "Will to fight": True,
+                "Experience": 2000
+            }
         }
     }
     if specific_enemy is not None:
@@ -1797,19 +1818,20 @@ def tutorial(character):
 def boss(character) -> None:
     if character["Level"][0] != 3:
         print("Fear takes control over you as soon as you get close to this room.\n"
-              "You feel like you have to get more experience before facing it.\n You decide to retreat.")
-        character["X-coordinate"] = 1
-        character["Y-coordinate"] = 25
+              "You feel like you have to get more experience before facing it.\nYou decide to retreat.")
+        character["X-coordinate"] = character["Previous coordinates"][1]
+        character["Y-coordinate"] = character["Previous coordinates"][0]
     else:
-        print("You enter the dreadful room. The Necronian decor exactly matches the description the Inquisitor gave you"
-              ". However, your joy deserves rapidly as you notice a gigantic daemon holding the precious artefact"
+        print("\n\tYou enter the dreadful room. The Necronian decor exactly matches the description "
+              "the Inquisitor gave you"
+              ". However, your joy deserves rapidly as you notice a gigantic\ndaemon holding the precious artefact"
               "you are tasked to retrieve. The daemon notices you and smirks. His grotesque claws reveals his name ——"
-              "Goreclaw the Render, a Daemon Prince of Khorne —— infamous among the inquisitors of this galaxy."
-              "You know it will be a deadly battle with no opportunity to flee."
-              "\n\"Bring. It. On.\", his monstrous majesty mandates")
+              "Goreclaw the Render, a\nDaemon Prince of Khorne —— infamous among the inquisitors of this galaxy."
+              "\n\nYou know it will be a deadly battle with no opportunity to flee."
+              "\n\"Bring. It. On,\" his monstrous majesty mandates")
         character.setdefault("Artifact", "Necronian artifact")
-        character["Skills"]["Flee away"].pop()
-        combat(character, generate_enemy("Boss"))
+        character["Skills"].pop("Flee Away")
+        combat(character, generate_enemy("Boss", "Boss"))
 
 
 def game_over(character: dict) -> None:
