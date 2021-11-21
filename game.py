@@ -1383,20 +1383,23 @@ def quit_game() -> None:
     quit()
 
 
+#  ----------------------------------------------Events Management---------------------------------------------------  #
 def manage_events(board: dict, character: dict) -> None:
     """
-    Print the description of character's location.
+    Manage the event.
 
     :param board: a dictionary
-    :param character: a tuple of positive integers
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :precondition: character's X-coordinate and Y-coordinate must be in bounds of board
     :precondition: board must be a dictionary
-    :precondition: coordinates must be positive integers
-    :precondition: character values must be integers that are >= 0
-    :precondition: board keys must have coordinates represented as tuple of two integers that are
-                    >= 0
-    :precondition: board values must have room's description as a string
-    :postcondition: prints the description of character's location
-
+    :precondition: board must be a valid board created with generate_random_room_event function
+    :postcondition: manages the event that is associated with current character's X-coordinate and Y-coordinate
+    :postcondition: launches the boss event if event is boss function
+    :postcondition: prints the event's description
+    :postcondition: print the ending phrase
+    :return: None
     """
     events_dictionary = {
         "Entrance": {
@@ -1832,7 +1835,13 @@ def manage_events(board: dict, character: dict) -> None:
     proceed_further()
 
 
-def event_with_input(character: dict, event: dict):
+def event_with_input(character: dict, event: dict) -> None:
+    """
+
+    :param character:
+    :param event:
+    :return:
+    """
     print(event["Input"]["Description"])
     print_numbered_list_of_possibilities(["Yes", "No"])
     user_input = int(process_input(character, ["Yes", "No"])) - 1
