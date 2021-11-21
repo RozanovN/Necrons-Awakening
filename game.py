@@ -1058,6 +1058,11 @@ def has_argument(command: str) -> bool:
     :precondition: command must be an alphabetic string and part of the list returned by get_command_list
     :postcondition: returns True if command has an argument, else False
     :return: True if command has an argument, otherwise False
+
+    >>> has_argument("h")
+    False
+    >>> has_argument("b")
+    True
     """
     commands_dictionary = {
         "q": False,
@@ -1091,6 +1096,7 @@ def get_command(command_name: str):
     return commands_dictionary[command_name]
 
 
+#                                           Commands Management: Commands                                              #
 def help_commands() -> None:
     """
     Print all commands' keywords and their descriptions.
@@ -1112,8 +1118,14 @@ def help_commands() -> None:
 
 def show_list_of_skills(character: dict) -> None:
     """
+    Print the list of character's skills.
 
-    :param character:
+    This is a helper function for get_command.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: print all skills' names and their descriptions where skill's name has a green color
     """
     print("\nRight now you have the following skills:")
     print_dictionary_items(character["Skills"])
