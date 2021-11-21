@@ -412,6 +412,77 @@ def get_level_name(adeptus: str, level: int):
         return [level, level_dictionary[adeptus]]
 
 
+#                              Character Manipulations subsection: Wounds Management                                   #
+def has_evaded(enemy: dict) -> bool:
+    """
+    Check if enemy enemy evaded the attack.
+
+    This is a helper function for manage_wounds
+
+    :param enemy: a dictionary
+    :precondition: enemy must be created with character_creation function or with generate_enemy function
+    :postcondition: returns True if 1k100 roll <= enemy's Agility, else returns False
+    :postcondition: prints the evasion check phrase
+    :return: True if evaded, otherwise False
+    """
+    print("{0}----------------------------------Evasion Check-------------------------------------------------------{1}"
+          .format(green_text(), normal_text()))
+    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]
+
+
+def has_sustained(enemy: dict) -> bool:
+    """
+    Check if enemy enemy sustained the attack.
+
+    This is a helper function for manage_wounds
+
+    :param enemy: a dictionary
+    :precondition: enemy must be created with character_creation function or with generate_enemy function
+    :postcondition: returns True if 1k100 roll <= enemy's Toughness, else returns False
+    :postcondition: prints the toughness check phrase
+    :return: True if sustained, otherwise False
+    """
+    print("{0}----------------------------------Toughness Check-----------------------------------------------------{1}"
+          .format(green_text(), normal_text()))
+    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]
+
+
+def manage_wounds(damage: int, enemy: dict, unavoidable=False) -> None:
+    """
+    Manage wounds.
+
+    :param unavoidable: optional, a boolean
+    :param enemy: a dictionary
+    :param damage: an integer
+    :precondition: enemy must be created with character_creation function or with generate_enemy function
+    :precondition: damage must be an integer
+    :precondition: unavoidable must be a boolean
+    :postcondition: prints successful evasion phrase if unavoidable is False and has_evaded helper function returns
+                    True
+    :postcondition: prints unsuccessful evasion phrase if unavoidable is False and has_evaded helper function returns
+                    False
+    :postcondition: prints successful toughness check phrase and decrements Current wounds by damage divided by 2 if
+                    all of the above postconditions are False and if has_sustained helper function returns True
+    :postcondition: prints unsuccessful toughness check phrase and decrements Current wounds by damage if all of the
+                    above postconditions are False
+    :return: None
+    """
+    if not unavoidable and has_evaded(enemy):
+        print("{0}However, {1} evades it.{2}".format(green_text(), enemy["Name"], normal_text()))
+    else:
+        if not unavoidable:
+            print("{0}{1} was not able to evade.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
+        if has_sustained(enemy):
+            damage = math.floor(damage / 2)
+            enemy["Current wounds"] -= damage
+            print("{0}However, {1} sustains it and only receives {2} damage.{3}".format(green_text(), enemy["Name"],
+                                                                                        damage, normal_text()))
+        else:
+            print("{0}{1} was not able to sustain.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
+            enemy["Current wounds"] -= damage
+    proceed_further()
+
+
 #  -----------------------------------------------Combat-------------------------------------------------------------  #
 def combat(character: dict, enemy: dict) -> None:
     """
@@ -463,58 +534,6 @@ def combat(character: dict, enemy: dict) -> None:
     print("\nThe battle is over.")
     show_level(character)
     character["Will to fight"] = True
-    proceed_further()
-
-
-#                                      Combat subsection: Wounds Management                                            #
-def has_evaded(enemy: dict) -> bool:
-    """
-    Check if enemy enemy evaded the attack.
-
-    This is a helper function for manage_wounds
-
-    :param enemy: a dictionary
-    :precondition: enemy must be created with character_creation function or with generate_enemy function
-    :postcondition: returns True if 1k100 roll <= enemy's Agility, else returns False
-    :postcondition: prints the evasion check phrase
-    :return: True if evaded, otherwise False
-    """
-    print("{0}----------------------------------Evasion Check-------------------------------------------------------{1}"
-          .format(green_text(), normal_text()))
-    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]
-
-
-def has_sustained(enemy: dict) -> bool:
-    """
-    Check if enemy enemy sustained the attack.
-
-    This is a helper function for manage_wounds
-
-    :param enemy: a dictionary
-    :precondition: enemy must be created with character_creation function or with generate_enemy function
-    :postcondition: returns True if 1k100 roll <= enemy's Toughness, else returns False
-    :postcondition: prints the toughness check phrase
-    :return: True if sustained, otherwise False
-    """
-    print("{0}----------------------------------Toughness Check-----------------------------------------------------{1}"
-          .format(green_text(), normal_text()))
-    return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]
-
-
-def manage_wounds(damage: int, enemy: dict, unavoidable=False) -> None:
-    if not unavoidable and has_evaded(enemy):
-        print("{0}However, {1} evades it.{2}".format(green_text(), enemy["Name"], normal_text()))
-    else:
-        if not unavoidable:
-            print("{0}{1} was not able to evade.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
-        if has_sustained(enemy):
-            damage = math.floor(damage / 2)
-            enemy["Current wounds"] -= damage
-            print("{0}However, {1} sustains it and only receives {2} damage.{3}".format(green_text(), enemy["Name"],
-                                                                                        damage, normal_text()))
-        else:
-            print("{0}{1} was not able to sustain.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
-            enemy["Current wounds"] -= damage
     proceed_further()
 
 
