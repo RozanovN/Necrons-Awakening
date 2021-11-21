@@ -1038,6 +1038,28 @@ def process_command(command, character):
         command()
 
 
+def has_argument(command: str) -> bool:
+    """
+    Check if command has an argument.
+
+    This is helper function for process_command
+
+    :param command: an alphabetic string
+    :precondition: command must be an alphabetic string and part of get_command_list
+    :postcondition: returns True if command has an argument, else False
+    :return: True if command has an argument, otherwise False
+    """
+    commands_dictionary = {
+        "q": False,
+        "h": False,
+        "b": True,
+        "s": True,
+        "i": True,
+        "c": True
+    }
+    return commands_dictionary[command]
+
+
 def help_commands() -> None:
     """
     Print all commands' keywords and their descriptions.
@@ -1055,18 +1077,6 @@ def help_commands() -> None:
           "{0}c{1} —— show your characteristics,\n"
           "{0}i{1} —— show your inventory,\n"
           .format(green_text(), normal_text()))
-
-
-def has_argument(command: str) -> bool:
-    commands_dictionary = {
-        "q": False,
-        "h": False,
-        "b": True,
-        "s": True,
-        "i": True,
-        "c": True
-    }
-    return commands_dictionary[command]
 
 
 def get_command(command_name: str):
