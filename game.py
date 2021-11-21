@@ -982,7 +982,7 @@ def print_dictionary_items(dictionary: dict) -> None:
 
     :param dictionary: a non-empty dictionary
     :precondition: dictionary must a non-empty dictionary
-    :postcondition: prints dictionary items where key has a green color
+    :postcondition: prints dictionary items where each key has a green color
     """
     for key in dictionary.keys():
         print(green_text() + key + normal_text() + ":", dictionary[key])
