@@ -1028,6 +1028,22 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     return sum(list_of_rolls)
 
 
+def reached_new_level(character: dict) -> bool:
+    """
+    Check if character reached new level.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: returns True if character's Current experience >= character's Experience for the next level and
+                    if character's Level is not 3, else returns False
+    :return: True if new level is reached, otherwise False
+    """
+    if character["Level"][0] == 3:
+        return False
+    return character["Current experience"] >= character["Experience for the next level"]
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
@@ -1035,6 +1051,7 @@ def process_command(command: str, character: dict) -> None:
 
     :param command: an alphabetic string
     :param character: a dictionary
+    :precondition: character must be a dictionary
     :precondition: command must be an alphabetic string and part of the list returned by get_command_list
     :precondition: character must be a valid character created by character_creation function
     :postcondition: invokes a command function
@@ -1129,12 +1146,6 @@ def show_list_of_skills(character: dict) -> None:
     """
     print("\nRight now you have the following skills:")
     print_dictionary_items(character["Skills"])
-
-
-def reached_new_level(character: dict) -> bool:
-    if character["Level"][0] == 3:
-        return False
-    return character["Current experience"] >= character["Experience for the next level"]
 
 
 def level_up(character: dict) -> None:
