@@ -964,6 +964,7 @@ def blade_of_chaos(enemy: dict, character: dict):
     return 8
 
 
+#  ------------------------------------------Printing Functions------------------------------------------------------  #
 def print_numbered_list_of_possibilities(list_of_options: list) -> None:
     """
     Print a numbered list of options
@@ -988,15 +989,21 @@ def print_dictionary_items(dictionary: dict) -> None:
         print(green_text() + key + normal_text() + ":", dictionary[key])
 
 
+#  --------------------------------------------Universal Helper Functions--------------------------------------------  #
 def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     """
+    Roll the chosen amount of dice with the chosen sides
 
-    :param number_of_dice:
-    :param number_of_sides:
-    :param name:
-    :return:
-
-
+    :param number_of_dice: a positive integer
+    :param number_of_sides: a positive integer
+    :param name: a string
+    :precondition: number_of_dice: must be a positive integer
+    :precondition: number_of_sides must be a positive integer
+    :precondition: name must be a string
+    :postcondition: prints the beginning roll phrase
+    :postcondition: prints every roll
+    :postcondition: prints the sum of rolls where the sum has a green color
+    :return: sum of rolls as an integer
     """
     list_of_rolls = [random.randrange(1, number_of_sides + 1) for _ in range(number_of_dice)]
     print("\n{0} rolled:".format(name.capitalize()))
@@ -1008,13 +1015,11 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     return sum(list_of_rolls)
 
 
+#  --------------------------------------------Commands Management---------------------------------------------------  #
 def help_commands():
     """
-
+    Print help
     :return:
-
-    >>> help_commands()
-
     """
     print("\nThis is the list of the available commands:\n"
           "{0}h{1} —— show list of commands with a short description,\n"
