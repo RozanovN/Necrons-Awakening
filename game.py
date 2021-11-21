@@ -1192,6 +1192,42 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     return sum(list_of_rolls)
 
 
+#  --------------------------------------------Game Helper Functions-------------------------------------------------  #
+def get_available_directions(character: dict, columns: int, rows: int) -> list:
+    """
+    Get the list of available directions.
+
+    :param character: a dictionary
+    :param columns: an integer
+    :param rows: an integer
+    :precondition: character must be a dictionary
+    :precondition: columns >= 0
+    :precondition: rows >= 0
+    :precondition: character keys must have "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers that are >= 0
+    :postcondtition: returns a list of available directions based on current character's coordinates
+    :postcondtion:
+    :return: available directions as a list
+
+    >>> get_available_directions({"Y-coordinate": 0, "X-coordinate": 0}, 4, 4)
+    ['south', 'east']
+    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 1}, 4, 4)
+    ['north', 'south', 'west', 'east']
+    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 3}, 4, 4)
+    ['north', 'south', 'west']
+    """
+    available_directions = []
+    if character["Y-coordinate"] > 0:
+        available_directions.append("north")
+    if character["Y-coordinate"] < rows - 1:
+        available_directions.append("south")
+    if character["X-coordinate"] > 0:
+        available_directions.append("west")
+    if character["X-coordinate"] < columns - 1:
+        available_directions.append("east")
+    return available_directions
+
+
 def reached_new_level(character: dict) -> bool:
     """
     Check if character reached new level.
@@ -1989,41 +2025,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def get_available_directions(character: dict, columns: int, rows: int) -> list:
-    """
-    Get the list of available directions.
-
-    :param character: a dictionary
-    :param columns: an integer
-    :param rows: an integer
-    :precondition: character must be a dictionary
-    :precondition: columns >= 0
-    :precondition: rows >= 0
-    :precondition: character keys must have "X-coordinate" and "Y-coordinate"
-    :precondition: character values must be integers that are >= 0
-    :postcondtition: returns a list of available directions based on current character's coordinates
-    :postcondtion:
-    :return: available directions as a list
-
-    >>> get_available_directions({"Y-coordinate": 0, "X-coordinate": 0}, 4, 4)
-    ['south', 'east']
-    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 1}, 4, 4)
-    ['north', 'south', 'west', 'east']
-    >>> get_available_directions({"Y-coordinate": 1, "X-coordinate": 3}, 4, 4)
-    ['north', 'south', 'west']
-    """
-    available_directions = []
-    if character["Y-coordinate"] > 0:
-        available_directions.append("north")
-    if character["Y-coordinate"] < rows - 1:
-        available_directions.append("south")
-    if character["X-coordinate"] > 0:
-        available_directions.append("west")
-    if character["X-coordinate"] < columns - 1:
-        available_directions.append("east")
-    return available_directions
 
 
 def validate_option(choice: str, list_of_options: list) -> bool:
