@@ -1052,7 +1052,7 @@ def blade_of_chaos(enemy: dict, character: dict) -> int:
     return 8
 
 
-#  ------------------------------------------Printing Functions------------------------------------------------------  #
+#  --------------------------------------Printing Functions and Text Manipulation------------------------------------  #
 def print_numbered_list_of_possibilities(list_of_options: list) -> None:
     """
     Print a numbered list of options
@@ -1254,6 +1254,19 @@ def show_list_of_skills(character: dict) -> None:
 
 
 def bandage(character: dict) -> None:
+    """
+    Restore character's Current wounds.
+
+    This is a helper function for get_command.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: increases character's Current wounds by 4 and prints how many bandages left if amount of Bandage in
+                    character's Inventory > 0, else prints "You have no bandages"
+    :postcondition: makes character's Current wounds be equal to character's Max wounds if Current wounds > Max wounds
+    :return: None
+    """
     if has_item("Bandage", character):
         character["Current wounds"] += 4
         if character["Current wounds"] > character["Max wounds"]:
