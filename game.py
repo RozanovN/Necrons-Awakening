@@ -44,15 +44,13 @@ def game() -> None:
         show_wounds(character["Current wounds"], character["Max wounds"])
         show_level(character)
         manage_events(board, character)
-        time.sleep(3)
         if check_for_foes():
             enemy = generate_enemy(character["Level"][0])
             print("\nYou encounter an enemy. {0} attacks you!".format(enemy["Name"].capitalize()))
-            combat(character, enemy)# Combat begins
-            time.sleep(3)
+            combat(character, enemy)  # Combat begins
         if reached_new_level(character):
-            time.sleep(1)
             level_up(character)
+            proceed_further()
     game_over(character)
 
 
@@ -73,6 +71,8 @@ def combat(character: dict, enemy: dict) -> None:
     """
     print("\nCombat between {0} and {1} begins.".format(character["Name"], enemy["Name"]))
     while enemy["Will to fight"]:
+        print("{0}----------------------------------Player's turn---------------------------------------------------{1}"
+              .format(green_text(), normal_text()))
         show_wounds(character["Current wounds"], character["Max wounds"])
         print_numbered_list_of_possibilities(list(character["Skills"].keys()))
         user_input = int(process_input(character, list(character["Skills"].keys()))) - 1
@@ -82,6 +82,8 @@ def combat(character: dict, enemy: dict) -> None:
         manage_wounds(damage, enemy)
         if not is_alive(enemy):
             break
+        print("{0}----------------------------------Enemy's turn----------------------------------------------------{1}"
+              .format(green_text(), normal_text()))
         damage = use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)  # enemy's turn
         manage_wounds(damage, character)
         if not is_alive(character):
@@ -97,8 +99,8 @@ def combat(character: dict, enemy: dict) -> None:
         move_character(character)
     print("\nThe battle is over.")
     show_level(character)
-    time.sleep(3)
     character["Will to fight"] = True
+    proceed_further()
 
 
 def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
@@ -110,12 +112,11 @@ def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     :precondition: board must be a dictionary
     :precondition: board keys must be tuples of integers
     :precondition: coordinates items must be positive integers
-    :postcondition: Adds a room with a list with a random event and a boolean that is equal to False
-                    to the board if the board doesn't have a room at the given coordinates
-    :postcondition:
+    :postcondition: Adds a room with a random event to the board if the board doesn't have a room at
+                    the given coordinates
     """
     if coordinates not in board.keys():
-        board.setdefault(coordinates, generate_random_room_event(),)
+        board.setdefault(coordinates, generate_random_room_event())
 
 
 def generate_random_room_event() -> str:
@@ -155,17 +156,29 @@ def generate_random_room_event() -> str:
 def process_input(character=None, list_of_options=None, is_setting_name=False) -> str:
     """
 
-    :param character:
-    :param list_of_options:
-    :param is_setting_name:
-    :return:
+    :param character: an optional dictionary
+    :param list_of_options: an optional list
+    :param is_setting_name: an optional boolean
+    :precondition: character must be either none or dictionary
+    :precondition: list_of_options must be either none or list
+    :precondition: list_of_options must be a boolean, False by default
+    :postcondition: prompts user for input
+    :postcondition: returns user_input if list_of_options is not None and if it passed the validation by
+                    validate_option function
+    :postcondition: executes the command in input if user_input in in list returned by get_command_list function and
+                    character is not None
+    :postcondition: returns user_input if is_setting_name is True and if user_input is not equal to an empty string
+    :postcondition: repeats while loop if None of the above is True
+    :return: user_input as a string if if list_of_options is not None and if it passed the validation by
+                    validate_option function or if is_setting_name is True and if user_input is not equal to an empty
+                    string
     """
     user_input = str(input())
     input_is_processed = True
     while input_is_processed:
         if list_of_options is not None and validate_option(user_input, list_of_options):
             return user_input
-        elif user_input in get_command_list() and list_of_options is not None:
+        elif character is not None and user_input in get_command_list():
             process_command(user_input, character)
             print_numbered_list_of_possibilities(list_of_options)
         elif is_setting_name and user_input != "":
@@ -176,8 +189,9 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
 
 
 def proceed_further():
-    print("\nEnter anything to continue")
-    input()
+    print(green_text() + "\nEnter anything to continue:" + normal_text())
+    if input() == "q":
+        quit_game()
 
 
 def character_creation() -> dict:
@@ -193,7 +207,7 @@ def character_creation() -> dict:
         "Max wounds": 0,
         "Current wounds": 0,
         "Characteristics": {},
-        "Level": (1, None),
+        "Level": [1, None],
         "Skills": {
             "Flee Away": "You retreat to the previous room."},
         "X-coordinate": 0,
@@ -210,14 +224,13 @@ def character_creation() -> dict:
     character["Adeptus"] = set_adeptus(character)
     character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
-    time.sleep(3)
     character["Characteristics"] = get_characteristics(character)
-    time.sleep(3)
+    proceed_further()
     show_characteristics(character)
-    time.sleep(3)
+    proceed_further()
     get_skills(character)
     show_list_of_skills(character)
-    time.sleep(3)
+    proceed_further()
     character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
     show_level(character)
     return character
@@ -230,8 +243,8 @@ def set_name():
     :return:
     """
     print("Enter your name:")
-    name = process_input({}, [], True)
-    return name
+    name = process_input(is_setting_name=True)
+    return name.capitalize()
 
 
 def set_adeptus(character) -> str:
@@ -294,7 +307,7 @@ def set_wounds(character: dict) -> int:
     print("Your adeptus has {0} wounds".format(adeptus_wounds[character["Adeptus"]]))
     max_wounds = adeptus_wounds[character["Adeptus"]] + roll(1, 5, character["Name"])
     print("You have {0} wounds.".format(max_wounds))
-    time.sleep(3)
+    proceed_further()
     return max_wounds
 
 
@@ -303,7 +316,7 @@ def get_characteristics(character: dict) -> dict:
           "traps. Meanwhile, bonus of your characteristic\n(first digit of the characteristic) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
           " are equal to 30 + 2k10 dice rolls.\n\nCalculating stats...")
-    time.sleep(4)
+    proceed_further()
     characteristics_dictionary = {
         "Adeptus Astra Telepathica": [
             (30, 3),
@@ -373,33 +386,38 @@ def get_level_name(adeptus: str, level: int):
                         "Legionary Astartes", "Adeptus Mechanicus": "Techno-Priest", "Adeptus Officio Assassinorum":
                         "Night Haunter", 1: "Acolyte", 2: "Inquisitor"}
     if level != 3:
-        return level, level_dictionary[level]
+        return [level, level_dictionary[level]]
     else:
-        return level, level_dictionary[adeptus]
+        return [level, level_dictionary[adeptus]]
 
 
 def has_evaded(enemy: dict) -> bool:
+    print("{0}----------------------------------Evasion Check-------------------------------------------------------{1}"
+          .format(green_text(), normal_text()))
     return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Agility"]
 
 
 def has_sustained(enemy: dict) -> bool:
+    print("{0}----------------------------------Toughness Check-----------------------------------------------------{1}"
+          .format(green_text(), normal_text()))
     return roll(1, 100, enemy["Name"]) <= enemy["Characteristics"]["Toughness"]
 
 
-def manage_wounds(damage: int, enemy: dict) -> None:
-    if has_evaded(enemy):
-        print("However, {0} evades it.".format(enemy["Name"]))
+def manage_wounds(damage: int, enemy: dict, unavoidable=False) -> None:
+    if not unavoidable and has_evaded(enemy):
+        print("{0}However, {1} evades it.{2}".format(green_text(), enemy["Name"], normal_text()))
     else:
-        print("{0} was not able to evade.".format(enemy["Name"].capitalize()))
-        time.sleep(2)
+        if not unavoidable:
+            print("{0}{1} was not able to evade.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
         if has_sustained(enemy):
             damage = math.floor(damage / 2)
             enemy["Current wounds"] -= damage
-            print("However, {0} sustains it and only receives {1} damage.".format(enemy["Name"], damage))
+            print("{0}However, {1} sustains it and only receives {2} damage.{3}".format(green_text(), enemy["Name"],
+                                                                                        damage, normal_text()))
         else:
-            time.sleep(2)
-            print("{0} was not able to sustain.".format(enemy["Name"].capitalize()))
+            print("{0}{1} was not able to sustain.{2}".format(red_text(), enemy["Name"].capitalize(), normal_text()))
             enemy["Current wounds"] -= damage
+    proceed_further()
 
 
 def lightning(character: dict, enemy: dict) -> int:
@@ -410,7 +428,7 @@ def lightning(character: dict, enemy: dict) -> int:
 
 
 def spontaneous_combustion(character: dict, enemy: dict) -> int:
-    damage = roll(math.floor(character["Characteristics"]["Intellect"]), 10, character["Name"])
+    damage = roll(math.floor(character["Characteristics"]["Intellect"] / 10), 10, character["Name"])
     print("\nThe power of your mind ignites {0} dealing {1} damage.".format(enemy["Name"], damage))
     return damage
 
@@ -446,16 +464,17 @@ def rampage(character: dict, enemy: dict) -> int:
 
 def laser_shot(character: dict, enemy: dict) -> int:
     damage = math.floor(character["Characteristics"]["Intellect"] / 10)
-    print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage,
+                                                                                                  enemy["Name"]))
     return damage
 
 
 def robotic_wrath(character: dict, enemy: dict) -> int:
-    damage = roll(3, math.floor(character["Characteristics"]["Intellect"] / 10), character["Name"])
-    print("\n\"TRACEBACK (MOST RECENT CALL LAST):\n FILE C:/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
+    damage = math.floor(character["Characteristics"]["Intellect"] / 10) +\
+             roll(3, math.floor(character["Characteristics"]["Intellect"] / 10), character["Name"])
+    print("\n\"TRACEBACK (MOST RECENT CALL LAST):\nFILE C:/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
           "ZERO DIVISION ERROR: DIVISION BY ZERO\n"
-          "[FINISHED IN 0.314s WITH EXIT CODE ROBOTIC WRATH]\""
-          " —— your Servitor roars robotically."
+          "[FINISHED IN 0.314s WITH EXIT CODE ROBOTIC WRATH],\" your Servitor roars robotically."
           "\nThe enraged servitor destroys everything in the way dealing {0} damage to {1}.".format(damage,
                                                                                                     enemy["Name"]))
     return damage
@@ -469,7 +488,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
     :param enemy:
     :return:
     """
-    skills_list = [skill for skill in character["Skills"].keys()]
+    skills_list = [skill for skill in list(character["Skills"].keys())[1:3]]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
     damage = 0
     print("\nYou pray Omnissiah to slay fools who cannot see the stupor mundi of machines.")
@@ -499,10 +518,12 @@ def vendetta(character: dict, enemy: dict) -> int:
 
 
 def flee_away(character: dict, enemy: dict) -> 0:
-    print("\n{0} decides to flee away".format(character["Name"].capitalize()))
+    print("{0}----------------------------------------Fleeing-------------------------------------------------------{1}"
+          .format(green_text(), normal_text()))
+    print("\n{0}{1} decides to flee away.{2}".format(green_text(),character["Name"].capitalize(), normal_text()))
     if roll(1, 100, character["Name"]) > character["Characteristics"]["Agility"]:
         print("{0} is not quick enough to flee without damage.".format(character["Name"]))
-        use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character)
+        manage_wounds(use_skill(enemy, random.choice(list(enemy["Skills"].keys())[1::]), character), character)
     else:
         print("{0} flees without damage.".format(character["Name"].capitalize()))
     character["Will to fight"] = False
@@ -512,8 +533,7 @@ def flee_away(character: dict, enemy: dict) -> 0:
 def enemy_attack(character: dict, enemy: dict) -> int:
     damage = roll(character["Skills"]["Enemy Attack"][1],
                   character["Skills"]["Enemy Attack"][2], character["Name"])
-    print(red_text() + "\n" + character["Skills"]["Enemy Attack"][0] + " dealing {0} damage.".format(damage),
-          normal_text())
+    print("\n" + character["Skills"]["Enemy Attack"][0] + " dealing {0} damage.".format(damage),)
     return damage
 
 
@@ -604,12 +624,12 @@ def help_commands():
 
     """
     print("\nThis is the list of the available commands:\n"
-          "{0}h{1} —— show list of commands with a short description\n"
-          "{0}q{1} —— quit the game\n"
-          "{0}b{1} —— bandage your injuries and restore 4 wounds\n"
-          "{0}s{1} —— show list of your skills\n"
-          "{0}c{1} —— show your characteristics\n"
-          "{0}i{1} —— show your inventory\n"
+          "{0}h{1} —— show list of commands with a short description,\n"
+          "{0}q{1} —— quit the game,\n"
+          "{0}b{1} —— bandage your injuries and restore 4 wounds; you can use as many as you want per one turn,\n"
+          "{0}s{1} —— show list of your skills,\n"
+          "{0}c{1} —— show your characteristics,\n"
+          "{0}i{1} —— show your inventory,\n"
           .format(green_text(), normal_text()))
 
 
@@ -666,7 +686,7 @@ def use_skill(character: dict, skill_name: str, enemy: dict) -> int:
 
 
 def reached_new_level(character: dict) -> bool:
-    if character["Level"] == 3:
+    if character["Level"][0] == 3:
         return False
     return character["Current experience"] >= character["Experience for the next level"]
 
@@ -676,25 +696,26 @@ def level_up(character: dict) -> None:
         2: {
             "Adeptus Astra Telepathica":
                 ("Spontaneous Combustion", "The power of your mind ignites your enemy dealing (Bonus Intellect)k10"
-                                           " damage."),
+                                           " damage"),
             "Adeptus Astra Militarum":
                 ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaically, yet effective"
                            ""),
             "Adeptus Mechanicus":
                 ("Robotic Wrath", "Another runtime error infuriates your servitor and makes it destroy everything in "
-                                  "its way dealing 3k(Bonus Intellect) damage"),
+                                  "its way dealing (Bonus Intellect + 3k(Bonus Intellect)) damage"),
             "Adeptus Officio Assassinorum":
                 ("Killer Instinct", "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage")
         },
         3: {
             "Adeptus Astra Telepathica":
-                ("Chaos of Warp", "One is always equal in death. You make your enemy wounds equal to yours."),
+                ("Chaos of Warp", "One is always equal in death. You make your enemy's wounds equal to yours"),
             "Adeptus Astra Militarum":
                 ("Rampage", "Those who live by the sword shall die by your blade.\nYou make a series of bloodthirsty"
                             " slashes dealing (1k(Bonus Strength))k10 damage"),
             "Adeptus Mechanicus":
-                ("Deus ex machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines."
-                                    " You use 1k10 of your skills in one round. Skills are chosen randomly."),
+                ("Deus ex Machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines."
+                                    " You use 1k10 of your skills in one round. Skills are chosen randomly"
+                                    "between Robotic Wrath and Laser Shot"),
             "Adeptus Officio Assassinorum":
                 ("Vendetta", "You make a single fatal shot dealing 1k100 damage")
         }
@@ -713,16 +734,19 @@ def level_up(character: dict) -> None:
             "Adeptus Officio Assassinorum": 5
         }
     }
-    print("\nYou reached new level.")
-    character["Level"] += 1
-    if character["Level"] == 3:
-        character["Experience for the next level"] = "Reached the maximum level."
-    character["Experience for the next level"] *= 2
-    character["Skills"].setdefault(dictionary_of_skills[character["Level"]][character["Adeptus"]][0],
-                                   dictionary_of_skills[character["Level"]][character["Adeptus"]][1])
-    character["Maximum wounds"] += dictionary_of_wounds[character["Level"]][character["Adeptus"]]
-    character["Current wounds"] = character["Maximum wounds"]
-    get_level_name(character["Adeptus"], character["Level"][0])
+    print("\nYou reached new level!")
+    character["Level"][0] += 1
+    character["Experience for the next level"] = character["Experience for the next level"] * 2 if \
+        character["Level"][0] != 3 else "Reached the maximum level"
+    skill_name, skill_description = dictionary_of_skills[character["Level"][0]][character["Adeptus"]][0], \
+                                    dictionary_of_skills[character["Level"][0]][character["Adeptus"]][1]
+    character["Skills"].setdefault(skill_name, skill_description)
+    character["Max wounds"] += dictionary_of_wounds[character["Level"][0]][character["Adeptus"]]
+    character["Current wounds"] = character["Max wounds"]
+    character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
+    print("You have got a new skill:", skill_name + ".", "\n" + skill_description + ".", "\nYou have now",
+          character["Current wounds"], "wounds.")
+    show_level(character)
 
 
 def green_text() -> str:
@@ -752,8 +776,8 @@ def bandage(character: dict) -> None:
         character["Inventory"]["Bandage"] -= 1
         show_wounds(character["Current wounds"], character["Max wounds"])
         print("\n{0} bandage{1} {2} left".format(character["Inventory"]["Bandage"],
-                                                 "s" if character["Inventory"]["Bandage"] > 1 else "",
-                                                 "are" if character["Inventory"]["Bandage"] > 1 else "is"))
+                                                 "s" if character["Inventory"]["Bandage"] != 1 else "",
+                                                 "are" if character["Inventory"]["Bandage"] != 1 else "is"))
     else:
         print("You have no bandages")
 
@@ -772,15 +796,25 @@ def show_wounds(wounds, maximum_wounds) -> None:
 
 
 def show_level(character: dict) -> None:
-    print(
-        "\nLevel: {0}, {1}\n"
-        "Experience: {2}/{3}".format(
-            character["Level"][0],
-            character["Level"][1],
-            character["Current experience"],
-            character["Experience for the next level"]
+    if character["Level"][0] != 3:
+        print(
+            "\nLevel: {0}, {1}\n"
+            "Experience: {2}/{3}".format(
+                character["Level"][0],
+                character["Level"][1],
+                character["Current experience"],
+                character["Experience for the next level"]
+            )
         )
-    )
+    else:
+        print(
+            "\nLevel: {0}, {1}\n"
+            "Experience: {2}".format(
+                character["Level"][0],
+                character["Level"][1],
+                character["Experience for the next level"]
+            )
+        )
 
 
 def show_inventory(character: dict) -> None:
@@ -845,10 +879,12 @@ def manage_events(board: dict, character: dict) -> None:
         "Ancient Altar Room": {
             "Description": [
                 "This room has an ancient altar. You feel strangely relaxed among this heresy.",
-                "All your wounds are healed.", "This room has an ancient altar. Despite its blasphemous appearance,"
-                " it heals you innocently still."
+                "This room has an ancient altar. It feels nostalgic somehow."
             ],
-            "Effect": "Heal"
+            "Effect": [
+                ("Heal", "Despite its blasphemous appearance, it heals you innocently still."),
+                ("Heal", "All your wounds are healed.")
+            ]
         },
         "Crate": {
             "After-effect": False,
@@ -875,7 +911,8 @@ def manage_events(board: dict, character: dict) -> None:
         "Eldritch Altar": {
             "Description": [
                 "This room has an ominous altar.",
-                "This room has an altar in form of a star that pierces a crescent moon; it reminds you of Slaanesh.",
+                "This room has an altar in the form of a star that pierces a crescent moon; it reminds you of Slaanesh."
+                "",
             ],
             "Input": {
                 "Description": "Would you like to to touch it?",
@@ -1001,7 +1038,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You decide not to wear anything")
+                        ("Nothing", "You decide not to loot anything.")
                     ]
                 }
             }
@@ -1026,7 +1063,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You decide not to disturb the dead.")
+                        ("Nothing", "You decide not to toy with the Necronian heresy.")
                     ]
                 }
             }
@@ -1051,7 +1088,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You decide not to wear anything")
+                        ("Nothing", "You have no time to waste.")
                     ]
                 }
             }
@@ -1073,7 +1110,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You decide not to wear anything")
+                        ("Nothing", "You decide not to wear anything.")
                     ]
                 }
             }
@@ -1103,11 +1140,11 @@ def manage_events(board: dict, character: dict) -> None:
         "Pile of Bones": {
             "Description": [
                 "This room has a pile of robotic, countless bones.",
-                "This room is full of robotic skulls",
+                "This room is full of robotic skulls.",
                 "This room a robotic skeleton sitting on a throne."
             ],
             "Effect": [
-                ("Nothing", "Dead men remain dead"),
+                ("Nothing", "Dead men remain dead."),
                 ("Battle", 2, "the Necronian skeleton", "Those sitting bones would like to see you dead as well.")
             ],
          },
@@ -1168,7 +1205,7 @@ def manage_events(board: dict, character: dict) -> None:
             "Effect": [
                 ("Damage", "This mental torture takes away 4 of your wounds"),
                 ("Battle", 3, "the entity of the warp", "You encounter a terrible indescribable thing."
-                                                     "A shapeless congeries of protoplasmic bubbles and myriads of "
+                                                     " A shapeless congeries of protoplasmic bubbles and myriads of "
                                                      "temporary eyes."),
                 ("Random Stat Deterioration", "You are forever changed by this.")
             ],
@@ -1190,7 +1227,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You decide not to wear anything")
+                        ("Nothing", "You decide not to wear anything.")
                     ]
                 }
             }
@@ -1241,8 +1278,8 @@ def manage_events(board: dict, character: dict) -> None:
          }
     }
     event = board[(character["Y-coordinate"], character["X-coordinate"])]
-    if event[0] == boss:
-        event[0](character)
+    if event == boss:
+        event(character)
     else:
         print("\n" + random.choice(events_dictionary[event]["Description"]))
         if "Input" in events_dictionary[event].keys():
@@ -1252,6 +1289,8 @@ def manage_events(board: dict, character: dict) -> None:
         if "After-effect" in events_dictionary[event].keys() and events_dictionary[event]["After-effect"]:
             board[(character["Y-coordinate"], character["X-coordinate"])] = "There is nothing here anymore"
             events_dictionary[event]["After-effect"] = False
+    print("Time to move.")
+    proceed_further()
 
 
 def event_with_input(character: dict, event: dict):
@@ -1262,25 +1301,27 @@ def event_with_input(character: dict, event: dict):
         if "Check item" in event["Input"]["Yes"]:
             event_with_check_of_item(character, event)
         else:
-            if "Effect" in event["Input"]["Yes"]:
-                event_with_effect(event["Input"]["Yes"]["Effect"], character)
-            if "Item" in event["Input"]["Yes"]:
-                event_with_item(event["Input"]["Yes"]["Item"], character)
+            event_effect_or_item(character, event["Input"]["Yes"])
             event["After-effect"] = True
     else:
-        event_with_effect(event["Input"]["No"]["Effect"], character)
+        event_effect_or_item(character, event["Input"]["Yes"])
+
+
+def event_effect_or_item(character: dict, effect_or_item: dict):
+    if "Effect" in effect_or_item.keys():
+        event_with_effect(effect_or_item["Effect"], character)
+    if "Item" in effect_or_item.keys():
+        event_with_item(effect_or_item["Item"], character)
 
 
 def event_with_check_of_item(character: dict, event: dict):
     if has_item(event["Input"]["Yes"]["Check item"], character):
         character["Inventory"][event["Input"]["Yes"]["Check item"]] -= 1
-        if "Effect" in event["Input"]["Yes"]:
-            event_with_effect(event["Input"]["Yes"]["Effect"], character)
-        if "Item" in event["Input"]["Yes"]:
-            event_with_item(event["Input"]["Yes"]["Item"], character)
+        event_effect_or_item(character, event["Input"]["Yes"])
         event["After-effect"] = True
     else:
         print("You have no such item.")
+        event_with_effect(event["Input"]["No"]["Effect"], character)
 
 
 def event_with_effect(effects: list, character: dict):
@@ -1296,7 +1337,7 @@ def event_with_effect(effects: list, character: dict):
     print(effect[-1])
     character["Current wounds"] = character["Max wounds"] if effect[0] == "Heal" else character["Current wounds"]
     if effect[0] == "Damage":
-        manage_wounds(4, character)
+        manage_wounds(4, character, unavoidable=True)
     character["Current experience"] += 50 if effect[0] == "Experience gain" else 0
     if effect[0] == "Random Stat Improvement" or effect[0] == "Random Stat Deterioration":
         stat = random.choice(list(character["Characteristics"].keys()))
@@ -1446,7 +1487,7 @@ def check_for_foes() -> bool:
     :postcondition: returns True with 25% probability, else returns False
     :return: True if foe is encountered, otherwise False
     """
-    return random.randrange(0, 6) == 0
+    return random.randrange(0, 4) == 0
 
 
 def has_item(item: str, character: dict):
@@ -1693,7 +1734,7 @@ def get_map(board: dict, character: dict, columns: int, rows: int):
     """
     result = ""
     map_dictionary = {
-        "Ancient Altar room": "✙\t",
+        "Ancient Altar Room": "✙\t",
         "Entrance": "🚪\t",
         "Empty Room": "☐\t"
     }
@@ -1726,7 +1767,7 @@ def show_map(location_map) -> None:
 
 
 def tutorial(character):
-    time.sleep(3)
+    proceed_further()
     print("\n\tYour inquisitor, Scythia, gave a you crucial tusk to retrieve a Necronian artifact. She enlightens you "
           "that it's a sphere of incredible power. Surprisingly, no one\nknows what it does, but every cultist desires"
           " it. Hence, it's now your job as an acolyte to retrieve the miserable artifact that lies among the ruins of"
@@ -1740,10 +1781,10 @@ def tutorial(character):
           "greedily watching you."
           "\n\tYour mission begins."
           "\nHere are some helpful tips for your path of inquisitor:")
-    time.sleep(4)
+    proceed_further()
     help_commands()
     print("\n\nTo choose an option from a numbered list enter its index.")
-    time.sleep(2)
+    proceed_further()
     combat(character, generate_enemy(1, "the rat"))
 
 
