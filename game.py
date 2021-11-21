@@ -1124,6 +1124,48 @@ def show_wounds(wounds, maximum_wounds) -> None:
     print("\nWounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
+def show_level(character: dict) -> None:
+    """
+    Prints character's Level
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: prints 2 different versions of character's Level based on character's Level
+    :postcondition: prints character's Current experience if character Level is not 3
+    :return: None
+
+    >>> show_level({"Level": (1, "Acolyte"), "Current experience": 100, "Experience for the next level": 1000})
+    <BLANKLINE>
+    Level: 1, Acolyte
+    Experience: 100/1000
+    >>> show_level({"Level": (3, "Night Haunter"), "Current experience": 2100, "Experience for the next level": \
+    "Reached the maximum level"})
+    <BLANKLINE>
+    Level: 3, Night Haunter
+    Experience: Reached the maximum level
+    """
+    if character["Level"][0] != 3:
+        print(
+            "\nLevel: {0}, {1}\n"
+            "Experience: {2}/{3}".format(
+                character["Level"][0],
+                character["Level"][1],
+                character["Current experience"],
+                character["Experience for the next level"]
+            )
+        )
+    else:
+        print(
+            "\nLevel: {0}, {1}\n"
+            "Experience: {2}".format(
+                character["Level"][0],
+                character["Level"][1],
+                character["Experience for the next level"]
+            )
+        )
+
+
 #  --------------------------------------------Universal Helper Functions--------------------------------------------  #
 def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     """
@@ -1295,28 +1337,6 @@ def bandage(character: dict) -> None:
                                                  "are" if character["Inventory"]["Bandage"] != 1 else "is"))
     else:
         print("You have no bandages")
-
-
-def show_level(character: dict) -> None:
-    if character["Level"][0] != 3:
-        print(
-            "\nLevel: {0}, {1}\n"
-            "Experience: {2}/{3}".format(
-                character["Level"][0],
-                character["Level"][1],
-                character["Current experience"],
-                character["Experience for the next level"]
-            )
-        )
-    else:
-        print(
-            "\nLevel: {0}, {1}\n"
-            "Experience: {2}".format(
-                character["Level"][0],
-                character["Level"][1],
-                character["Experience for the next level"]
-            )
-        )
 
 
 def show_inventory(character: dict) -> None:
