@@ -1079,25 +1079,31 @@ def print_dictionary_items(dictionary: dict) -> None:
 
 def green_text() -> str:
     """
-    Returns green color escape sequence.
+    Returns the green color escape sequence.
 
-    :postcondition: returns green color escape sequence
-    :return: green color escape sequence as a string
+    :postcondition: returns the green color escape sequence
+    :return: the green color escape sequence as a string
     """
     return "\x1b[1;32m"
 
 
 def red_text() -> str:
     """
-    Returns red color escape sequence.
+    Returns the red color escape sequence.
 
-    :postcondition: returns red color escape sequence
-    :return: red color red sequence as a string
+    :postcondition: returns the red color escape sequence
+    :return: the red color red sequence as a string
     """
     return "\x1b[1;31m"
 
 
 def normal_text() -> str:
+    """
+     Returns PyCharm's default color escape sequence.
+
+     :postcondition: returns PyCharm's default color escape sequence
+     :return: PyCharm's default color sequence as a string
+     """
     return "\x1b[0;20m"
 
 
