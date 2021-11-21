@@ -253,7 +253,7 @@ def set_name() -> str:
     """
     Set character's name.
 
-    This is a helper function for character_creation function..
+    This is a helper function for character_creation function.
 
     :postcondition: returns capitalized, non-empty string
     :return: name as a string
@@ -266,6 +266,8 @@ def set_name() -> str:
 def set_adeptus() -> str:
     """
     Set adeptus.
+
+    This is a helper function for character_creation function.
 
     :postcondition: prints information about adepts
     :postcondition: prints how to choose from the list of options
@@ -316,7 +318,9 @@ def set_adeptus() -> str:
 
 def set_wounds(character: dict) -> int:
     """
-    Set wounds.
+    Set the maximum amount of wounds.
+
+    This is a helper function for character_creation function.
 
     :param character: a dictionary
     :precondition: character must be a dictionary
@@ -325,8 +329,8 @@ def set_wounds(character: dict) -> int:
     :postcondition: prints the information about wounds determination
     :postcondition: prints the information about how many wounds a chosen adeptus has
     :postcondition: prints the information about how many wounds a character has
-    :postcondition: returns wounds as an integer
-    :return:
+    :postcondition: returns the maximum amount of wounds
+    :return: the maximum amount of wounds as an integer
     """
     print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
           "meeting the Emperor.")
@@ -344,6 +348,18 @@ def set_wounds(character: dict) -> int:
 
 
 def get_characteristics(character: dict) -> dict:
+    """
+    Get characteristics
+
+    This is a helper function for character_creation function.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be created via character_creation function
+    :postcondition: prints the information about characteristics
+    :postcondition: returns characteristics
+    :return: characteristics as a dictionary
+    """
     print("\n\tCharacteristics are crucial part of the game. They determine the results of evasion, fleeing, avoiding "
           "traps. Meanwhile, bonus of your characteristic\n(first digit of the characteristic) affects your damage. "
           "The Characteristics your character has propensities for are equal to 30 + 3k10 dice rolls,\nwhile others "
@@ -376,14 +392,14 @@ def get_characteristics(character: dict) -> dict:
         ]
     }
     characteristics = {
-        "Intellect": characteristics_dictionary[character["Adeptus"]][0][0] +
-                     roll(characteristics_dictionary[character["Adeptus"]][0][1], 10, character["Name"]),
-        "Strength": characteristics_dictionary[character["Adeptus"]][1][0] +
-                     roll(characteristics_dictionary[character["Adeptus"]][1][1], 10, character["Name"]),
-        "Toughness": characteristics_dictionary[character["Adeptus"]][2][0] +
-                     roll(characteristics_dictionary[character["Adeptus"]][2][1], 10, character["Name"]),
-        "Agility": characteristics_dictionary[character["Adeptus"]][3][0] +
-                     roll(characteristics_dictionary[character["Adeptus"]][3][1], 10, character["Name"])
+        "Intellect": characteristics_dictionary[character[
+            "Adeptus"]][0][0] + roll(characteristics_dictionary[character["Adeptus"]][0][1], 10, character["Name"]),
+        "Strength": characteristics_dictionary[character[
+            "Adeptus"]][1][0] + roll(characteristics_dictionary[character["Adeptus"]][1][1], 10, character["Name"]),
+        "Toughness": characteristics_dictionary[character[
+            "Adeptus"]][2][0] + roll(characteristics_dictionary[character["Adeptus"]][2][1], 10, character["Name"]),
+        "Agility": characteristics_dictionary[character[
+            "Adeptus"]][3][0] + roll(characteristics_dictionary[character["Adeptus"]][3][1], 10, character["Name"])
     }
     return characteristics
 
