@@ -1088,6 +1088,12 @@ def green_text() -> str:
 
 
 def red_text() -> str:
+    """
+    Returns red color escape sequence.
+
+    :postcondition: returns red color escape sequence
+    :return: red color red sequence as a string
+    """
     return "\x1b[1;31m"
 
 
