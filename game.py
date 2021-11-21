@@ -1341,7 +1341,7 @@ def bandage(character: dict) -> None:
 
 def show_inventory(character: dict) -> None:
     """
-    Show character's Inventory.
+    Print character's Inventory.
 
     This is a helper function for get_command.
 
@@ -1352,17 +1352,22 @@ def show_inventory(character: dict) -> None:
     :postcondition: prints character's Inventory where its keys have a green color
     :return: None
     """
-    print("You have the following items:")
+    print("\nYou have the following items:")
     print_dictionary_items(character["Inventory"])
 
 
-def show_characteristics(character):
+def show_characteristics(character: dict) -> None:
     """
+    Print character's Characteristics
+
+    This is a helper function for get_command. However, it is once used in character_creation.
 
     :param character: a dictionary
     :precondition: character must be a dictionary
     :precondition: character must be a valid character created by character_creation function
     :postcondition: prints character's Characteristics where its keys have a green color
+    :postcondition: prints "Your characteristics are:"
+    :return: None
     """
     print("\nYour characteristics are:")
     print_dictionary_items(character["Characteristics"])
