@@ -1397,6 +1397,11 @@ def manage_events(board: dict, character: dict) -> None:
     :precondition: board must be a valid board created with generate_random_room_event function
     :postcondition: manages the event that is associated with current character's X-coordinate and Y-coordinate
     :postcondition: launches the boss event if event is boss function
+    :postcondition: passes event to event_with_input function if event has Input key
+    :postcondition: passes event to event_with_effect function if event has Effect key
+    :postcondition: changes the value of board dictionary at character's X-coordinate, Y-coordinate to "There is
+                   nothing here anymore" and set value of After-effect to False if event's After-effect is a key in
+                    event dictionary and its value is True
     :postcondition: prints the event's description
     :postcondition: print the ending phrase
     :return: None
@@ -1837,10 +1842,26 @@ def manage_events(board: dict, character: dict) -> None:
 
 def event_with_input(character: dict, event: dict) -> None:
     """
+    Process the event with input.
 
-    :param character:
-    :param event:
-    :return:
+    This is a helper function manage_events.
+
+    :param character: a dictionary
+    :param event: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :precondition: event must be a dictionary
+    :precondition: event must be a valid event passed by manage_events from events_dictionary
+    :postcondition: prints event's Input description
+    :postcondition: prints the list of options to choose from where yes is 1 and 2 is no
+    :postcondition: passes event["Input"]["Yes"] to event_with_check_of_item function if
+                    user_input is 0 and if event["Input"]["Yes"]  dictionary has "Check item" in it
+    :postcondition: passes event["Input"]["Yes"] to event_effect_or_item function and sets event's After-effect value
+                    to true if user_input is 0, but event["Input"]["Yes"] dictionary has no "Check item" key in it
+    :postcondition: passes event to event_effect_or_item function and sets the value of event["After-effect"] to True
+                    if user_input is 0, but other conditions above are False
+    :postcondition: passes event["Input"]["No"] to event_effect_or_item function if none of the above conditions are met
+    :return: None
     """
     print(event["Input"]["Description"])
     print_numbered_list_of_possibilities(["Yes", "No"])
@@ -1856,6 +1877,18 @@ def event_with_input(character: dict, event: dict) -> None:
 
 
 def event_effect_or_item(character: dict, effect_or_item: dict):
+    """
+    Process the event with input.
+
+    This is a helper function to event_with_input
+
+    :param character: a dictionary
+    :param event: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :param effect_or_item:
+    :return:
+    """
     if "Effect" in effect_or_item.keys():
         event_with_effect(effect_or_item["Effect"], character)
     if "Item" in effect_or_item.keys():
