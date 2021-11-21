@@ -966,14 +966,11 @@ def blade_of_chaos(enemy: dict, character: dict):
 
 def print_numbered_list_of_possibilities(list_of_options: list) -> None:
     """
-    Prints a numbered list of options
+    Print a numbered list of options
 
     :param list_of_options: a non-empty list
-
-    >>> print_numbered_list_of_possibilities(["south", "east"])
-
-    1 south
-    2 east
+    :precondition: list_of_options is a non-empty list
+    :postcondition: prints a numbered list of options where index has a green color
     """
     for index, option_name in enumerate(list_of_options, 1):
         print(green_text() + str(index) + normal_text(), option_name)
@@ -981,11 +978,11 @@ def print_numbered_list_of_possibilities(list_of_options: list) -> None:
 
 def print_dictionary_items(dictionary: dict) -> None:
     """
+    Print dictionary items
 
-    :param dictionary:
-
-    >>> print_dictionary_items({"a": 1})
-
+    :param dictionary: a non-empty dictionary
+    :precondition: dictionary must a non-empty dictionary
+    :postcondition: prints dictionary items where key has a green color
     """
     for key in dictionary.keys():
         print(green_text() + key + normal_text() + ":", dictionary[key])
