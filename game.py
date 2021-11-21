@@ -1244,6 +1244,23 @@ def reached_new_level(character: dict) -> bool:
     return character["Current experience"] >= character["Experience for the next level"]
 
 
+def is_goal_attained(character: dict) -> bool:
+    """
+    Check if goal is attained.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :postcondition: returns True if character has a Necronian artifact, else returns False
+    :return: True if goal is attained, otherwise False
+
+    >>> is_goal_attained({"Artifact": "Necronian Servo-Skull"})
+    True
+    >>> is_goal_attained({"Max wounds": 1000000000})
+    False
+    """
+    return "Artifact" in character.keys()
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
@@ -2083,23 +2100,6 @@ def move_character(character: dict, direction_index=None, available_directions=N
         character["Y-coordinate"] = character["Previous coordinates"][0]
         character["X-coordinate"] = character["Previous coordinates"][1]
     return character["Y-coordinate"], character["X-coordinate"]
-
-
-def is_goal_attained(character: dict) -> bool:
-    """
-    Check if goal is attained.
-
-    :param character: a dictionary
-    :precondition: character must be a dictionary
-    :postcondition: returns True if character has a Necronian artifact, else returns False
-    :return: True if goal is attained, otherwise False
-
-    >>> is_goal_attained({"Artifact": "Necronian Servo-Skull"})
-    True
-    >>> is_goal_attained({"Max wounds": 1000000000})
-    False
-    """
-    return "Artifact" in character.keys()
 
 
 def check_for_foes() -> bool:
