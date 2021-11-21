@@ -1261,6 +1261,29 @@ def is_goal_attained(character: dict) -> bool:
     return "Artifact" in character.keys()
 
 
+def validate_option(choice: str, list_of_options: list) -> bool:
+    """
+    Validate option availability.
+
+    :param choice: a string
+    :param list_of_options: a list of strings
+    :precondition: choice must be a string
+    :precondition: list_of_options must be a list
+    :postcondition: returns False if choice is not a number
+    :postcondition: returns False if choice - 1 is not in rage of available_direction length
+    :postcondition: returns true otherwise
+    :return: True if choice is valid, else False
+
+    >>> validate_option("1", ["south", "east"])
+    True
+    >>> validate_option("0", ["yes", "no"])
+    False
+    >>> validate_option("wait what", ["Vendetta", "Deadly Burst"])
+    False
+    """
+    return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
@@ -2042,29 +2065,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def validate_option(choice: str, list_of_options: list) -> bool:
-    """
-    Validate option availability.
-
-    :param choice: a string
-    :param list_of_options: a list of strings
-    :precondition: choice must be a string
-    :precondition: available_directions must be a list
-    :postcondition: returns False if choice is not a number
-    :postcondition: returns False if choice - 1 is not in rage of available_direction length
-    :postcondition: returns true otherwise
-    :return: True if choice is valid, else False
-
-    >>> validate_option("1", ["south", "east"])
-    True
-    >>> validate_option("0", ["south", "east"])
-    False
-    >>> validate_option("wait what", ["south", "east"])
-    False
-    """
-    return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
 
 
 def move_character(character: dict, direction_index=None, available_directions=None) -> tuple:
