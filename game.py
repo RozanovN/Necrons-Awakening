@@ -1077,6 +1077,24 @@ def print_dictionary_items(dictionary: dict) -> None:
         print(green_text() + key + normal_text() + ":", dictionary[key])
 
 
+def green_text() -> str:
+    """
+    Returns green color escape sequence.
+
+    :postcondition: returns green color escape sequence
+    :return: green color escape sequence as a string
+    """
+    return "\x1b[1;32m"
+
+
+def red_text() -> str:
+    return "\x1b[1;31m"
+
+
+def normal_text() -> str:
+    return "\x1b[0;20m"
+
+
 #  --------------------------------------------Universal Helper Functions--------------------------------------------  #
 def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     """
@@ -1221,25 +1239,6 @@ def show_list_of_skills(character: dict) -> None:
     """
     print("\nRight now you have the following skills:")
     print_dictionary_items(character["Skills"])
-
-
-def green_text() -> str:
-    return "\x1b[1;32m"
-
-
-def red_text() -> str:
-    """
-
-    :return:
-
-    >>> print("a", red_text(), "b")
-
-    """
-    return "\x1b[1;31m"
-
-
-def normal_text() -> str:
-    return "\x1b[0;20m"
 
 
 def bandage(character: dict) -> None:
