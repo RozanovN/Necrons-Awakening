@@ -29,7 +29,7 @@ def game() -> None:
     board = {
         (0, 0):
             tutorial(character),
-        (25, 0):
+        (24, 0):
             boss
     }
     board[(0, 0)] = "Entrance"
@@ -46,7 +46,8 @@ def game() -> None:
         manage_events(board, character)
         if check_for_foes():
             enemy = generate_enemy(character["Level"][0])
-            print("\nYou encounter an enemy. {0} attacks you!".format(enemy["Name"].capitalize()))
+            print("\n{0}You encounter an enemy. {1} attacks you!{2}".format(red_text(), enemy["Name"].capitalize(),
+                                                                            normal_text()))
             combat(character, enemy)  # Combat begins
         if reached_new_level(character):
             level_up(character)
@@ -189,6 +190,10 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
 
 
 def proceed_further():
+    """
+
+    :postcondition: executes quit_game function if input is q, else proceeds further
+    """
     print(green_text() + "\nEnter anything to continue:" + normal_text())
     if input() == "q":
         quit_game()
@@ -372,7 +377,7 @@ def get_skills(character: dict) -> None:
         "Adeptus Astra Militarum": (
             "Colossus Smash", "A devastating blow of your weapon that deals (1k10 + Strength Bonus) damage."),
         "Adeptus Mechanicus": (
-            "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing Intellect Bonus damage."),
+            "Laser Shot", "Your servo-skull shots a laser beam from its eyes dealing (3 + Intellect Bonus) damage."),
         "Adeptus Officio Assassinorum": (
             "Deadly Burst", "You give your foe a burst of fire from two plasma-pistols dealing"
             " (5 + 1k10 + Agility Bonus) damage.")
@@ -463,7 +468,7 @@ def rampage(character: dict, enemy: dict) -> int:
 
 
 def laser_shot(character: dict, enemy: dict) -> int:
-    damage = math.floor(character["Characteristics"]["Intellect"] / 10)
+    damage = 3 + math.floor(character["Characteristics"]["Intellect"] / 10)
     print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage,
                                                                                                   enemy["Name"]))
     return damage
@@ -698,7 +703,7 @@ def level_up(character: dict) -> None:
                 ("Spontaneous Combustion", "The power of your mind ignites your enemy dealing (Bonus Intellect)k10"
                                            " damage"),
             "Adeptus Astra Militarum":
-                ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaically, yet effective"
+                ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaic, yet effective"
                            ""),
             "Adeptus Mechanicus":
                 ("Robotic Wrath", "Another runtime error infuriates your servitor and makes it destroy everything in "
@@ -858,6 +863,7 @@ def manage_events(board: dict, character: dict) -> None:
                     >= 0
     :precondition: board values must have room's description as a string
     :postcondition: prints the description of character's location
+
     """
     events_dictionary = {
         "Entrance": {
@@ -1013,7 +1019,7 @@ def manage_events(board: dict, character: dict) -> None:
                 },
                 "No": {
                     "Effect": [
-                        ("Nothing", "You are not hungry anyway.")
+                        ("Nothing", "You do not want it anyway.")
                     ]
                 }
             }
@@ -1304,7 +1310,7 @@ def event_with_input(character: dict, event: dict):
             event_effect_or_item(character, event["Input"]["Yes"])
             event["After-effect"] = True
     else:
-        event_effect_or_item(character, event["Input"]["Yes"])
+        event_effect_or_item(character, event["Input"]["No"])
 
 
 def event_effect_or_item(character: dict, effect_or_item: dict):
@@ -1854,7 +1860,8 @@ def game_over(character: dict) -> None:
     """
     if not is_alive(character):
         print(
-                ("▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****\n"
+                (red_text() +
+                 "▓██***██▓****▒█████******█****██**********▓█████▄*****██▓***▓█████****▓█████▄****\n"
                  "*▒██**██▒***▒██▒**██▒****██**▓██▒*********▒██▀*██▌***▓██▒***▓█***▀****▒██▀*██▌***\n"
                  "**▒██*██░***▒██░**██▒***▓██**▒██░*********░██***█▌***▒██▒***▒███******░██***█▌***\n"
                  "**░*▐██▓░***▒██***██░***▓▓█**░██░*********░▓█▄***▌***░██░***▒▓█**▄****░▓█▄***▌***\n"
@@ -1873,7 +1880,7 @@ def game_over(character: dict) -> None:
                  "░*░***░******░***▒******░******░*********░************░*░*░*▒**********░░********░********░░***░*\n"
                  "******░**********░**░**********░*********░**░*************░*░***********░********░**░******░*****\n"
                  "***********************************************************************░*************************"
-                 ))
+                 +normal_text()))
     else:
         print(
     "*▄████████**▄██████▄**███▄▄▄▄******▄██████▄*****▄████████****▄████████*****███*****███****█▄***▄█**********▄████████*****███******▄█***▄██████▄**███▄▄▄▄******▄████████*\n"
