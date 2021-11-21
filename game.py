@@ -108,6 +108,7 @@ def combat(character: dict, enemy: dict) -> None:
     proceed_further()
 
 
+#  -----------------------------------------Board Manipulations------------------------------------------------------  #
 def add_room_to_the_board(coordinates: tuple, board: dict) -> None:
     """
     Add a room to the board if the board doesn't have a room at the given coordinates.
@@ -158,6 +159,7 @@ def generate_random_room_event() -> str:
     return random.choices(list_of_events, weights=[5, 1, 3, 1, 2, 3, 2, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1], k=1)[0]
 
 
+#  -----------------------------------------Input Manipulations------------------------------------------------------  #
 def process_input(character=None, list_of_options=None, is_setting_name=False) -> str:
     """
     Process the user input
@@ -194,7 +196,7 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
         user_input = str(input())
 
 
-def proceed_further():
+def proceed_further() -> None:
     """
     Proceed further or quit.
 
@@ -205,6 +207,7 @@ def proceed_further():
         quit_game()
 
 
+#  -----------------------------------------Character Creation-------------------------------------------------------  #
 def character_creation() -> dict:
     """
     Create a character
@@ -246,7 +249,7 @@ def character_creation() -> dict:
     return character
 
 
-def set_name():
+def set_name() -> str:
     """
     Set character's name.
 
@@ -317,7 +320,12 @@ def set_wounds(character: dict) -> int:
 
     :param character: a dictionary
     :precondition: character must be a dictionary
-    :postcondition: character must
+    :precondition: character must be created via character_creation function
+    :postcondition: prints the information about wounds
+    :postcondition: prints the information about wounds determination
+    :postcondition: prints the information about how many wounds a chosen adeptus has
+    :postcondition: prints the information about how many wounds a character has
+    :postcondition: returns wounds as an integer
     :return:
     """
     print("\n\tWounds(HP) are a vital part of any character and represent how much punishment they can take before "
