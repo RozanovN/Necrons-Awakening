@@ -1928,13 +1928,26 @@ def event_with_check_of_item(character: dict, event: dict) -> None:
         event_with_effect(event["Input"]["No"]["Effect"], character)
 
 
-def event_with_effect(effects: list, character: dict):
+def event_with_effect(effects: list, character: dict) -> None:
     """
-    Process the effect of the event.
+    Process the random effect of the event.
 
-    :param effects:
-    :param character:
-    :return:
+    :param effects: a dictionary
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :precondition: effects must be a dictionary
+    :precondition: effects must be a part of events_dictionary from manage_events function
+    :postcondition: prints the effect description
+    :postcondition: increases character["Current Wounds"] if effect is Heal
+    :postcondition: deals 4 damage to character if effect is Damage
+    :postcondition: increases character["Current experience"] by 50 if effect is Experience gain
+    :postcondition: decreases the value of a random character["Characteristics"] key if effect is
+                    Random Stat Deterioration
+    :postcondition: increases the value of a random character["Characteristics"] key if effect is
+                    Random Stat Improvement
+    :postcondition: initiates combat of character with the effect's enemy if effect is Battle
+    :return: None
     """
     effect = random.choice(effects)
     print(effect[-1])
