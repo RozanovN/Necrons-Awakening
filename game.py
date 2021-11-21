@@ -1029,7 +1029,17 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
 
 
 #  --------------------------------------------Commands Management---------------------------------------------------  #
-def process_command(command, character):
+def process_command(command: str, character: dict) -> None:
+    """
+    Process command.
+
+    :param command: an alphabetic string
+    :param character: a dictionary
+    :precondition: command must be an alphabetic string and part of the list returned by get_command_list
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: invokes a command function
+    :return: None
+    """
     if has_argument(command):
         command = get_command(command)
         command(character)
@@ -1045,7 +1055,7 @@ def has_argument(command: str) -> bool:
     This is helper function for process_command
 
     :param command: an alphabetic string
-    :precondition: command must be an alphabetic string and part of get_command_list
+    :precondition: command must be an alphabetic string and part of the list returned by get_command_list
     :postcondition: returns True if command has an argument, else False
     :return: True if command has an argument, otherwise False
     """
@@ -1058,6 +1068,27 @@ def has_argument(command: str) -> bool:
         "c": True
     }
     return commands_dictionary[command]
+
+
+def get_command(command_name: str):
+    """
+    Get command.
+
+    This is helper function for process_command
+
+    :param command_name: an alphabetic string
+    :precondition: command_name must be an alphabetic string and part of the list returned by get_command_list
+    :postcondition: returns function reference that is associated with command_name
+    :return: function reference
+    """
+    commands_dictionary = {
+        "q": quit_game,
+        "h": help_commands,
+        "b": bandage,
+        "s": show_list_of_skills,
+        "i": show_inventory,
+        "c": show_characteristics}
+    return commands_dictionary[command_name]
 
 
 def help_commands() -> None:
@@ -1077,22 +1108,6 @@ def help_commands() -> None:
           "{0}c{1} —— show your characteristics,\n"
           "{0}i{1} —— show your inventory,\n"
           .format(green_text(), normal_text()))
-
-
-def get_command(command_name: str):
-    """
-
-    :param command_name:
-    :return:
-    """
-    commands_dictionary = {
-        "q": quit_game,
-        "h": help_commands,
-        "b": bandage,
-        "s": show_list_of_skills,
-        "i": show_inventory,
-        "c": show_characteristics}
-    return commands_dictionary[command_name]
 
 
 def show_list_of_skills(character: dict) -> None:
