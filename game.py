@@ -496,6 +496,81 @@ def manage_wounds(damage: int, enemy: dict, unavoidable=False) -> None:
     proceed_further()
 
 
+def level_up(character: dict) -> None:
+    """
+    Perform level up.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: prints the new level phrase
+    :postcondition: increases character's Level by 1
+    :postcondition: multiplies character's Experience for the next level by 2 if level is not 3, else makes it a string
+                    "Reached the maximum level"
+    :postcondition: adds a new skill to character's Skills based on adeptus and level
+    :postcondition: increases character's Max wounds by the number based on adeptus and level
+    :postcondition: changes character Level name based on adeptus and level
+    :postcondition: prints new skill's name and description
+    :postcondition: prints new level name
+    :return: None
+    """
+    dictionary_of_skills = {
+        2: {
+            "Adeptus Astra Telepathica":
+                ("Spontaneous Combustion", "The power of your mind ignites your enemy dealing (Bonus Intellect)k10"
+                                           " damage"),
+            "Adeptus Astra Militarum":
+                ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaic, yet effective"
+                           ""),
+            "Adeptus Mechanicus":
+                ("Robotic Wrath", "Another runtime error infuriates your servitor and makes it destroy everything in "
+                                  "its way dealing (Bonus Intellect + 3k(Bonus Intellect)) damage"),
+            "Adeptus Officio Assassinorum":
+                ("Killer Instinct", "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage")
+        },
+        3: {
+            "Adeptus Astra Telepathica":
+                ("Chaos of Warp", "One is always equal in death. You make your enemy's wounds equal to yours"),
+            "Adeptus Astra Militarum":
+                ("Rampage", "Those who live by the sword shall die by your blade.\nYou make a series of bloodthirsty"
+                            " slashes dealing (1k(Bonus Strength))k10 damage"),
+            "Adeptus Mechanicus":
+                ("Deus ex Machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines.\n"
+                                    "You use 1k10 of your skills in one round. Skills are chosen randomly"
+                                    " between Robotic Wrath and Laser Shot"),
+            "Adeptus Officio Assassinorum":
+                ("Vendetta", "You make a single fatal shot dealing 1k100 damage")
+        }
+    }
+    dictionary_of_wounds = {
+        2: {
+            "Adeptus Astra Telepathica": 3,
+            "Adeptus Astra Militarum": 10,
+            "Adeptus Mechanicus": 7,
+            "Adeptus Officio Assassinorum": 4
+        },
+        3: {
+            "Adeptus Astra Telepathica": 3,
+            "Adeptus Astra Militarum": 10,
+            "Adeptus Mechanicus": 8,
+            "Adeptus Officio Assassinorum": 5
+        }
+    }
+    print("\nYou reached new level!")
+    character["Level"][0] += 1
+    character["Experience for the next level"] = character["Experience for the next level"] * 2 if \
+        character["Level"][0] != 3 else "Reached the maximum level"
+    skill_name, skill_description = dictionary_of_skills[character["Level"][0]][character["Adeptus"]][0], \
+                                    dictionary_of_skills[character["Level"][0]][character["Adeptus"]][1]
+    character["Skills"].setdefault(skill_name, skill_description)
+    character["Max wounds"] += dictionary_of_wounds[character["Level"][0]][character["Adeptus"]]
+    character["Current wounds"] = character["Max wounds"]
+    character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
+    print("You have got a new skill:", skill_name + ".", "\n" + skill_description + ".", "\nYou have now",
+          character["Current wounds"], "wounds.")
+    show_level(character)
+
+
 #  -----------------------------------------------Combat-------------------------------------------------------------  #
 def combat(character: dict, enemy: dict) -> None:
     """
@@ -1146,64 +1221,6 @@ def show_list_of_skills(character: dict) -> None:
     """
     print("\nRight now you have the following skills:")
     print_dictionary_items(character["Skills"])
-
-
-def level_up(character: dict) -> None:
-    dictionary_of_skills = {
-        2: {
-            "Adeptus Astra Telepathica":
-                ("Spontaneous Combustion", "The power of your mind ignites your enemy dealing (Bonus Intellect)k10"
-                                           " damage"),
-            "Adeptus Astra Militarum":
-                ("Charge", "You charge into your enemy dealing (3 * Bonus Strength) damage. Prosaic, yet effective"
-                           ""),
-            "Adeptus Mechanicus":
-                ("Robotic Wrath", "Another runtime error infuriates your servitor and makes it destroy everything in "
-                                  "its way dealing (Bonus Intellect + 3k(Bonus Intellect)) damage"),
-            "Adeptus Officio Assassinorum":
-                ("Killer Instinct", "You spray a fan of venomous knives dealing (Bonus Agility)k5 damage")
-        },
-        3: {
-            "Adeptus Astra Telepathica":
-                ("Chaos of Warp", "One is always equal in death. You make your enemy's wounds equal to yours"),
-            "Adeptus Astra Militarum":
-                ("Rampage", "Those who live by the sword shall die by your blade.\nYou make a series of bloodthirsty"
-                            " slashes dealing (1k(Bonus Strength))k10 damage"),
-            "Adeptus Mechanicus":
-                ("Deus ex Machina", "You pray Omnissiah to slay fools who cannot see the stupor mundi of machines.\n"
-                                    "You use 1k10 of your skills in one round. Skills are chosen randomly"
-                                    " between Robotic Wrath and Laser Shot"),
-            "Adeptus Officio Assassinorum":
-                ("Vendetta", "You make a single fatal shot dealing 1k100 damage")
-        }
-    }
-    dictionary_of_wounds = {
-        2: {
-            "Adeptus Astra Telepathica": 3,
-            "Adeptus Astra Militarum": 10,
-            "Adeptus Mechanicus": 7,
-            "Adeptus Officio Assassinorum": 4
-        },
-        3: {
-            "Adeptus Astra Telepathica": 3,
-            "Adeptus Astra Militarum": 10,
-            "Adeptus Mechanicus": 8,
-            "Adeptus Officio Assassinorum": 5
-        }
-    }
-    print("\nYou reached new level!")
-    character["Level"][0] += 1
-    character["Experience for the next level"] = character["Experience for the next level"] * 2 if \
-        character["Level"][0] != 3 else "Reached the maximum level"
-    skill_name, skill_description = dictionary_of_skills[character["Level"][0]][character["Adeptus"]][0], \
-                                    dictionary_of_skills[character["Level"][0]][character["Adeptus"]][1]
-    character["Skills"].setdefault(skill_name, skill_description)
-    character["Max wounds"] += dictionary_of_wounds[character["Level"][0]][character["Adeptus"]]
-    character["Current wounds"] = character["Max wounds"]
-    character["Level"] = get_level_name(character["Adeptus"], character["Level"][0])
-    print("You have got a new skill:", skill_name + ".", "\n" + skill_description + ".", "\nYou have now",
-          character["Current wounds"], "wounds.")
-    show_level(character)
 
 
 def green_text() -> str:
