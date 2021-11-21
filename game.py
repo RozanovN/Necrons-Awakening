@@ -324,7 +324,7 @@ def set_wounds(character: dict) -> int:
 
     :param character: a dictionary
     :precondition: character must be a dictionary
-    :precondition: character must be created via character_creation function
+    :precondition: character must be created with character_creation function
     :postcondition: prints the information about wounds
     :postcondition: prints the information about wounds determination
     :postcondition: prints the information about how many wounds a chosen adeptus has
@@ -349,13 +349,13 @@ def set_wounds(character: dict) -> int:
 
 def get_characteristics(character: dict) -> dict:
     """
-    Get characteristics
+    Get characteristics.
 
     This is a helper function for character_creation function.
 
     :param character: a dictionary
     :precondition: character must be a dictionary
-    :precondition: character must be created via character_creation function
+    :precondition: character must be created with character_creation function
     :postcondition: prints the information about characteristics
     :postcondition: returns characteristics
     :return: characteristics as a dictionary
@@ -406,13 +406,22 @@ def get_characteristics(character: dict) -> dict:
 
 def get_skills(character: dict) -> None:
     """
+    Get a skill.
 
-    :param character:
-    :return:
+    This is a helper function for character_creation function.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be created with character_creation function
+    :postcondition: adds a new skill to the Skills dictionary inside of character dictionary based on
+                    the chosen Adeptus
+    :return: None
 
     >>> d = {"Skills": {}, "Adeptus": "Adeptus Astra Telepathica"}
     >>> get_skills(d)
     >>> print(d)
+    {'Skills': {'Lightning': 'A bolt of blinding lightning strikes from your hand dealing 2k10 damage.'}, 'Adeptus':\
+ 'Adeptus Astra Telepathica'}
     """
     dictionary_of_skills = {
         "Adeptus Astra Telepathica": (
