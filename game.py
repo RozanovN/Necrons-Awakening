@@ -1360,8 +1360,6 @@ def show_characteristics(character: dict) -> None:
     """
     Print character's Characteristics
 
-    This is a helper function for get_command. However, it is once used in character_creation.
-
     :param character: a dictionary
     :precondition: character must be a dictionary
     :precondition: character must be a valid character created by character_creation function
@@ -1374,6 +1372,13 @@ def show_characteristics(character: dict) -> None:
 
 
 def quit_game() -> None:
+    """
+    Quit the game.
+
+    :postcondition: prints quit phrase
+    :postcondition: quits the game.
+    :return: None
+    """
     print("\nYou may deserve now, but your duty to the Emperor will last forever.")
     quit()
 
