@@ -1107,6 +1107,23 @@ def normal_text() -> str:
     return "\x1b[0;20m"
 
 
+def show_wounds(wounds, maximum_wounds) -> None:
+    """
+    Prints the player's current wounds and maximum wounds
+
+    :param wounds: an integer
+    :param maximum_wounds: an integer
+    :precondition: wounds must be an integer
+    :precondition: maximum_wounds must be an integer
+    :postcondition: prints wounds status
+
+    >>> show_wounds(3, 25)
+    <BLANKLINE>
+    Wounds: 3/25
+    """
+    print("\nWounds: {0}/{1}".format(wounds, maximum_wounds))
+
+
 #  --------------------------------------------Universal Helper Functions--------------------------------------------  #
 def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     """
@@ -1278,19 +1295,6 @@ def bandage(character: dict) -> None:
                                                  "are" if character["Inventory"]["Bandage"] != 1 else "is"))
     else:
         print("You have no bandages")
-
-
-def show_wounds(wounds, maximum_wounds) -> None:
-    """
-
-    :param wounds:
-    :param maximum_wounds:
-
-    >>> show_wounds(3, 25)
-    <BLANKLINE>
-    Wounds: 3/25
-    """
-    print("\nWounds: {0}/{1}".format(wounds, maximum_wounds))
 
 
 def show_level(character: dict) -> None:
