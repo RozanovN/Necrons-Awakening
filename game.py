@@ -1876,18 +1876,24 @@ def event_with_input(character: dict, event: dict) -> None:
         event_effect_or_item(character, event["Input"]["No"])
 
 
-def event_effect_or_item(character: dict, effect_or_item: dict):
+def event_effect_or_item(character: dict, effect_or_item: dict) -> None:
     """
-    Process the event with input.
+    Process the event with effect or item.
 
-    This is a helper function to event_with_input
+    This is a helper function to event_with_input and event_with_check_of_item
 
     :param character: a dictionary
-    :param event: a dictionary
+    :param effect_or_item: a dictionary
     :precondition: character must be a dictionary
     :precondition: character must be a valid character created by character_creation function
-    :param effect_or_item:
-    :return:
+    :precondition: effect_or_item must be a dictionary
+    :precondition: effect_or_item must be part of a event dictionary passed by event_with_input or
+                   event_with_check_of_item
+    :postcondition: passes effect_or_item["Effect"] to event_with_effect function if effect_or_item dictionary has a
+                    Effect as a key
+    :postcondition: passes effect_or_item["Item"] to event_with_item function if effect_or_item dictionary has a
+                    Item as a key
+    :return: None
     """
     if "Effect" in effect_or_item.keys():
         event_with_effect(effect_or_item["Effect"], character)
