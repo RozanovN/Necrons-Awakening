@@ -1880,7 +1880,7 @@ def event_effect_or_item(character: dict, effect_or_item: dict) -> None:
     """
     Process the event with effect or item.
 
-    This is a helper function to event_with_input and event_with_check_of_item
+    This is a helper function to event_with_input and event_with_check_of_item functions.
 
     :param character: a dictionary
     :param effect_or_item: a dictionary
@@ -1888,7 +1888,7 @@ def event_effect_or_item(character: dict, effect_or_item: dict) -> None:
     :precondition: character must be a valid character created by character_creation function
     :precondition: effect_or_item must be a dictionary
     :precondition: effect_or_item must be part of a event dictionary passed by event_with_input or
-                   event_with_check_of_item
+                   event_with_check_of_item functions
     :postcondition: passes effect_or_item["Effect"] to event_with_effect function if effect_or_item dictionary has a
                     Effect as a key
     :postcondition: passes effect_or_item["Item"] to event_with_item function if effect_or_item dictionary has a
@@ -1901,7 +1901,24 @@ def event_effect_or_item(character: dict, effect_or_item: dict) -> None:
         event_with_item(effect_or_item["Item"], character)
 
 
-def event_with_check_of_item(character: dict, event: dict):
+def event_with_check_of_item(character: dict, event: dict) -> None:
+    """
+    Process the event with check of item.
+
+    This is a helper function to event_with_input.
+
+    :param character: a dictionary
+    :param event: a dictionary
+    :precondition: event must be a valid event passed by event_with_input function from manage_events function
+                   from events_dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: passes event["Input"]["Yes"] to event_effect_or_item function, decrements the amount of checked
+                    item by and sets event["After-effect"] to True if has_item function returns True
+    :postcondition: passes event["Input"]["No"]["Effect"] to event_with_effect function and prints failed check phrase
+                    if has_item function returns False
+    :return: None
+    """
     if has_item(event["Input"]["Yes"]["Check item"], character):
         character["Inventory"][event["Input"]["Yes"]["Check item"]] -= 1
         event_effect_or_item(character, event["Input"]["Yes"])
@@ -1913,12 +1930,11 @@ def event_with_check_of_item(character: dict, event: dict):
 
 def event_with_effect(effects: list, character: dict):
     """
+    Process the effect of the event.
 
     :param effects:
     :param character:
     :return:
-
-    >>> event_with_effect
     """
     effect = random.choice(effects)
     print(effect[-1])
