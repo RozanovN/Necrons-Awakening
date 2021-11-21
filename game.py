@@ -471,9 +471,11 @@ def has_evaded(enemy: dict) -> bool:
     """
     Check if enemy enemy evaded the attack.
 
+    This is a helper function for manage_wounds
+
     :param enemy: a dictionary
     :precondition: enemy must be created with character_creation function or with generate_enemy function
-    :postcondition: returns True if 1k100 roll <= enemy's agility, else returns False
+    :postcondition: returns True if 1k100 roll <= enemy's Agility, else returns False
     :postcondition: prints the evasion check phrase
     :return: True if evaded, otherwise False
     """
@@ -484,12 +486,15 @@ def has_evaded(enemy: dict) -> bool:
 
 def has_sustained(enemy: dict) -> bool:
     """
-    Check if enemy enemy evaded the attack.
+    Check if enemy enemy sustained the attack.
+
+    This is a helper function for manage_wounds
 
     :param enemy: a dictionary
     :precondition: enemy must be created with character_creation function or with generate_enemy function
-    :postcondition: returns True if 1k100 roll <= enemy's agility, else returns False
-    :return: True if evaded, otherwise False
+    :postcondition: returns True if 1k100 roll <= enemy's Toughness, else returns False
+    :postcondition: prints the toughness check phrase
+    :return: True if sustained, otherwise False
     """
     print("{0}----------------------------------Toughness Check-----------------------------------------------------{1}"
           .format(green_text(), normal_text()))
