@@ -1932,11 +1932,11 @@ def event_with_effect(effects: list, character: dict) -> None:
     """
     Process the random effect of the event.
 
-    :param effects: a dictionary
+    :param effects: a list of tuples
     :param character: a dictionary
     :precondition: character must be a dictionary
     :precondition: character must be a valid character created by character_creation function
-    :precondition: effects must be a dictionary
+    :precondition: effects must be a list
     :precondition: effects must be a part of events_dictionary from manage_events function
     :postcondition: prints the effect description
     :postcondition: increases character["Current Wounds"] if effect is Heal
@@ -1964,17 +1964,31 @@ def event_with_effect(effects: list, character: dict) -> None:
         combat(character, generate_enemy(effect[1], effect[2]))
 
 
-def event_with_item(items, character):
+def event_with_item(items: list, character: dict) -> None:
+    """
+    Process the random item of the event
+
+    :param items: a list of tuples
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :precondition: items must be a list
+    :precondition: items must be a part of events_dictionary from manage_events function
+    :postcondition: prints the item description
+    :postcondition: increases character["Max wounds"] and character["Current wounds"] by 2 if item is Armor
+    :postcondition: increases character["Max wounds"] and character["Current wounds"] by 1 if item is Broken Armor
+    :postcondition: increases the amount of item in the character["Inventory"] if the conditions above are not met
+    :return:
+    """
     item = random.choice(items)
     print(item[1])
     if "Armor" in item[0]:
         character["Max wounds"] += 2 if item[0] == "Armor" else 1
         character["Current wounds"] += 2 if item[0] == "Armor" else 1
-    elif item != "Nothing":
-        if item[0] in character["Inventory"]:
-            character["Inventory"][item[0]] += 1
-        else:
-            character["Inventory"].setdefault(item[0], 1)
+    elif item[0] in character["Inventory"]:
+        character["Inventory"][item[0]] += 1
+    else:
+        character["Inventory"].setdefault(item[0], 1)
 
 
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
