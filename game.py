@@ -160,6 +160,7 @@ def generate_random_room_event() -> str:
 
 def process_input(character=None, list_of_options=None, is_setting_name=False) -> str:
     """
+    Process the user input
 
     :param character: an optional dictionary
     :param list_of_options: an optional list
@@ -195,7 +196,7 @@ def process_input(character=None, list_of_options=None, is_setting_name=False) -
 
 def proceed_further():
     """
-    Proceeds further or quit.
+    Proceed further or quit.
 
     :postcondition: executes quit_game function if input is q, else proceeds further
     """
@@ -206,14 +207,14 @@ def proceed_further():
 
 def character_creation() -> dict:
     """
-    Create character
+    Create a character
 
     :postcondition: creates a character
     :return: character as a dictionary
     """
     character = {
         "Name": set_name(),
-        "Adeptus": None,
+        "Adeptus": set_adeptus(),
         "Max wounds": 0,
         "Current wounds": 0,
         "Characteristics": {},
@@ -231,7 +232,6 @@ def character_creation() -> dict:
             "Torch": 10
         }
     }
-    character["Adeptus"] = set_adeptus(character)
     character["Max wounds"] = set_wounds(character)
     character["Current wounds"] = character["Max wounds"]
     character["Characteristics"] = get_characteristics(character)
@@ -264,6 +264,8 @@ def set_adeptus() -> str:
     """
     Set adeptus.
 
+    :postcondition: prints information about adepts
+    :postcondition: prints how to choose from the list of options
     :postcondition: returns a chosen string from the adepts_list
     :return: adeptus as a string
     """
