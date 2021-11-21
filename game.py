@@ -932,7 +932,7 @@ def daemon_trickery(enemy: dict, character: dict) -> int:
     return damage
 
 
-def blade_of_chaos(enemy: dict, character: dict):
+def blade_of_chaos(enemy: dict, character: dict) -> int:
     """
     Use Blade of Chaos skill.
 
@@ -1016,10 +1016,23 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
 
 
 #  --------------------------------------------Commands Management---------------------------------------------------  #
-def help_commands():
+def process_command(command, character):
+    if has_argument(command):
+        command = get_command(command)
+        command(character)
+    else:
+        command = get_command(command)
+        command()
+
+
+def help_commands() -> None:
     """
-    Print help
-    :return:
+    Print all commands' keywords and their descriptions.
+
+    This is a helper function for get_command.
+
+    :postcondition: print all commands' keywords and their descriptions where keywords have a green color
+    :return: None
     """
     print("\nThis is the list of the available commands:\n"
           "{0}h{1} —— show list of commands with a short description,\n"
@@ -1032,6 +1045,11 @@ def help_commands():
 
 
 def get_command_list() -> list:
+    """
+    Get the list of commands.
+
+    :return: list of commands as a list
+    """
     commands_list = ["q", "h", "b", "s", "i", "c"]
     return commands_list
 
@@ -1806,15 +1824,6 @@ def validate_option(choice: str, list_of_options: list) -> bool:
     False
     """
     return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
-
-
-def process_command(command, character):
-    if has_argument(command):
-        command = get_command(command)
-        command(character)
-    else:
-        command = get_command(command)
-        command()
 
 
 def move_character(character: dict, direction_index=None, available_directions=None) -> tuple:
