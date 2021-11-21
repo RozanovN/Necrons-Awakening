@@ -154,6 +154,19 @@ def proceed_further() -> None:
         quit_game()
 
 
+def get_command_list() -> list:
+    """
+    Get the list of commands.
+
+    This is a helper function for process_input.
+
+    :postcondition: returns the list of commands as a list
+    :return: the list of commands as a list
+    """
+    commands_list = ["q", "h", "b", "s", "i", "c"]
+    return commands_list
+
+
 #  -----------------------------------------Character Creation-------------------------------------------------------  #
 def character_creation() -> dict:
     """
@@ -1042,16 +1055,6 @@ def help_commands() -> None:
           "{0}c{1} —— show your characteristics,\n"
           "{0}i{1} —— show your inventory,\n"
           .format(green_text(), normal_text()))
-
-
-def get_command_list() -> list:
-    """
-    Get the list of commands.
-
-    :return: list of commands as a list
-    """
-    commands_list = ["q", "h", "b", "s", "i", "c"]
-    return commands_list
 
 
 def has_argument(command: str) -> bool:
