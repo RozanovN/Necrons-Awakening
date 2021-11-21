@@ -438,7 +438,24 @@ def get_skills(character: dict) -> None:
                                    dictionary_of_skills[character["Adeptus"]][1])
 
 
+#  -------------------------------------------Character Manipulations------------------------------------------------  #
 def get_level_name(adeptus: str, level: int):
+    """
+    Get level name.
+
+    :param level: an integer
+    :param adeptus: an alphabetic string
+    :precondition: level must be an integer
+    :precondition: adeptus must me an alphabetic string
+    :postcondition: returns a common for all adepts name if level is not 3
+    :postcondition: returns a unique name based on the chosen adeptus if level is 3
+    :return: a unique name if level is 3, else a common name
+
+    >>> get_level_name("Adeptus Officio Assassinorum", 3)
+    Night Haunter
+    >>> get_level_name("Adeptus Astra Telepathica", 2)
+    Inquisitor
+    """
     level_dictionary = {"Adeptus Astra Telepathica": "Magister Telepathicae", "Adeptus Astra Militarum":
                         "Legionary Astartes", "Adeptus Mechanicus": "Techno-Priest", "Adeptus Officio Assassinorum":
                         "Night Haunter", 1: "Acolyte", 2: "Inquisitor"}
@@ -448,6 +465,7 @@ def get_level_name(adeptus: str, level: int):
         return [level, level_dictionary[adeptus]]
 
 
+#  -----------------------------------------------Combat-------------------------------------------------------------  #
 def has_evaded(enemy: dict) -> bool:
     print("{0}----------------------------------Evasion Check-------------------------------------------------------{1}"
           .format(green_text(), normal_text()))
