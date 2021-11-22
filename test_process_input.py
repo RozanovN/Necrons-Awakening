@@ -1,7 +1,6 @@
 from unittest import TestCase
 from game import process_input as process_input
 from unittest.mock import patch
-import io
 
 
 class Test(TestCase):
