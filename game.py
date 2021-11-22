@@ -727,7 +727,7 @@ def chaos_of_warp(character: dict, enemy: dict) -> int:
     """
     enemy["Max wounds"] = character["Max wounds"]
     enemy["Current wounds"] = enemy["Max wounds"]
-    print("\nYou make {0}'s wounds equal to {1}.".format(enemy["Name"], enemy["Current wounds"]))
+    print("\nYou make {0}'s wounds equal to {1}.\n".format(enemy["Name"], enemy["Current wounds"]))
     return 0
 
 
