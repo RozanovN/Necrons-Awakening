@@ -610,7 +610,7 @@ def combat(character: dict, enemy: dict) -> None:
         if not is_alive(character):
             break
         if random.randrange(1, 6) == 1:
-            damage = use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
+            damage = use_skill(enemy, list(enemy["Skills"].keys())[0], character)
             if damage > 0:
                 manage_wounds(damage, character)
     if is_alive(character) and character["Will to fight"]:
@@ -1425,8 +1425,8 @@ def generate_enemy(level, specific_enemy=None) -> dict:
             "Boss":
             {
                 "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
-                "Max wounds": 100,
-                "Current wounds": 100,
+                "Max wounds": 55,
+                "Current wounds": 55,
                 "Characteristics": {
                     "Intellect": 45,
                     "Strength": 100,
