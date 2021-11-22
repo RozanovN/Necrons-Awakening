@@ -376,7 +376,7 @@ def get_skills(character: dict) -> None:
                     the chosen Adeptus
     :return: None
 
-    >>> d = {"Skills": {}, "Adeptus": "Adeptus Astra Telepathica"}
+    >>> char = {"Skills": {}, "Adeptus": "Adeptus Astra Telepathica"}
     >>> get_skills(d)
     >>> print(d)
     {'Skills': {'Lightning': 'A bolt of blinding lightning strikes from your hand dealing 2k10 damage.'}, 'Adeptus':\
