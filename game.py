@@ -28,11 +28,11 @@ def game() -> None:
     character = character_creation()
     board = {
         (0, 0):
-            tutorial(character),
+            "Entrance",
         (24, 0):
             boss
     }
-    board[(0, 0)] = "Entrance"
+    tutorial(character)
     while is_alive(character) and not is_goal_attained(character):
         available_directions = get_available_directions(character, rows, columns)
         show_map(get_map(board, character, columns, rows))
