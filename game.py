@@ -913,7 +913,7 @@ def killer_instinct(character: dict, enemy: dict) -> int:
     :return: damage as integer
     """
     damage = roll(math.floor(character["Characteristics"]["Agility"] / 10), 5, character["Name"])
-    print("\nYou spray a fan of venomous knives dealing dealing {0} damage to {1}.".format(damage, enemy["Name"]))
+    print("\nYou spray a fan of venomous knives dealing dealing {0} damage to {1}.\n".format(damage, enemy["Name"]))
     return damage
 
 
