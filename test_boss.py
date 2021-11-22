@@ -41,8 +41,8 @@ class Test(TestCase):
                      "Level": (3, "whatever"), "Previous coordinates": (1, 0),
                      "X-coordinate": 0, "Y-coordinate": 0}
         expected = {"Name": "Test", "Skills": {},
-                     "Level": (3, "whatever"), "Previous coordinates": (1, 0),
-                     "X-coordinate": 0, "Y-coordinate": 0, "Artifact": "Necronian artifact"}
+                    "Level": (3, "whatever"), "Previous coordinates": (1, 0),
+                    "X-coordinate": 0, "Y-coordinate": 0, "Artifact": "Necronian artifact"}
         boss(character)
         actual = character
         self.assertEqual(expected, actual)
