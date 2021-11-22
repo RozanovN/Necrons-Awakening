@@ -1756,6 +1756,12 @@ def bandage(character: dict) -> None:
                     character's Inventory > 0, else prints "You have no bandages"
     :postcondition: makes character's Current wounds be equal to character's Max wounds if Current wounds > Max wounds
     :return: None
+
+    >>> bandage({"Current wounds": 10, "Max wounds": 20, "Inventory": {"Bandage": 5}})
+    <BLANKLINE>
+    Wounds: 14/20
+    <BLANKLINE>
+    4 bandages are left
     """
     if has_item("Bandage", character):
         character["Current wounds"] += 4
