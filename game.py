@@ -1211,6 +1211,220 @@ def has_item(item: str, character: dict):
     return item in character["Inventory"].keys() and character["Inventory"][item] > 0
 
 
+def generate_enemy(level, specific_enemy=None) -> dict:
+    """
+    Generates an enemy
+
+    :param level: a positive integer or "Boss" string
+    :param specific_enemy: an alphabetic string
+    :precondition: level must be a positive integer in range [1, 3] or "Boss" string
+    :precondition: specific_enemy must be an alphabetic string that is a part of enemies_dictionary
+    :postcondition: returns a random enemy based on level if specific enemy is None, else returns name based on level
+                     and specific_enemy
+    :return: enemy as a dictionary
+    """
+    enemies_dictionary = {
+        1:  # Level 1
+        {
+            "the rat":
+            {
+                "Name": "the rat",
+                "Max wounds": 5,
+                "Current wounds": 5,
+                "Characteristics": {
+                    "Intellect": 10,
+                    "Strength": 15,
+                    "Toughness": 15,
+                    "Agility": 25
+                },
+                "Skills": {
+                    "Flee Away": "The rat flees away.",
+                    "Enemy Attack": ("The rat greedily bites you with its front teeth", 1, 5)
+                },
+                "Will to fight": True,
+                "Experience": 150
+            },
+
+            "the cultist":
+                {
+                    "Name": "the cultist",
+                    "Max wounds": 10,
+                    "Current wounds": 10,
+                    "Characteristics": {
+                        "Intellect": 30,
+                        "Strength": 15,
+                        "Toughness": 35,
+                        "Agility": 35
+                    },
+                    "Skills": {
+                        "Flee Away": "The rat flees away.",
+                        "Enemy Attack": ("The cultist gives you a taste of their blade", 1, 10)
+                    },
+                    "Will to fight": True,
+                    "Experience": 200
+                },
+
+            "the outlawed psyker":
+                {
+                    "Name": "the outlawed psyker",
+                    "Max wounds": 15,
+                    "Current wounds": 15,
+                    "Characteristics": {
+                        "Intellect": 30,
+                        "Strength": 15,
+                        "Toughness": 35,
+                        "Agility": 35
+                    },
+                    "Skills": {
+                        "Flee Away": "The rat flees away.",
+                        "Enemy Attack": ("the outlawed psyker emits a banshee howl of psychic energy", 1, 15)
+                    },
+                    "Will to fight": True,
+                    "Experience": 350
+                }
+
+        },
+        2: {
+            "the Necronian skeleton":
+                {
+                    "Name": "the Necronian skeleton",
+                    "Max wounds": 25,
+                    "Current wounds": 25,
+                    "Characteristics": {
+                        "Intellect": 45,
+                        "Strength": 45,
+                        "Toughness": 15,
+                        "Agility": 25
+                    },
+                    "Skills": {
+                        "Flee Away": "The skeleton flees away.",
+                        "Enemy Attack": ("The skeleton cuts you with its hand blades", 1, 15)
+                    },
+                    "Will to fight": True,
+                    "Experience": 450
+                },
+
+            "the giant spider":
+                {
+                    "Name": "the giant spider",
+                    "Max wounds": 20,
+                    "Current wounds": 20,
+                    "Characteristics": {
+                        "Intellect": 15,
+                        "Strength": 35,
+                        "Toughness": 35,
+                        "Agility": 55
+                    },
+                    "Skills": {
+                        "Flee Away": "The spider flees away.",
+                        "Enemy Attack": ("The spider bites you painfully", 1, 15)
+                    },
+                    "Will to fight": True,
+                    "Experience": 600
+                },
+
+            "the mummified Necron":
+                {
+                    "Name": "the mummified Necron",
+                    "Max wounds": 15,
+                    "Current wounds": 15,
+                    "Characteristics": {
+                        "Intellect": 85,
+                        "Strength": 15,
+                        "Toughness": 55,
+                        "Agility": 5
+                    },
+                    "Skills": {
+                        "Flee Away": "The mummy flees away.",
+                        "Enemy Attack": ("The mummified Necron spreads its plague", 1, 9)
+                    },
+                    "Will to fight": True,
+                    "Experience": 500
+                },
+        },
+        3: {
+            "the leader of cultists":
+                {
+                    "Name": "the leader of cultists",
+                    "Max wounds": 30,
+                    "Current wounds": 30,
+                    "Characteristics": {
+                        "Intellect": 85,
+                        "Strength": 55,
+                        "Toughness": 25,
+                        "Agility": 55
+                    },
+                    "Skills": {
+                        "Flee Away": "The deamonhost flees away.",
+                        "Enemy Attack": ("The deamonhost tortures you with demonic sounds", 2, 12)
+                    },
+                    "Will to fight": True,
+                    "Experience": 1000
+                },
+            "the deamonhost":
+                {
+                    "Name": "the deamonhost",
+                    "Max wounds": 30,
+                    "Current wounds": 30,
+                    "Characteristics": {
+                        "Intellect": 85,
+                        "Strength": 55,
+                        "Toughness": 25,
+                        "Agility": 55
+                    },
+                    "Skills": {
+                        "Flee Away": "The deamonhost flees away.",
+                        "Enemy Attack": ("The deamonhost tortures you with demonic sounds", 2, 12)
+                    },
+                    "Will to fight": True,
+                    "Experience": 1500
+                },
+
+            "the entity of the warp":
+                {
+                    "Name": "the entity of the warp",
+                    "Max wounds": 45,
+                    "Current wounds": 45,
+                    "Characteristics": {
+                        "Intellect": 85,
+                        "Strength": 55,
+                        "Toughness": 65,
+                        "Agility": 5
+                    },
+                    "Skills": {
+                        "Flee Away": "The  flees away.",
+                        "Enemy Attack": ("The entity corrupts your mind", 2, 12)
+                    },
+                    "Will to fight": True,
+                    "Experience": 2000
+                },
+        },
+        "Boss": {
+            "Boss" :
+            {
+                "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
+                "Max wounds": 100,
+                "Current wounds": 100,
+                "Characteristics": {
+                    "Intellect": 45,
+                    "Strength": 100,
+                    "Toughness": 70,
+                    "Agility": 5},
+                "Skills": {
+                    "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
+                    "Blade of Chaos": ""
+                },
+                "Will to fight": True,
+                "Experience": 2000
+            }
+        }
+    }
+    if specific_enemy is not None:
+        return enemies_dictionary[level][specific_enemy]
+    return enemies_dictionary[level][random.choices(list(enemies_dictionary[level].keys()),
+                                                    weights=[50, 45, 5], k=1)[0]]
+
+
 #  --------------------------------------------Game Helper Functions-------------------------------------------------  #
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
     """
@@ -2131,209 +2345,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def generate_enemy(level, specific_enemy=None) -> dict:
-    enemies_dictionary = {
-        1:  # Level 1
-        {
-            "the rat":
-            {
-                "Name": "the rat",
-                "Max wounds": 5,
-                "Current wounds": 5,
-                "Characteristics": {
-                    "Intellect": 10,
-                    "Strength": 15,
-                    "Toughness": 15,
-                    "Agility": 25
-                },
-                "Skills": {
-                    "Flee Away": "The rat flees away.",
-                    "Enemy Attack": ("The rat greedily bites you with its front teeth", 1, 5)
-                },
-                "Will to fight": True,
-                "Experience": 150
-            },
-
-            "the cultist":
-                {
-                    "Name": "the cultist",
-                    "Max wounds": 10,
-                    "Current wounds": 10,
-                    "Characteristics": {
-                        "Intellect": 30,
-                        "Strength": 15,
-                        "Toughness": 35,
-                        "Agility": 35
-                    },
-                    "Skills": {
-                        "Flee Away": "The rat flees away.",
-                        "Enemy Attack": ("The cultist gives you a taste of their blade", 1, 10)
-                    },
-                    "Will to fight": True,
-                    "Experience": 200
-                },
-
-            "the outlawed psyker":
-                {
-                    "Name": "the outlawed psyker",
-                    "Max wounds": 15,
-                    "Current wounds": 15,
-                    "Characteristics": {
-                        "Intellect": 30,
-                        "Strength": 15,
-                        "Toughness": 35,
-                        "Agility": 35
-                    },
-                    "Skills": {
-                        "Flee Away": "The rat flees away.",
-                        "Enemy Attack": ("the outlawed psyker emits a banshee howl of psychic energy", 1, 15)
-                    },
-                    "Will to fight": True,
-                    "Experience": 350
-                }
-
-        },
-        2: {
-            "the Necronian skeleton":
-                {
-                    "Name": "the Necronian skeleton",
-                    "Max wounds": 25,
-                    "Current wounds": 25,
-                    "Characteristics": {
-                        "Intellect": 45,
-                        "Strength": 45,
-                        "Toughness": 15,
-                        "Agility": 25
-                    },
-                    "Skills": {
-                        "Flee Away": "The skeleton flees away.",
-                        "Enemy Attack": ("The skeleton cuts you with its hand blades", 1, 15)
-                    },
-                    "Will to fight": True,
-                    "Experience": 450
-                },
-
-            "the giant spider":
-                {
-                    "Name": "the giant spider",
-                    "Max wounds": 20,
-                    "Current wounds": 20,
-                    "Characteristics": {
-                        "Intellect": 15,
-                        "Strength": 35,
-                        "Toughness": 35,
-                        "Agility": 55
-                    },
-                    "Skills": {
-                        "Flee Away": "The spider flees away.",
-                        "Enemy Attack": ("The spider bites you painfully", 1, 15)
-                    },
-                    "Will to fight": True,
-                    "Experience": 600
-                },
-
-            "the mummified Necron":
-                {
-                    "Name": "the mummified Necron",
-                    "Max wounds": 15,
-                    "Current wounds": 15,
-                    "Characteristics": {
-                        "Intellect": 85,
-                        "Strength": 15,
-                        "Toughness": 55,
-                        "Agility": 5
-                    },
-                    "Skills": {
-                        "Flee Away": "The mummy flees away.",
-                        "Enemy Attack": ("The mummified Necron spreads its plague", 1, 9)
-                    },
-                    "Will to fight": True,
-                    "Experience": 500
-                },
-        },
-        3: {
-            "the leader of cultists":
-                {
-                    "Name": "the leader of cultists",
-                    "Max wounds": 30,
-                    "Current wounds": 30,
-                    "Characteristics": {
-                        "Intellect": 85,
-                        "Strength": 55,
-                        "Toughness": 25,
-                        "Agility": 55
-                    },
-                    "Skills": {
-                        "Flee Away": "The deamonhost flees away.",
-                        "Enemy Attack": ("The deamonhost tortures you with demonic sounds", 2, 12)
-                    },
-                    "Will to fight": True,
-                    "Experience": 1000
-                },
-            "the deamonhost":
-                {
-                    "Name": "the deamonhost",
-                    "Max wounds": 30,
-                    "Current wounds": 30,
-                    "Characteristics": {
-                        "Intellect": 85,
-                        "Strength": 55,
-                        "Toughness": 25,
-                        "Agility": 55
-                    },
-                    "Skills": {
-                        "Flee Away": "The deamonhost flees away.",
-                        "Enemy Attack": ("The deamonhost tortures you with demonic sounds", 2, 12)
-                    },
-                    "Will to fight": True,
-                    "Experience": 1500
-                },
-
-            "the entity of the warp":
-                {
-                    "Name": "the entity of the warp",
-                    "Max wounds": 45,
-                    "Current wounds": 45,
-                    "Characteristics": {
-                        "Intellect": 85,
-                        "Strength": 55,
-                        "Toughness": 65,
-                        "Agility": 5
-                    },
-                    "Skills": {
-                        "Flee Away": "The  flees away.",
-                        "Enemy Attack": ("The entity corrupts your mind", 2, 12)
-                    },
-                    "Will to fight": True,
-                    "Experience": 2000
-                },
-        },
-        "Boss": {
-            "Boss" :
-            {
-                "Name": "Goreclaw the Render, a Daemon Prince of Khorne",
-                "Max wounds": 100,
-                "Current wounds": 100,
-                "Characteristics": {
-                    "Intellect": 45,
-                    "Strength": 100,
-                    "Toughness": 70,
-                    "Agility": 5},
-                "Skills": {
-                    "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
-                    "Blade of Chaos": ""
-                },
-                "Will to fight": True,
-                "Experience": 2000
-            }
-        }
-    }
-    if specific_enemy is not None:
-        return enemies_dictionary[level][specific_enemy]
-    return enemies_dictionary[level][random.choices(list(enemies_dictionary[level].keys()),
-                                                    weights=[50, 45, 5], k=1)[0]]
 
 
 def is_alive(character: dict) -> bool:
