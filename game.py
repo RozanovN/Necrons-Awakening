@@ -1012,10 +1012,10 @@ def daemon_trickery(enemy: dict, character: dict) -> int:
                     if it's an even number.
     :return: damage as integer
     """
-    print("\n{0} dirtily makes another attack".format(enemy["Name"]))
+    print("\n{0} dirtily makes another attack\n".format(enemy["Name"]))
     damage = sum(list(map(lambda number: number if number % 2 == 0 else 0, [roll(1, 10, enemy["Name"]) for _ in
                                                                             range(5)])))
-    print("{0} deals {1} damage to {2}".format(enemy["Name"], damage, character["Name"]))
+    print("\n{0} deals {1} damage to {2}\n".format(enemy["Name"], damage, character["Name"]))
     return damage
 
 
