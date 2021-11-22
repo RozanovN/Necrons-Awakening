@@ -1284,6 +1284,43 @@ def validate_option(choice: str, list_of_options: list) -> bool:
     return choice.isnumeric() and (int(choice) - 1) in range(len(list_of_options))
 
 
+def move_character(character: dict, direction_index=None, available_directions=None) -> tuple:
+    """
+    Change character's coordinates.
+
+    :param character: a dictionary
+    :param direction_index: a non-negative integer, optional
+    :param available_directions: a list of strings, optional
+    :precondition: character keys must contain "X-coordinate" and "Y-coordinate"
+    :precondition: character values must be integers
+    :precondition: direction_index must be a non-negative integer validated by validate_option function or None
+    :precondition: availabe_directions each item must be either "north", "south", "east" or "west", or None
+    :postcondition: updates character X or Y coordinate based on direction choice if availabe_directions is not None
+    :postcondition: makes character X or Y coordinate be equal to the previous coordinates
+    :return: new character's coordinates as a tuple
+
+    >>> protagonist = {"Y-coordinate": 1, "X-coordinate": 1, "Previous coordinates": (0, 1)}
+    >>> move_character(protagonist, 0, ["south", "west"])
+    (2, 1)
+    >>> protagonist = {"Y-coordinate": 1, "X-coordinate": 1, "Previous coordinates": (0, 1)}
+    >>> move_character(protagonist)
+    (0, 1)
+
+    """
+    directions_dictionary = {"north": -1, "south": 1, "west": -1, "east": 1}
+    if available_directions is not None:
+        direction = available_directions[direction_index]
+        character["Previous coordinates"] = character["Y-coordinate"], character["X-coordinate"]
+        if direction in "north south":
+            character["Y-coordinate"] += directions_dictionary[direction]
+        else:
+            character["X-coordinate"] += directions_dictionary[direction]
+    else:
+        character["Y-coordinate"] = character["Previous coordinates"][0]
+        character["X-coordinate"] = character["Previous coordinates"][1]
+    return character["Y-coordinate"], character["X-coordinate"]
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
@@ -2065,41 +2102,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def move_character(character: dict, direction_index=None, available_directions=None) -> tuple:
-    """
-    Change character's coordinates.
-
-    :param character: a dictionary
-    :param direction_index: a non-negative integer
-    :param available_directions: a list of strings
-    :precondition: character keys must contain "X-coordinate" and "Y-coordinate"
-    :precondition: character values must be integers
-    :precondition: direction_index must be a non-negative integer validated by validate_move function
-    :precondition: availabe_directions each item must be either "north", "south", "east" or "west"
-    :postcondition: updates character X or Y coordinate based on direction choice
-    :return: new character's coordinates as a tuple
-
-    >>> protagonist = {"X-coordinate": 0, "Y-coordinate": 0, "Previous coordinates": (0, 1)}
-    >>> move_character(protagonist, 0, ["south", "west"])
-    >>> print(protagonist)
-
-    >>>move_character(protagonist)
-    {'X-coordinate': 0, 'Y-coordinate': 1}
-    """
-    directions_dictionary = {"north": -1, "south": 1, "west": -1, "east": 1}
-    if available_directions is not None:
-        direction = available_directions[direction_index]
-        character["Previous coordinates"] = character["Y-coordinate"], character["X-coordinate"]
-        if direction in "north south":
-            character["Y-coordinate"] += directions_dictionary[direction]
-        else:
-            character["X-coordinate"] += directions_dictionary[direction]
-    else:
-        character["Y-coordinate"] = character["Previous coordinates"][0]
-        character["X-coordinate"] = character["Previous coordinates"][1]
-    return character["Y-coordinate"], character["X-coordinate"]
 
 
 def check_for_foes() -> bool:
