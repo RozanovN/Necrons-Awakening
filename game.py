@@ -1504,7 +1504,7 @@ def is_goal_attained(character: dict) -> bool:
 
     :param character: a dictionary
     :precondition: character must be a dictionary
-    :postcondition: returns True if character has a Necronian artifact, else returns False
+    :postcondition: returns True if character has a key Artifact, else returns False
     :return: True if goal is attained, otherwise False
 
     >>> is_goal_attained({"Artifact": "Necronian Servo-Skull"})
