@@ -890,7 +890,7 @@ def deadly_burst(character: dict, enemy: dict) -> int:
     :return: damage as integer
     """
     damage = math.floor(character["Characteristics"]["Agility"] / 10) + 2 + roll(1, 10, character["Name"])
-    print("\nYou give {0} a burst of fire from two plasma-pistols dealing {1} damage.".format(enemy["Name"], damage))
+    print("\nYou give {0} a burst of fire from two plasma-pistols dealing {1} damage.\n".format(enemy["Name"], damage))
     return damage
 
 
