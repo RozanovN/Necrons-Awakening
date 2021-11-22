@@ -12,7 +12,8 @@ class Test(TestCase):
     def test_blade_of_chaos_successful_guess_check_print_statement(self, mock_stdout, _, __):
         character = {"Name": "Test", "Current wounds": 10, "Max wounds": 20, "Inventory": {"Bandage": 5}}
         expected = (
-            "\nYou notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
+            "\nYou notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if"
+            " you"
             "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet). He certainly will not be able to"
             "evade or sustain it."
             "\nEnter the first letters of 2 body parts (AB for arms and body):\n"
@@ -30,7 +31,8 @@ class Test(TestCase):
     def test_blade_of_chaos_unsuccessful_guess_check_print_statement(self, mock_stdout, _, __):
         character = {"Name": "Test", "Current wounds": 10, "Max wounds": 20, "Inventory": {"Bandage": 5}}
         expected = (
-            "\nYou notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it if you"
+            "\nYou notice how this fiend of Khorne prepares a slash attack. You have an opportunity to deflect it"
+            " if you"
             "guess the 2 body parts he aims for H(head), B(body), A(arms), F(feet). He certainly will not be able to"
             "evade or sustain it."
             "\nEnter the first letters of 2 body parts (AB for arms and body):\n"
