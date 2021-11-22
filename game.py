@@ -610,7 +610,9 @@ def combat(character: dict, enemy: dict) -> None:
         if not is_alive(character):
             break
         if random.randrange(1, 6) == 1:
-            use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
+            damage = use_skill(enemy, list(enemy["Skills"].keys())[0], character)  # Enemy fleeing, boss' additional attack
+            if damage > 0:
+                manage_wounds(damage, character)
     if is_alive(character) and character["Will to fight"]:
         character["Current experience"] += enemy["Experience"] if not is_alive(enemy)\
             else math.floor(enemy["Experience"] / 2)
@@ -1046,10 +1048,9 @@ def blade_of_chaos(enemy: dict, character: dict) -> int:
     if str(input()).replace(" ", "").upper() in correct_answer:
         print("Success! You deflect the attack! Who is smirking now? {0} receives 8 damage".format(enemy["Name"]))
         enemy["Current wounds"] -= 8
-    else:
-        print("Failure! {0} smirks and deals 8 damage to {1}.".format(enemy["Name"], character["Name"]))
-    character["Current wounds"] -= 8
-    return 0
+        return 0
+    print("Failure! {0} smirks and deals 8 damage to {1}.".format(enemy["Name"], character["Name"]))
+    return 8
 
 
 #  --------------------------------------Printing Functions and Text Manipulation------------------------------------  #
