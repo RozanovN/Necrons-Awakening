@@ -2229,7 +2229,7 @@ def manage_events(board: dict, character: dict) -> None:
                 "Yes": {
                     "Check item": "Shovel",
                     "Effect": [
-                        ("Nothing", "You clear path without a single problem."),
+                        ("Nothing", "You clear your path without a single problem."),
                     ]
                 },
                 "No": {
