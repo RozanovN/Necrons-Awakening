@@ -991,7 +991,7 @@ def enemy_attack(enemy: dict, character: dict) -> int:
     """
     damage = roll(enemy["Skills"]["Enemy Attack"][1],
                   enemy["Skills"]["Enemy Attack"][2], enemy["Name"])
-    print("\n" + enemy["Skills"]["Enemy Attack"][0] + " dealing {0} damage to {1}.".format(damage,
+    print("\n" + enemy["Skills"]["Enemy Attack"][0] + " dealing {0} damage to {1}.\n".format(damage,
                                                                                            character["Name"]))
     return damage
 
