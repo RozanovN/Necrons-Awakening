@@ -656,6 +656,7 @@ def use_skill(attacker: dict, skill_name: str, defender: dict) -> int:
         "Flee Away": flee_away,
         "Enemy Attack": enemy_attack,
         "Daemon's Trickery": daemon_trickery,
+        "Blade of Chaos": blade_of_chaos,
         "Spontaneous Combustion": spontaneous_combustion,
         "Charge": charge,
         "Robotic Wrath": robotic_wrath,
@@ -1433,7 +1434,7 @@ def generate_enemy(level, specific_enemy=None) -> dict:
                     "Agility": 5},
                 "Skills": {
                     "Daemon's Trickery": "20% to deal 5k10 damage, roll is counted to damage only if it's even",
-                    "Blade of Chaos": ""
+                    "Blade of Chaos": "Guesiing game remastered"
                 },
                 "Will to fight": True,
                 "Experience": 2000
