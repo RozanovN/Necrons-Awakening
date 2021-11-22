@@ -1,4 +1,3 @@
-import builtins
 from unittest import TestCase
 from game import set_name as set_name
 from unittest.mock import patch
