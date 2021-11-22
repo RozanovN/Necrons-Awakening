@@ -869,7 +869,7 @@ def deus_ex_machina(character: dict, enemy: dict) -> int:
     skills_list = ["Robotic Wrath", "Laser Shot"]
     skills_list = random.choices(skills_list, k=roll(1, 10, character["Name"]))
     damage = 0
-    print("\nYou pray Omnissiah to slay fools who cannot see the stupor mundi of machines.")
+    print("\nYou pray Omnissiah to slay fools who cannot see the stupor mundi of machines.\n")
     for skill in skills_list:
         damage += use_skill(character, skill, enemy)
     return damage
