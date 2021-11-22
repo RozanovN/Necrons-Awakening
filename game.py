@@ -1321,6 +1321,16 @@ def move_character(character: dict, direction_index=None, available_directions=N
     return character["Y-coordinate"], character["X-coordinate"]
 
 
+def check_for_foes() -> bool:
+    """
+    Check if foe is encountered.
+
+    :postcondition: returns True with 25% probability, else returns False
+    :return: True if foe is encountered, otherwise False
+    """
+    return random.randrange(0, 4) == 0
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
@@ -2102,16 +2112,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def check_for_foes() -> bool:
-    """
-    Check if foe is encountered.
-
-    :postcondition: returns True with 25% probability, else returns False
-    :return: True if foe is encountered, otherwise False
-    """
-    return random.randrange(0, 4) == 0
 
 
 def has_item(item: str, character: dict):
