@@ -1192,6 +1192,25 @@ def roll(number_of_dice: int, number_of_sides: int, name: str) -> int:
     return sum(list_of_rolls)
 
 
+def has_item(item: str, character: dict):
+    """
+    Check if character has the item.
+
+    :param item: a string
+    :param character: a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondtition: returns True if item in character["Inventory"] and the amount of character["Inventory"][item] > 0,
+                     else False
+    :return: True if item is present, otherwise False
+
+    >>> has_item("Bandage", {"Inventory": {"Bandage": 5}})
+    True
+    >>> has_item("Torch", {"Inventory": {"Anything else": 10000}})
+    False
+    """
+    return item in character["Inventory"].keys() and character["Inventory"][item] > 0
+
+
 #  --------------------------------------------Game Helper Functions-------------------------------------------------  #
 def get_available_directions(character: dict, columns: int, rows: int) -> list:
     """
@@ -2112,19 +2131,6 @@ def event_with_item(items: list, character: dict) -> None:
         character["Inventory"][item[0]] += 1
     else:
         character["Inventory"].setdefault(item[0], 1)
-
-
-def has_item(item: str, character: dict):
-    """
-
-    :param item:
-    :param character:
-    :return:
-
-    >>> has_item("Bandage", {"Inventory": {"Bandage": 5}})
-
-    """
-    return item in character["Inventory"].keys() and character["Inventory"][item] > 0
 
 
 def generate_enemy(level, specific_enemy=None) -> dict:
