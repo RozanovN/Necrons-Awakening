@@ -1564,6 +1564,26 @@ def check_for_foes() -> bool:
     return random.randrange(0, 4) == 0
 
 
+def is_alive(character: dict) -> bool:
+    """
+    Determine if character is alive.
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: returns True if character["Current wounds"] > 0, else return False
+    :return: True if character is alive, otherwise False
+
+    >>> is_alive({"Current wounds": 5})
+    True
+    >>> is_alive({"Current wounds": 0})
+    False
+    >>> is_alive({"Current wounds": -1})
+    False
+    """
+    return character["Current wounds"] > 0
+
+
 #  --------------------------------------------Commands Management---------------------------------------------------  #
 def process_command(command: str, character: dict) -> None:
     """
