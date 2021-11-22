@@ -2458,11 +2458,21 @@ def tutorial(character: dict) -> None:
 
 
 def boss(character: dict) -> None:
+    """
+
+    :param character: a dictionary
+    :precondition: character must be a dictionary
+    :precondition: character must be a valid character created by character_creation function
+    :postcondition: prints the "you are not ready" phrase and moves character to the previous coordinates if character
+                    Level is not 3
+    :postcondition: prints the boss' intro phrase, adds "Artifact" key with value of "Necronian artifact" to character,
+                    initiates combat with the boss and removes Flee Away skill if character Level is 3
+    :return: None
+    """
     if character["Level"][0] != 3:
         print("Fear takes control over you as soon as you get close to this room.\n"
               "You feel like you have to get more experience before facing it.\nYou decide to retreat.")
-        character["X-coordinate"] = character["Previous coordinates"][1]
-        character["Y-coordinate"] = character["Previous coordinates"][0]
+        move_character(character)
     else:
         print("\n\tYou enter the dreadful room. The Necronian decor exactly matches the description "
               "the Inquisitor gave you"
