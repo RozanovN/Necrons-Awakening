@@ -267,7 +267,6 @@ def set_adeptus() -> str:
         "menacing and terrifying ones to make them acolytes. Those\nassassins are extremely agile, even if they lack "
         "in strength. Preferring the range combat, the best of them are elusive ghosts to their enemies."
         "\n\nPlease, choose your adeptus carefully.")
-
     adepts_list = ["Adeptus Astra Telepathica", "Adeptus Astra Militarum", "Adeptus Mechanicus", "Adeptus Officio"
                    " Assassinorum"]
     print("To choose an adeptus, enter its index from the numbered list.")
