@@ -817,7 +817,7 @@ def laser_shot(character: dict, enemy: dict) -> int:
     :return: damage as integer
     """
     damage = 3 + math.floor(character["Characteristics"]["Intellect"] / 10)
-    print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.".format(damage,
+    print("\nYour servo-skull shots a laser beam from its eyes dealing {0} damage to {1}.\n".format(damage,
                                                                                                   enemy["Name"]))
     return damage
 
@@ -844,8 +844,8 @@ def robotic_wrath(character: dict, enemy: dict) -> int:
     print("\n\"TRACEBACK (MOST RECENT CALL LAST):\nFILE ROOT/SERVITOR/BRAIN/COMBAT/ATTACK.py LINE 42, IN <module>\n"
           "ZERO DIVISION ERROR: DIVISION BY ZERO\n"
           "[FINISHED IN 0.314s WITH EXIT CODE ROBOTIC WRATH],\" your Servitor roars robotically."
-          "\nThe enraged servitor destroys everything in the way dealing {0} damage to {1}.".format(damage,
-                                                                                                    enemy["Name"]))
+          "\nThe enraged servitor destroys everything in the way dealing {0} damage to {1}.\n".format(damage,
+                                                                                                      enemy["Name"]))
     return damage
 
 
