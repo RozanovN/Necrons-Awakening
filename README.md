@@ -14,7 +14,7 @@ A01271389
 RozanovN
 
 ## Any important comments you'd like to make about your work:
-
+Game function doesn't have an unittest because it only prints and calls helper functions.
 
 ## Table of requirements
 <table>
