@@ -2566,7 +2566,7 @@ def main() -> None:
         "for all their multitudes, they are \nbarely enough to hold off the ever-present "
         "threat from aliens, heretics, mutants and worse."), (
         "\n\tTo be a man in such times is to be one amongst untold billions. It "
-        "is to live in the cruellest and most bloody regime imaginable. Forget the power of "
+        "is to live in the cruelest and most bloody regime imaginable. Forget the power of "
         "technology and \nscience, for so much has been forgotten, never to be re-learned. "
         "Forget the promise of progress and understanding, for in the grim darkness of "
         "the far future, there is \nonly war. There is no peace amongst the stars, "
