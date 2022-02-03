@@ -1,69 +1,168 @@
-# 1510-A3-Text-based-adventure-game
+<div id="top"></div>
 
-Every program needs a README.md
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <h3 align="center">Python text-based RPG</h3>
 
-This is written in markdown. Read about markdown here: [markdowncheatsheet](https://www.markdownguide.org/cheat-sheet/)
+  <p align="center">
+    A small dungeon crawl RPG game in CLI with ASCII art.
+  </p>
+</div>
 
-## Your name:
-Nikolay Rozanov
 
-## Your student number:
-A01271389
 
-## Your GitHub account:
-RozanovN
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+</details>
 
-## Any important comments you'd like to make about your work:
-Game function doesn't have an unittest because it only prints and calls helper functions.
 
-## Table of requirements
-<table>
-    <tr>
-        <th>Required Element</th>
-        <th>Location (line number)</th>
-    </tr>
-    <tr>
-        <th>Tuple</th>
-        <th>30, 1872</th>
-    </tr>
-    <tr>
-        <th>List</th>
-        <th>85, 1868</th>
-    </tr>
-    <tr>
-        <th>An example of a dictionary or list comprehension</th>
-        <th>1187</th>
-    </tr>
-    <tr>
-        <th>A remarkable use of selection using the if-statement</th>
-        <th>134, 2271</th>
-    </tr>
-    <tr>
-        <th>A clever use of repetition with the for or while loop</th>
-        <th>133, 594</th>
-    </tr>
-    <tr>
-        <th>the membership operator (in) where it makes sense</th>
-        <th>1878, 874</th>
-    </tr>
-    <tr>
-        <th>the range function</th>
-        <th>1616, 1539 </th>
-    </tr>
-    <tr>
-        <th>one or more functions from the itertools module</th>
-        <th>1047</th>
-    </tr>   
-    <tr>
-        <th>the enumerate function</th>
-        <th>1066</th>
-    </tr>
-    <tr>
-        <th>the filter or map function</th>
-        <th>1019</th>
-    </tr>    
-    <tr>
-        <th>the random module</th>
-        <th>2422, 106, 608</th>
-    </tr>
-</table>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+A small dungeon crawl RPG game in CLI with ASCII art.
+You, a brave inquisitor of Ordo Hereticus, are given a mission to find a dreadful necronian artifact. Know you have to exterminate your enemies and find the artifact.
+This game is inspired by Warhammer 40k. This code is not for commercial use. All rights belong to Games Workshop.
+
+<img src="https://github.com/RozanovN/Calculator-with-GUI-Java/blob/main/preview_of_application.png?raw=true">
+
+
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+### Built With
+
+This section lists any major frameworks/libraries used in my project. 
+* [Java](https://www.java.com/en/)
+* [Java.swing](https://docs.oracle.com/javase/tutorial/uiswing/)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+Unfortunately, this application does not have an executable file yet. To run the program you need to first clone the 
+repository. Then you need to navigate to the cloned folder. You can then run it with IDE. You can also run it from
+the CLI by compiling it with javac command and run it with java command. The full command guide is provided below.
+
+### Prerequisites
+
+The software you need to run the application and how to install it:
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+* java
+  ```sh
+  npm install java
+  ```
+How to run it from the CLI:
+* Move to the application directory
+  ```sh
+  cd %absolute_path_of_the_application%
+  ```
+* Compile the Main.java
+  ```sh
+  javac Main.java
+  ```
+* Run it!
+  ```sh
+  java Main.java
+  ```  
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+
+
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Add GUI class
+- [x] Add BasicMath class
+- [ ] Add documentation
+- [ ] Add Calculus class
+- [ ] Add LinearAlgebra class
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+This is an open source project. If you wish to contribute or have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Thanks!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Nikolay Rozanov - [rozanovny@gmail.com](mailto:rozanovny@gmail.com)
+
+Project Link: [https://github.com/RozanovN/Calculator-with-GUI-Java](https://github.com/RozanovN/Calculator-with-GUI-Java)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+Helpful resources I'd like to give credit to.
+
+* [Choose an Open Source License](https://choosealicense.com)
+* [Readme Template](https://github.com/othneildrew/Best-README-Template)
+* [Java Swing Tutorial](https://docs.oracle.com/javase/tutorial/uiswing/)
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
+[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
+[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
+[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
+[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
+[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/othneildrew
+[product-screenshot]: images/screenshot.png
