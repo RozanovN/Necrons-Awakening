@@ -33,7 +33,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 A small dungeon crawl RPG game in CLI with ASCII art.
-You, a brave inquisitor of Ordo Hereticus, are given a mission to find a dreadful necronian artifact. Know you have to exterminate your enemies and find the artifact.
+You, a brave inquisitor of Ordo Hereticus, are given a mission to find a dreadful necronian artifact to fulfill your duty to the Emperor. Now you have to exterminate your enemies and find the artifact.
 This game is inspired by Warhammer 40k. This code is not for commercial use. All rights belong to Games Workshop.
 
 <img src="https://github.com/RozanovN/Calculator-with-GUI-Java/blob/main/preview_of_application.png?raw=true">
@@ -57,50 +57,34 @@ This section lists any major frameworks/libraries used in my project.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Unfortunately, this application does not have an executable file yet. To run the program you need to first clone the 
-repository. Then you need to navigate to the cloned folder. You can then run it with IDE. You can also run it from
-the CLI by compiling it with javac command and run it with java command. The full command guide is provided below.
+To lunch the application, you need to download this repository and launch the game.exe file. In the Prerequisites section, you may see a full installation guide.
 
 ### Prerequisites
 
-The software you need to run the application and how to install it:
-* npm
+How to play the game:
+* Download this repository
   ```sh
-  npm install npm@latest -g
+  Click on the green button that says 'code' and choose 'Download ZIP'.
   ```
-* java
+* Unpack the ZIP file
   ```sh
-  npm install java
+  Unpack the ZIP file in any directory you want.
   ```
-How to run it from the CLI:
-* Move to the application directory
+* Navigate to dist folder
   ```sh
-  cd %absolute_path_of_the_application%
-  ```
-* Compile the Main.java
-  ```sh
-  javac Main.java
+  It should be in the folder you unpacked the ZIP file.
   ```
 * Run it!
   ```sh
-  java Main.java
+  Just click on the game.exe to launch the game.
   ```  
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-
-
-
 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Add GUI class
-- [x] Add BasicMath class
-- [ ] Add documentation
-- [ ] Add Calculus class
-- [ ] Add LinearAlgebra class
+- [x] Create the game
+- [x] Add Unit tests
+- [x] Add documentation
 
 
 <!-- CONTRIBUTING -->
@@ -133,7 +117,7 @@ Distributed under the MIT License.
 
 Nikolay Rozanov - [rozanovny@gmail.com](mailto:rozanovny@gmail.com)
 
-Project Link: [https://github.com/RozanovN/Calculator-with-GUI-Java](https://github.com/RozanovN/Calculator-with-GUI-Java)
+Project Link: [https://github.com/RozanovN/Python-text-based-RPG-game](https://github.com/RozanovN/Python-text-based-RPG-game)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -146,7 +130,7 @@ Helpful resources I'd like to give credit to.
 
 * [Choose an Open Source License](https://choosealicense.com)
 * [Readme Template](https://github.com/othneildrew/Best-README-Template)
-* [Java Swing Tutorial](https://docs.oracle.com/javase/tutorial/uiswing/)
+* [BCIT CST Program](https://www.bcit.ca/programs/computer-systems-technology-diploma-full-time-5500dipma/)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
