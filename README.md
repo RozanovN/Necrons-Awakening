@@ -36,7 +36,7 @@ A small dungeon crawl RPG game in CLI with ASCII art.
 You, a brave inquisitor of Ordo Hereticus, are given a mission to find a dreadful necronian artifact to fulfill your duty to the Emperor. Now you have to exterminate your enemies and find the artifact.
 This game is inspired by Warhammer 40k. This code is not for commercial use. All rights belong to Games Workshop.
 
-<img src="https://github.com/RozanovN/Calculator-with-GUI-Java/blob/main/preview_of_application.png?raw=true">
+<img src="https://raw.githubusercontent.com/RozanovN/Python-text-based-RPG-game/main/Preview.png">
 
 
 
@@ -47,8 +47,7 @@ This game is inspired by Warhammer 40k. This code is not for commercial use. All
 ### Built With
 
 This section lists any major frameworks/libraries used in my project. 
-* [Java](https://www.java.com/en/)
-* [Java.swing](https://docs.oracle.com/javase/tutorial/uiswing/)
+* [Pythonn](https://www.python.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
