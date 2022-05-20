@@ -47,7 +47,7 @@ This game is inspired by Warhammer 40k. This code is not for commercial use. All
 ### Built With
 
 This section lists any major frameworks/libraries used in my project. 
-* [Pythonn](https://www.python.org/)
+* [Python](https://www.python.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
